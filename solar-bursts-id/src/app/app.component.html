@@ -1,12 +1,4 @@
+<app-table [data]="tableData"></app-table>
 
-<!-- Toolbar -->
-<!-- <div style="text-align: center;">
-  <apx-chart
-  [series]="chartOptions.series!"
-  [chart]="chartOptions.chart!"
-  [xaxis]="chartOptions.xaxis!"
-  [title]="chartOptions.title!" 
-  ></apx-chart>
-</div> -->
-
+<app-bargraph  *ngIf="barDataIn" [data]="barData" [cats]="barCats"></app-bargraph>
 <router-outlet></router-outlet>
