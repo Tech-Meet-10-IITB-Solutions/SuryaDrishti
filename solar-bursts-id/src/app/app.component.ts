@@ -24,10 +24,18 @@ export class AppComponent {
   @ViewChild('uploader') uploader!:UploaderComponent;
   tableData:DataRow[] = []
   barData:number[] = []
+  title = 'solar-bursts-id';
   barCats:string[] = []
   barDataIn:boolean = false;
+  initialBursts!:any[]
   //fake data getters:
-  
+  pages:string[] = [
+    'upload',
+    'view',
+    'submitML',
+    'MLRes'
+  ]
+  currentPageIndex:number = 0;
   getTableData(){
     return new Promise<DataRow[]>((resolve,reject)=>{
       setTimeout(()=>{
@@ -52,6 +60,12 @@ export class AppComponent {
       },1000)
     })
   }
+  onDataReceived(msg:string){
+    if(msg==='OK'){
+      this.initialBursts = [this.uploader.finalData];
+      this.currentPageIndex = 1;
+    }
+  }
   constructor(){
     this.getTableData().then((d:DataRow[])=>{
       this.tableData = d
@@ -62,5 +76,5 @@ export class AppComponent {
       this.barDataIn = true;
     })
   }
-  title = 'solar-bursts-id';
+
 }

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, Output, ViewChild,EventEmitter } from '@angular/core';
 import { DataService } from 'src/app/data.service';
 
 @Component({
@@ -8,11 +8,13 @@ import { DataService } from 'src/app/data.service';
 })
 export class UploaderComponent implements OnInit {
   @ViewChild('files') filesBox!:ElementRef
+  @Output('onDataReceived') onDataReceived:EventEmitter<string> = new EventEmitter();
   files:any[] = []
   finalData!:any;
   fileNames:string[] = []
   progress:number = 0;
   submitted:boolean = false;
+  shareData!:Function;
   propagateClick(){
     this.filesBox.nativeElement.click()
   }
@@ -25,6 +27,8 @@ export class UploaderComponent implements OnInit {
       if(data['taskDone']>=1){
         this.progress = 100;
         this.finalData = data;
+        console.log('emitted')
+        this.onDataReceived.emit('OK');
       }
       else{
         this.progress = data['taskDone']*100

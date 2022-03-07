@@ -1,5 +1,6 @@
-<app-uploader #uploader></app-uploader>
-<!-- <app-table [data]="tableData"></app-table>
-
-<app-bargraph  *ngIf="barDataIn" [data]="barData" [cats]="barCats"></app-bargraph> -->
-<router-outlet></router-outlet>
+<ng-container [ngSwitch]="currentPageIndex">
+    <app-uploader *ngSwitchCase="0" (onDataReceived)="onDataReceived($event)" #uploader></app-uploader>
+    <div *ngSwitchCase="1">Placeholder for View Screen</div>
+    <div *ngSwitchCase="2">Placeholder for Edit Screen</div>
+    <div *ngSwitchCase="3">Placeholder for ML Model Results</div>
+</ng-container>
