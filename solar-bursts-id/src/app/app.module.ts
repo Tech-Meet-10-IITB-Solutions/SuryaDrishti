@@ -10,12 +10,14 @@ import {NgApexchartsModule} from 'ng-apexcharts';
 import { TableComponent } from './components/table/table.component';
 import { BargraphComponent } from './components/bargraph/bargraph.component';
 import { LinechartComponent } from './components/linechart/linechart.component';
+import { UploaderComponent } from './components/uploader/uploader.component';
 @NgModule({
   declarations: [
     AppComponent,
     TableComponent,
     LinechartComponent,
     BargraphComponent,
+    UploaderComponent,
   ],
   imports: [
     BrowserModule,
