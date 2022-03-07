@@ -11,6 +11,7 @@ import { TableComponent } from './components/table/table.component';
 import { BargraphComponent } from './components/bargraph/bargraph.component';
 import { LinechartComponent } from './components/linechart/linechart.component';
 import { UploaderComponent } from './components/uploader/uploader.component';
+import { HttpClientModule } from '@angular/common/http';
 @NgModule({
   declarations: [
     AppComponent,
@@ -22,6 +23,7 @@ import { UploaderComponent } from './components/uploader/uploader.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    HttpClientModule,
     BrowserAnimationsModule,
     MatTableModule,
     NgApexchartsModule

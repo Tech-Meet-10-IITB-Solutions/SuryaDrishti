@@ -14,9 +14,11 @@ export class DataService {
   constructor(private http:HttpClient) {}
   sendFiles(files:any[]){
     let uploadData = new FormData();
-    for(let i=0;i<files.length;i++){
-      uploadData.append(`file${i}`,files[i],files[i].name)
-    }
-    return this.http.post<any>(this.apiroot+'upload',uploadData)
+    console.log(files[0].name);
+    uploadData.append('file1',files[0],files[0].name)
+    // for(let i=0;i<files.length;i++){
+    //   uploadData.append(`file${i}`,files[i],files[i].name)
+    // }
+    return this.http.post(this.apiroot+'upload',uploadData)
   }
 }

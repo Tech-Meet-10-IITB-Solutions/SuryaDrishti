@@ -1,10 +1,19 @@
 from time import sleep
 import zipfile
 import shutil
-from fastapi import FastAPI, File,UploadFile
+from fastapi import FastAPI, File,UploadFile,Form
+from fastapi.middleware.cors import CORSMiddleware
 from threading import Thread
 
 app = FastAPI()
+origins = ['*']
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*']
+)
 globalDict = {
     'taskDone':0,
     #further populated post analysis:
@@ -33,8 +42,8 @@ def processZipFile(content):
         zip_ref.extractall('input/')
     analysis('input')
 @app.post('/upload')
-async def upload(file:UploadFile = File(...)):
-    content = await file.read()
+async def upload(file1:UploadFile = File(...)):
+    content = await file1.read()
     thread = Thread(target=processZipFile, args=(content,))
     thread.start()
     return {'status':200}

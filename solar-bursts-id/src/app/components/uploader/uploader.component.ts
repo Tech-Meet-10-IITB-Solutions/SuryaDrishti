@@ -10,7 +10,7 @@ export class UploaderComponent implements OnInit {
   @ViewChild('files') filesBox!:ElementRef
   files:any[] = []
   updateFile(ev:any){
-    for(let file of ev.targe.files){
+    for(let file of ev.target.files){
       if(!this.files.includes(file)){
         this.files.push(file)
       }
