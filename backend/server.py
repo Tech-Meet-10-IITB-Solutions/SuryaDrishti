@@ -22,7 +22,7 @@ def analysis(pathToDataDir):
     #do work
     while(globalDict['taskDone']<1):
         sleep(1)
-        globalDict['taskDone']+=0.05
+        globalDict['taskDone']+=0.07
     globalDict['tables']=[
         {'name':'H','age':13},
         {'name':'O','age':26},

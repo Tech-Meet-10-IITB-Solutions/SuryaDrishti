@@ -1,0 +1,25 @@
+.main{
+    flex-direction: column;
+    justify-content: center;
+    margin: auto;
+    width: 300px;
+    margin-top: 30px;
+    padding: 20px;
+    padding-bottom: 0px;
+    background-color: antiquewhite;
+    border-radius: 20px;
+}
+.main>*{
+    margin: 20px;
+    margin-bottom: 0px;
+}
+.bar{
+    width: 250px;
+    margin: auto;
+}
+.section1{
+    display: flex;
+    align-content: center;
+    align-items: center;
+    height: 60px;
+}

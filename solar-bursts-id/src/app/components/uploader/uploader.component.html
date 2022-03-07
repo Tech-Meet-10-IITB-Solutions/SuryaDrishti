@@ -1,2 +1,15 @@
-<input type="file" (change)="updateFile($event)" #files>
-<button (click)="submit()">Submit</button>
+<div class="main">
+    <mat-form-field>
+        <mat-label *ngIf="fileNames.length>0">Selected Files</mat-label>
+
+        <mat-chip-list>
+    <mat-chip  color="accent" selected *ngFor="let name of fileNames">{{name}}</mat-chip>
+    </mat-chip-list>
+</mat-form-field>
+<button mat-raised-button color="accent" (click)="propagateClick()">Upload Data</button>
+<button mat-raised-button color="primary" (click)="submit()">Submit</button>
+<input style="visibility: hidden;" type="file" (change)="updateFile($event)" #files>
+<section class="section1">
+<mat-progress-bar class="bar" mode="determinate" [value]="progress"></mat-progress-bar>
+</section>
+</div>

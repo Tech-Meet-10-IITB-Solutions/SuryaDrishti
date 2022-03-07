@@ -7,6 +7,7 @@ import {
   ApexXAxis,
   ApexTitleSubtitle
 } from "ng-apexcharts";
+import { UploaderComponent } from './components/uploader/uploader.component';
 export type ChartOptions = {
   series:ApexAxisChartSeries;
   chart:ApexChart;
@@ -20,11 +21,13 @@ export type ChartOptions = {
 })
 
 export class AppComponent {
+  @ViewChild('uploader') uploader!:UploaderComponent;
   tableData:DataRow[] = []
   barData:number[] = []
   barCats:string[] = []
   barDataIn:boolean = false;
   //fake data getters:
+  
   getTableData(){
     return new Promise<DataRow[]>((resolve,reject)=>{
       setTimeout(()=>{

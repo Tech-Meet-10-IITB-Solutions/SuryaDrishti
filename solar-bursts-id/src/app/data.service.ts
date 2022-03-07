@@ -21,4 +21,7 @@ export class DataService {
     // }
     return this.http.post(this.apiroot+'upload',uploadData)
   }
+  getOutput(){
+    return this.http.get(this.apiroot+'output',httpop);
+  }
 }
