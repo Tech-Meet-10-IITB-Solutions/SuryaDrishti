@@ -9,12 +9,15 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatChipsModule} from '@angular/material/chips';
 import {NgApexchartsModule} from 'ng-apexcharts';
 import {MatButtonModule} from '@angular/material/button';
+import {MatGridListModule} from '@angular/material/grid-list';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { TableComponent } from './components/table/table.component';
 import { BargraphComponent } from './components/bargraph/bargraph.component';
 import { LinechartComponent } from './components/linechart/linechart.component';
+import {MatIconModule} from '@angular/material/icon';
 import { UploaderComponent } from './components/uploader/uploader.component';
 import { HttpClientModule } from '@angular/common/http';
+import { BurstsgridComponent } from './components/burstsgrid/burstsgrid.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -22,12 +25,15 @@ import { HttpClientModule } from '@angular/common/http';
     LinechartComponent,
     BargraphComponent,
     UploaderComponent,
+    BurstsgridComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
+    MatIconModule,
     BrowserAnimationsModule,
+    MatGridListModule,
     MatProgressBarModule,
     MatButtonModule,
     MatChipsModule,

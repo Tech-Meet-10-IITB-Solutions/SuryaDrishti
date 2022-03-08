@@ -1,0 +1,62 @@
+<mat-grid-list cols="2" rowHeight="2:1">
+    <mat-grid-tile-header style="display: flex; flex-direction: column;align-items: center;">
+        <h1>
+            Initial Bursts from EPF Model
+        </h1>
+    </mat-grid-tile-header>
+    <mat-grid-tile
+    style="display: flex;flex-direction: column;justify-items: center;"
+    *ngFor="let burst of filterAccepted(data)">
+        <apx-chart
+            *ngIf="!rejectedBursts.includes(data.indexOf(burst))"
+            class="{{mapClass(burst)}}"
+            [series]="chartOptions[data.indexOf(burst)].series!"
+            [chart]="chartOptions[data.indexOf(burst)].chart!"
+            [xaxis]="chartOptions[data.indexOf(burst)].xaxis!"
+            [dataLabels]="chartOptions[data.indexOf(burst)].dataLabels!"
+            [grid]="chartOptions[data.indexOf(burst)].grid!"
+            [stroke]="chartOptions[data.indexOf(burst)].stroke!"
+            [title]="chartOptions[data.indexOf(burst)].title!"
+        ></apx-chart>
+        <div class="editButtons">
+            <button 
+            *ngIf="editable"
+            mat-raised-button 
+            style="color: white;background-color: red;"
+            (click)="rejectedBursts.push(data.indexOf(burst))"
+            >
+                <mat-icon>delete</mat-icon>
+            </button>
+        </div>
+    </mat-grid-tile>
+    <mat-grid-tile
+    style="display: flex;flex-direction: column;justify-items: center;"
+    *ngFor="let burst of filterRejected(data)">
+        <apx-chart
+            *ngIf="rejectedBursts.includes(data.indexOf(burst))"
+            class="{{mapClass(burst)}}"
+            [series]="chartOptions[data.indexOf(burst)].series!"
+            [chart]="chartOptions[data.indexOf(burst)].chart!"
+            [xaxis]="chartOptions[data.indexOf(burst)].xaxis!"
+            [dataLabels]="chartOptions[data.indexOf(burst)].dataLabels!"
+            [grid]="chartOptions[data.indexOf(burst)].grid!"
+            [stroke]="chartOptions[data.indexOf(burst)].stroke!"
+            [title]="chartOptions[data.indexOf(burst)].title!"
+        ></apx-chart>
+        <div class="editButtons">
+            <button 
+            *ngIf="editable" 
+            mat-raised-button 
+            style="color: white;background-color: green;"
+            (click)="rejectedBursts.splice(rejectedBursts.indexOf(data.indexOf(burst)),1)"
+            >
+                <mat-icon>check</mat-icon>
+            </button>
+
+        </div>
+    </mat-grid-tile>
+    
+    <mat-grid-tile-footer>
+        
+    </mat-grid-tile-footer>
+</mat-grid-list>

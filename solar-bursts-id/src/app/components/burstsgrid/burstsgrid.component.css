@@ -1,0 +1,15 @@
+mat-grid-list{
+    margin: 100px;
+    border: 1px solid black;
+}
+apx-chart.disabled{
+    opacity: 0.4;
+}
+.editButtons{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.editButtons>*{
+    margin-top: 20px;
+}
