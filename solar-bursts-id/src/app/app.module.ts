@@ -15,6 +15,7 @@ import { TableComponent } from './components/table/table.component';
 import { BargraphComponent } from './components/bargraph/bargraph.component';
 import { LinechartComponent } from './components/linechart/linechart.component';
 import {MatIconModule} from '@angular/material/icon';
+import {MatToolbarModule} from '@angular/material/toolbar';
 import { UploaderComponent } from './components/uploader/uploader.component';
 import { HttpClientModule } from '@angular/common/http';
 import { BurstsgridComponent } from './components/burstsgrid/burstsgrid.component';
@@ -33,6 +34,7 @@ import { BurstsgridComponent } from './components/burstsgrid/burstsgrid.componen
     HttpClientModule,
     MatIconModule,
     BrowserAnimationsModule,
+    MatToolbarModule,
     MatGridListModule,
     MatProgressBarModule,
     MatButtonModule,

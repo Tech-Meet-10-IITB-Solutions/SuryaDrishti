@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, Output, ViewChild,EventEmitter } from '@angular/core';
+import { Component, ElementRef, OnInit, Output, ViewChild,EventEmitter, HostListener } from '@angular/core';
 import { DataService } from 'src/app/data.service';
 
 @Component({
@@ -11,10 +11,55 @@ export class UploaderComponent implements OnInit {
   @Output('onDataReceived') onDataReceived:EventEmitter<string> = new EventEmitter();
   files:any[] = []
   finalData!:any;
+  dragAreaClass!:string;
+  error!:string;
   fileNames:string[] = []
   progress:number = 0;
   submitted:boolean = false;
   shareData!:Function;
+  onFileChange(event:any){
+    let files:FileList = event.target.files;
+    this.saveFiles(files);
+  }
+  @HostListener("dragover", ["$event"]) onDragOver(event: any) {
+    this.dragAreaClass = "droparea";
+    event.preventDefault();
+  }
+  @HostListener("dragenter", ["$event"]) onDragEnter(event: any) {
+    this.dragAreaClass = "droparea";
+    event.preventDefault();
+  }
+  @HostListener("dragend", ["$event"]) onDragEnd(event: any) {
+    this.dragAreaClass = "droparea";
+    event.preventDefault();
+  }
+  @HostListener("dragleave", ["$event"]) onDragLeave(event: any) {
+    this.dragAreaClass = "dragarea";
+    event.preventDefault();
+  }
+  @HostListener("drop", ["$event"]) onDrop(event: any) {
+    this.dragAreaClass = "dragarea";
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.dataTransfer.files) {
+      let files: FileList = event.dataTransfer.files;
+      this.saveFiles(files);
+    }
+  }
+
+  saveFiles(files:FileList){
+    if(files.length>1) {this.error = "Only one file at a time allowed."}
+    else{
+      this.error = ""
+      this.files = [files[0]];
+      this.fileNames = [files[0].name]
+    }
+  }
+  
+  
+  
+  
+  
   propagateClick(){
     this.filesBox.nativeElement.click()
   }
@@ -58,6 +103,7 @@ export class UploaderComponent implements OnInit {
   constructor(private dataService:DataService) { }
 
   ngOnInit(): void {
+    this.dragAreaClass = 'dragarea';
   }
 
 }

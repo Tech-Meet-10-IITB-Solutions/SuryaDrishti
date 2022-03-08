@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 import {
   ChartComponent,
   ApexAxisChartSeries,
@@ -28,12 +28,15 @@ export class BurstsgridComponent implements OnInit {
   @Input('editable') editable:boolean = false;
   rejectedBursts:number[] = []
   public chartOptions:Partial<ChartOptions>[] = []
+  metaData:any[] = [];
   mapClass:Function = (burst:number[][])=>{
     if(this.rejectedBursts.includes(this.data.indexOf(burst))){
       return 'disabled';
     }
     return ''
   }
+  innerWidth!: number;
+  displayedColumns!: string[];
   filterAccepted(data:number[][][]){
     return data.filter((v,i,[])=>!this.rejectedBursts.includes(i));
   }
@@ -43,14 +46,25 @@ export class BurstsgridComponent implements OnInit {
   }
   constructor() {
   }
-
+  public accentColor:string = '#ffd640';
+  public primaryColor:string = '#683ab7'
   ngOnInit(): void {
+    this.innerWidth = window.innerWidth;
+    this.displayedColumns = ['max','maxAt','avg']
+    this.metaData = this.data.map((burst:number[][],i:number,[])=>{
+      return {
+        'max': Math.round(Math.max(...burst[1])*100)/100,
+        'maxAt':Math.round(burst[0][burst[1].indexOf(Math.max(...burst[1]))]*100)/100,
+        'avg':Math.round(burst[1].reduce((x,y)=>(x+y),0)/burst[1].length*100)/100
+      }
+    })
     this.chartOptions = this.data.map((burst:number[][],i:number,[])=>{
       return {
         series: [
           {
             name: `Burst ${i+1}`,
-            data: burst[1].map(v=>Math.round(v*100)/100)
+            data: burst[1].map(v=>Math.round(v*100)/100),
+            color:this.primaryColor//primary
           }
         ],
         chart: {
@@ -73,7 +87,7 @@ export class BurstsgridComponent implements OnInit {
         },
         grid: {
           row: {
-            colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
+            colors: [this.accentColor, "transparent"], // takes an array which will be repeated on columns
             opacity: 0.5,
              
           },
@@ -86,5 +100,9 @@ export class BurstsgridComponent implements OnInit {
     })
     this.data.filter((v,i,[])=>this.rejectedBursts.includes(i))
   }
-
+  @HostListener('window:resize', ['$event'])
+  onResize(event:any) {
+    this.innerWidth = window.innerWidth;
+    console.log(this.innerWidth)
+  }
 }

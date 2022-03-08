@@ -75,6 +75,10 @@ export class AppComponent {
       },1000)
     })
   }
+  revertToUploadPage(){
+    this.currentPageIndex = 0;
+    
+  }
   getBarGraphData(){
     return new Promise<BGData>((resolve,reject)=>{
       setTimeout(()=>{

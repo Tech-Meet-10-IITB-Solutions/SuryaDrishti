@@ -1,12 +1,13 @@
 .main{
+    display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: center;
     margin: auto;
-    width: 300px;
+    width: 450px;
     margin-top: 30px;
     padding: 20px;
     padding-bottom: 0px;
-    background-color: antiquewhite;
+    background-color: navajowhite;
     border-radius: 20px;
 }
 .main>*{
@@ -24,4 +25,29 @@
 }
 button{
     margin:10px;
+}
+#dragbox{
+    height: 200px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-items: center;
+    justify-content: center;
+    border: 2px grey dashed;
+    border-radius: 20px;
+}
+.dragarea {
+    background-color: antiquewhite;
+}
+
+.droparea {
+  background-color: #eff;
+}
+mat-chip-list{
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    justify-items: center;
 }
