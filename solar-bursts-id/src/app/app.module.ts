@@ -9,7 +9,10 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatChipsModule} from '@angular/material/chips';
 import {NgApexchartsModule} from 'ng-apexcharts';
 import {MatButtonModule} from '@angular/material/button';
+import {FormsModule} from '@angular/forms'
 import {MatGridListModule} from '@angular/material/grid-list';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { TableComponent } from './components/table/table.component';
 import { BargraphComponent } from './components/bargraph/bargraph.component';
@@ -35,13 +38,16 @@ import { BurstsgridComponent } from './components/burstsgrid/burstsgrid.componen
     MatIconModule,
     BrowserAnimationsModule,
     MatToolbarModule,
+    MatSlideToggleModule,
     MatGridListModule,
     MatProgressBarModule,
     MatButtonModule,
     MatChipsModule,
     MatTableModule,
+    MatButtonToggleModule,
     NgApexchartsModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

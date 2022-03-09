@@ -20,6 +20,22 @@ apx-chart.disabled{
     flex-direction: column;
     justify-content: space-between;
 }
+.editButtonsTable{
+    display: flex;
+    height: 100px;
+    flex-direction: column;
+    justify-content: space-between;
+    justify-items: center;
+    align-items: center;
+    align-content: space-between;
+
+}
 .editButtons>*{
     margin-top: 20px;
+}
+.hide{
+    opacity: 0.4;
+}
+mat-row{
+    background-color: '#683ab7';
 }
