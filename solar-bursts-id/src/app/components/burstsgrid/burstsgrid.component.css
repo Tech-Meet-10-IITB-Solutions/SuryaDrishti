@@ -36,6 +36,27 @@ apx-chart.disabled{
 .hide{
     opacity: 0.4;
 }
-mat-row{
-    background-color: '#683ab7';
+.mat-header-cell {
+    background-color: #ffd640;
+    color: black;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.mat-button-toggle{
+    background-color: #d6c893;
+}
+
+.mat-button-toggle-checked{
+    background-color: #ffd640;
+    
+}
+.mat-cell{
+    border-right: #e0e0e0 1px solid;
+    text-align: center;
+    /* display: flex; */
+    /* align-items: center; */
+    /* align-content: center; */
+    /* justify-content: center; */
+    /* justify-items: center; */
 }

@@ -94,6 +94,7 @@ export class AppComponent {
   proceedToML(){
     //send data to backend.
     console.log(this.burstsGrid.rejectedBursts)
+    
     this.currentPageIndex = 2;
   }
   onDataReceived(msg:string){
