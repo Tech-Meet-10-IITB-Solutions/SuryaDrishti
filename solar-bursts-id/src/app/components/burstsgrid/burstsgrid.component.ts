@@ -1,4 +1,5 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { MatExpansionPanel } from '@angular/material/expansion';
 import {
   ChartComponent,
   ApexAxisChartSeries,
@@ -26,13 +27,20 @@ export type ChartOptions = {
 export class BurstsgridComponent implements OnInit {
   @Input('data') data:number[][][] = []
   @Input('editable') editable:boolean = false;
+  @ViewChildren('expanel') expanels!:QueryList<MatExpansionPanel>;
   rejectedBursts:number[] = []
-  tableMode:boolean = true;
+  tableMode:boolean = false;
   // viewMode:string='table';//can be 'grid'
   public chartOptions:Partial<ChartOptions>[] = []
   public tableChartOptions:Partial<ChartOptions>[] = []
   metaData:any[] = [];
   tableData:any[] = [];
+  binSzMin:number = 5;
+  binSzMax:number=  50;
+  binSzValue:number = 10;
+  varSzMin:number = 5;
+  varSzMax:number=  50;
+  varSzValue:number = 10;
   mapClass:Function = (burst:number[][])=>{
     if(this.rejectedBursts.includes(this.data.indexOf(burst))){
       return 'disabled';
@@ -48,6 +56,19 @@ export class BurstsgridComponent implements OnInit {
   filterRejected(data:any[]){
     console.log('rejcheck')
     return data.filter((v,i,[])=>this.rejectedBursts.includes(i))
+  }
+  openPanel(burstIndex:number){
+    // console.log(this.expanels)
+    // return;
+    let tempPanels = this.expanels.toArray()
+    const state:string = tempPanels[burstIndex]._getExpandedState()
+    if(state==='expanded'){
+      tempPanels[burstIndex].close();
+    }
+    else{
+      //collapsed
+      tempPanels[burstIndex].open();
+    }
   }
   constructor() {
   }

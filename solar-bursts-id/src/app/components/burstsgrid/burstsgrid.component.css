@@ -60,3 +60,22 @@ apx-chart.disabled{
     /* justify-content: center; */
     /* justify-items: center; */
 }
+.mat-panel-title{
+    height: 400px;
+}
+.options{
+    display: flex;
+    flex-direction: row;
+}
+.params{
+    flex: 4;
+}
+.reloadWithParams{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    justify-items: center;
+    align-content: center;
+    align-items: center;   
+    flex:1;
+}

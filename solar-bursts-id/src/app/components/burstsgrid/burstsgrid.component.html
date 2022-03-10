@@ -15,10 +15,11 @@
     <mat-grid-tile
     style="display: flex;flex-direction: column;justify-items: center;"
     *ngFor="let burst of filterAccepted(data)">
-    <div class="chartWrapper">    
+    <div class="chartWrapper">
     <apx-chart
             *ngIf="!rejectedBursts.includes(data.indexOf(burst))"
             class="{{mapClass(burst)}}"
+            (click)="openPanel(data.indexOf(burst))"
             [series]="chartOptions[data.indexOf(burst)].series!"
             [chart]="chartOptions[data.indexOf(burst)].chart!"
             [xaxis]="chartOptions[data.indexOf(burst)].xaxis!"
@@ -27,6 +28,17 @@
             [stroke]="chartOptions[data.indexOf(burst)].stroke!"
             [title]="chartOptions[data.indexOf(burst)].title!"
         ></apx-chart>
+            <mat-expansion-panel hideToggle #expanel>
+                <div class="options">
+                    <div class="params">
+                    Bin Size: {{binSzValue}} <mat-slider [min]="binSzMin" [max]="binSzMax" [value]="binSzValue"></mat-slider><br>
+                    Other Var: {{binSzValue}} <mat-slider [min]="varSzMin" [max]="varSzMax" [value]="varSzValue"></mat-slider>
+                    </div>
+                    <div class="reloadWithParams">
+                        <button mat-raised-button color="primary">Reload</button>
+                    </div>
+                </div>
+              </mat-expansion-panel>
         <table mat-table [dataSource]="[metaData[data.indexOf(burst)]]" style="width: 100%;" class="mat-elevation-z8">
             <ng-container matColumnDef="max">
                 <th mat-header-cell *matHeaderCellDef>Max</th>
