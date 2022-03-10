@@ -1,4 +1,5 @@
-import { Component, HostListener, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, HostListener, Inject, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import {
   ChartComponent,
@@ -10,6 +11,7 @@ import {
   ApexStroke,
   ApexGrid
 } from "ng-apexcharts";
+import { DataService } from 'src/app/data.service';
 export type ChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
@@ -58,19 +60,29 @@ export class BurstsgridComponent implements OnInit {
     return data.filter((v,i,[])=>this.rejectedBursts.includes(i))
   }
   openPanel(burstIndex:number){
-    // console.log(this.expanels)
-    // return;
-    let tempPanels = this.expanels.toArray()
-    const state:string = tempPanels[burstIndex]._getExpandedState()
-    if(state==='expanded'){
-      tempPanels[burstIndex].close();
-    }
-    else{
-      //collapsed
-      tempPanels[burstIndex].open();
-    }
+    const dialogRef = this.dialog.open(DialogOptionsDialog,{
+      data:{
+        burst:this.data[burstIndex],
+        burstIndex:burstIndex,
+        chartOptions:this.chartOptions[burstIndex],
+        metaData:this.metaData[burstIndex],
+        accentColor:this.accentColor,
+        primaryColor:this.primaryColor,
+        displayedColumns:this.displayedColumns
+      }
+    });
+    dialogRef
+    // let tempPanels = this.expanels.toArray()
+    // const state:string = tempPanels[burstIndex]._getExpandedState()
+    // if(state==='expanded'){
+    //   tempPanels[burstIndex].close();
+    // }
+    // else{
+    //   //collapsed
+    //   tempPanels[burstIndex].open();
+    // }
   }
-  constructor() {
+  constructor(public dialog:MatDialog) {
   }
   public accentColor:string = '#ffd640';
   public primaryColor:string = '#683ab7';
@@ -184,5 +196,39 @@ export class BurstsgridComponent implements OnInit {
   onResize(event:any) {
     this.innerWidth = window.innerWidth;
     console.log(this.innerWidth)
+  }
+}
+export interface DialogData{
+  burst:number[][];
+  burstIndex:number;
+  metaData:any;
+  chartOptions:Partial<ChartOptions>;
+  displayedColumns:string[]
+  accentColor:string;
+  primaryColor:string;
+}
+@Component({
+  selector:'dialog-options',
+  templateUrl:'./dialog-options.html',
+  styleUrls: ['./burstsgrid.component.css']
+})
+export class DialogOptionsDialog implements OnInit{
+  constructor(
+    public dialogRef:MatDialogRef<DialogOptionsDialog>,
+    @Inject(MAT_DIALOG_DATA) public data:DialogData,
+    private dataService:DataService
+  ){}
+  updateData(){
+    this.dataService.toggleVars(this.binSzValue,this.varSzValue).subscribe(v=>{
+      console.log(v)
+    })
+  }
+  binSzMin:number = 5;
+  binSzMax:number=  50;
+  binSzValue:number = 10;
+  varSzMin:number = 5;
+  varSzMax:number=  50;
+  varSzValue:number = 10;  
+  ngOnInit(){
   }
 }

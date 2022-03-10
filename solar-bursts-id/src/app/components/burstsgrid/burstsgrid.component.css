@@ -51,6 +51,9 @@ apx-chart.disabled{
     background-color: #ffd640;
     
 }
+.mat-header-cell{
+    text-align: center;
+}
 .mat-cell{
     border-right: #e0e0e0 1px solid;
     text-align: center;

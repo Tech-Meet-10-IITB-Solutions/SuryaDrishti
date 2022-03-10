@@ -24,4 +24,10 @@ export class DataService {
   getOutput(){
     return this.http.get(this.apiroot+'output',httpop);
   }
+  toggleVars(binsize:number,var2:number){
+    return this.http.post(this.apiroot+'toggle',{
+      binsize:binsize,
+      var2:var2
+    })
+  }
 }

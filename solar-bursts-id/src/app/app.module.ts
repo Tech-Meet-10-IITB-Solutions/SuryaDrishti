@@ -11,6 +11,7 @@ import {NgApexchartsModule} from 'ng-apexcharts';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatButtonModule} from '@angular/material/button';
 import {FormsModule} from '@angular/forms'
+import {MatDialogModule} from '@angular/material/dialog';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
@@ -23,7 +24,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { UploaderComponent } from './components/uploader/uploader.component';
 import { HttpClientModule } from '@angular/common/http';
-import { BurstsgridComponent } from './components/burstsgrid/burstsgrid.component';
+import { BurstsgridComponent, DialogOptionsDialog } from './components/burstsgrid/burstsgrid.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 @NgModule({
@@ -34,6 +35,7 @@ import { environment } from '../environments/environment';
     BargraphComponent,
     UploaderComponent,
     BurstsgridComponent,
+    DialogOptionsDialog
   ],
   imports: [
     BrowserModule,
@@ -41,6 +43,7 @@ import { environment } from '../environments/environment';
     HttpClientModule,
     MatIconModule,
     BrowserAnimationsModule,
+    MatDialogModule,
     MatToolbarModule,
     MatSliderModule,
     MatSlideToggleModule,
