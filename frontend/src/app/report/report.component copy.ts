@@ -21,9 +21,6 @@ export type ChartOptions = {
   stroke: ApexStroke;
   title: ApexTitleSubtitle;
 }
-export interface burstRow{
-  
-}
 @Component({
   selector: 'app-report',
   templateUrl: './report.component.html',
@@ -52,8 +49,6 @@ export class ReportComponent implements OnInit {
     }
     return ''
   }
-  proceedToML(){}
-  burstListEditable:boolean = false;
   innerWidth!: number;
   displayedColumns!: string[];
   displayedColumnsMain!:string[];
@@ -215,7 +210,7 @@ export interface DialogData{
 @Component({
   selector:'dialog-options',
   templateUrl:'./dialog-options.html',
-  styleUrls: ['./report.component.scss']
+  styleUrls: ['./report.component.css']
 })
 export class DialogOptionsDialog implements OnInit{
   constructor(

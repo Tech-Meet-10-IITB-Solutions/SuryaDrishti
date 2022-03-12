@@ -1,1 +1,126 @@
-<p>report works!</p>
+<div>
+    <div style="display:flex;justify-content: space-around;width: 400px;margin: auto;margin-bottom: 0px;padding: 30px;">
+        <button mat-raised-button color="primary" (click)="burstListEditable=!burstListEditable">
+            {{burstListEditable?'Save List':'Edit List'}}
+        </button>
+        <button *ngIf="!burstListEditable" mat-raised-button color="accent" (click)="proceedToML()">
+            Proceed to ML Model
+        </button>
+    </div>
+
+    <div style="height: 40px;">
+    </div>
+</div>
+<!-- <div style="display: flex; justify-content: center;align-items: center;margin-bottom: 10px;">
+    View Mode: <mat-button-toggle-group style="margin-left: 10px;"  [(ngModel)]="tableMode">
+        <mat-button-toggle [value]="true">Table</mat-button-toggle>
+        <mat-button-toggle [value]="false">Grid</mat-button-toggle>
+      </mat-button-toggle-group>
+</div> -->
+<div style="display: flex; flex-direction: column;align-items: center;">
+    <h1>
+        Initial Bursts from EPF Model
+    </h1>
+</div>
+<table  *ngIf="tableMode"style="width: 90%;margin: 5%;" mat-table [dataSource]="filterAccepted(tableData)" class="mat-elevation-z8">
+    <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let element">
+            <div class="editButtonsTable">
+                Burst {{element.number}}
+                <button 
+                *ngIf="editable"
+                mat-raised-button 
+                style="color: white;background-color: red;"
+                (click)="rejectedBursts.push(tableData.indexOf(element))"
+                >
+                Remove
+                    <mat-icon>delete</mat-icon>
+                </button>    
+            </div>
+        </td>
+    </ng-container>
+    <ng-container matColumnDef="burst">
+        <th mat-header-cell *matHeaderCellDef>Graph</th>
+        <td mat-cell *matCellDef="let element">
+            <apx-chart
+            class="{{mapClass(element.burst)}}"
+            (click)="openPanel(data.indexOf(element.burst))"
+            [series]="tableChartOptions[data.indexOf(element.burst)].series!"
+            [chart]="tableChartOptions[data.indexOf(element.burst)].chart!"
+            [xaxis]="tableChartOptions[data.indexOf(element.burst)].xaxis!"
+            [dataLabels]="tableChartOptions[data.indexOf(element.burst)].dataLabels!"
+            [grid]="tableChartOptions[data.indexOf(element.burst)].grid!"
+            [stroke]="tableChartOptions[data.indexOf(element.burst)].stroke!"
+            [title]="tableChartOptions[data.indexOf(element.burst)].title!"
+        ></apx-chart>
+    
+        </td>
+    </ng-container>
+    <ng-container matColumnDef="max">
+        <th mat-header-cell *matHeaderCellDef>Max</th>
+        <td mat-cell *matCellDef="let element">{{element.max}}</td>
+    </ng-container>
+    <ng-container matColumnDef="maxAt">
+        <th mat-header-cell *matHeaderCellDef>Max at</th>
+        <td mat-cell *matCellDef="let element">{{element.maxAt}}</td>
+    </ng-container>
+    <ng-container matColumnDef="avg">
+        <th mat-header-cell *matHeaderCellDef>Average</th>
+        <td mat-cell *matCellDef="let element">{{element.avg}}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumnsMain"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumnsMain;"></tr>
+</table>
+<table  *ngIf="tableMode&&(rejectedBursts.length>0)" class="rejectedTable" style="width: 90%;margin: 5%;" mat-table [dataSource]="filterRejected(tableData)" class="mat-elevation-z8">
+    <ng-container matColumnDef="number">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td mat-cell *matCellDef="let element">
+            <div class="editButtonsTable">
+                Burst {{element.number}}
+                <button 
+                *ngIf="editable"
+                mat-raised-button 
+                style="color: white;background-color: green;"
+                (click)="rejectedBursts.splice(rejectedBursts.indexOf(tableData.indexOf(element)),1)"
+                >
+                    Add 
+                    <mat-icon>check</mat-icon>
+                </button>    
+            </div>
+        </td>
+    </ng-container>
+    <ng-container matColumnDef="burst">
+        <th mat-header-cell *matHeaderCellDef>Graph</th>
+        <td class="hide" mat-cell *matCellDef="let element">
+            <apx-chart
+            class="{{mapClass(element.burst)}}"
+            (click)="openPanel(data.indexOf(element.burst))"
+            [series]="tableChartOptions[data.indexOf(element.burst)].series!"
+            [chart]="tableChartOptions[data.indexOf(element.burst)].chart!"
+            [xaxis]="tableChartOptions[data.indexOf(element.burst)].xaxis!"
+            [dataLabels]="tableChartOptions[data.indexOf(element.burst)].dataLabels!"
+            [grid]="tableChartOptions[data.indexOf(element.burst)].grid!"
+            [stroke]="tableChartOptions[data.indexOf(element.burst)].stroke!"
+            [title]="tableChartOptions[data.indexOf(element.burst)].title!"
+        ></apx-chart>
+    
+        </td>
+    </ng-container>
+    <ng-container matColumnDef="max">
+        <th mat-header-cell *matHeaderCellDef>Max</th>
+        <td class="hide" mat-cell *matCellDef="let element">{{element.max}}</td>
+    </ng-container>
+    <ng-container matColumnDef="maxAt">
+        <th mat-header-cell *matHeaderCellDef>Max at</th>
+        <td class="hide" mat-cell *matCellDef="let element">{{element.maxAt}}</td>
+    </ng-container>
+    <ng-container matColumnDef="avg">
+        <th mat-header-cell *matHeaderCellDef>Average</th>
+        <td class="hide" mat-cell *matCellDef="let element">{{element.avg}}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumnsMain"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumnsMain;"></tr>
+</table>
