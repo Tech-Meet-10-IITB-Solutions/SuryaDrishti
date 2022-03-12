@@ -26,6 +26,21 @@ class NeuralNetwork():
     history = self.model.fit(training_data, labeled_data, epochs = epochs, verbose = 1) #verbose provides progress bar. Can be set to 0 if no info needs to be displayed. 
     return history
 
+  def imputate(self, raw_data): #raw_data is a an array of shape (2, n) i.e. we have n pairs of (time, counts)
+    d_indices = []
+    for i in range(self.n):
+      if raw_data[1][i] == None:
+        d_indices.append(i)
+      pprocessed_data = np.zeros((2, self.n - len(d_indices)))  
+      pprocessed_data[0] = np.delete(raw_data[0], d_indices)
+      pprocessed_data[1] = np.delete(raw_data[1], d_indices)
+    spline = CubicSpline(pprocessed_data[0], pprocessed_data[1], extrapolate = True)
+    processed_data = np.zeros((2, self.n))
+    processed_data[0] = raw_data[0]
+    for i in range(len(processed_data[0])):
+      processed_data[1][i] = spline(processed_data[0][i])
+    return processed_data
+
 #Below code is for testing purposes
 NN = NeuralNetwork(100, 128, 128, 0.1, 0.1)
 
@@ -36,3 +51,13 @@ history = NN.train(training_data, labeled_data, 20)
 
 output = NN.forward(training_data)
 print(output)
+
+raw_data = np.random.rand(2, n)
+#raw_data = np.array([[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],[5, None, 10, 6, None, 9, 1, None, 0, 2.5]])
+raw_data = np.sort(raw_data)
+plt.plot(raw_data[0], raw_data[1], marker = 'o')
+plt.show()
+
+processed_data = NN.imputate(raw_data)
+plt.plot(processed_data[0], processed_data[1], marker = 'o')
+plt.show()
