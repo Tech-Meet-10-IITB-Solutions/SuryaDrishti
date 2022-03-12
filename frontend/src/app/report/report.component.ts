@@ -1,4 +1,4 @@
-import { Component, HostListener, Inject, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, HostListener, Inject, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import {
@@ -12,6 +12,7 @@ import {
   ApexGrid
 } from "ng-apexcharts";
 import { ServerService } from 'src/app/server.service';
+import { LinescatterComponent } from '../components/linescatter/linescatter.component';
 export type ChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
@@ -21,8 +22,28 @@ export type ChartOptions = {
   stroke: ApexStroke;
   title: ApexTitleSubtitle;
 }
+export interface statModelParams{
+  chiSq:number,
+  A:number,
+  B:number,
+  C:number,
+  D:number
+}
+export interface statModelData{
+  moments:number[],
+  rate:number[],
+  fit:number[],
+  isDetected:boolean,
+  params:statModelParams
+}
 export interface burstRow{
-  
+  BGValue:number,
+  peakTime:number,
+  peakValue:number,
+  MLConf:number,
+  LM:statModelData,
+  NS:statModelData,
+  Char:string
 }
 @Component({
   selector: 'app-report',
@@ -33,9 +54,12 @@ export class ReportComponent implements OnInit {
   @Input('data') data:number[][][] = []
   @Input('editable') editable:boolean = false;
   @ViewChildren('expanel') expanels!:QueryList<MatExpansionPanel>;
+  @ViewChildren('chartcell') chartcell!:QueryList<ElementRef>;
+  @ViewChild('charts') charts!:ElementRef;
+  @ViewChildren('linescatter') linescatters!:QueryList<LinescatterComponent>;
   rejectedBursts:number[] = []
-  tableMode:boolean = false;
-  // viewMode:string='table';//can be 'grid'
+  burstListEditable:boolean = false;
+  tableMode:boolean = true;
   public chartOptions:Partial<ChartOptions>[] = []
   public tableChartOptions:Partial<ChartOptions>[] = []
   metaData:any[] = [];
@@ -46,6 +70,7 @@ export class ReportComponent implements OnInit {
   varSzMin:number = 5;
   varSzMax:number=  50;
   varSzValue:number = 10;
+
   mapClass:Function = (burst:number[][])=>{
     if(this.rejectedBursts.includes(this.data.indexOf(burst))){
       return 'disabled';
@@ -53,11 +78,11 @@ export class ReportComponent implements OnInit {
     return ''
   }
   proceedToML(){}
-  burstListEditable:boolean = false;
+
   innerWidth!: number;
   displayedColumns!: string[];
   displayedColumnsMain!:string[];
-  filterAccepted(data:any[]){
+  filterAccepted(data:burstRow[]){
     return data.filter((v,i,[])=>!this.rejectedBursts.includes(i));
   }
   filterRejected(data:any[]){
@@ -87,27 +112,174 @@ export class ReportComponent implements OnInit {
     //   tempPanels[burstIndex].open();
     // }
   }
-  constructor(public dialog:MatDialog) {
+  cleanedData(data:burstRow[]){
+    let cleaned = data.map((burst:burstRow,j,[])=>{
+      return {
+        ...burst,
+        NS:{
+          ...burst.NS,
+          moments:burst.NS.moments.filter((mom,j,[])=>(burst.NS.rate[j]!==null)),
+          rate:burst.NS.rate.filter((mom,j,[])=>(burst.NS.rate[j]!==null))
+        },
+        LM:{
+          ...burst.LM,
+          moments:burst.LM.moments.filter((mom,j,[])=>(burst.LM.rate[j]!==null)),
+          rate:burst.LM.moments.filter((mom,j,[])=>(burst.LM.rate[j]!==null))
+        }
+      }
+    })
+    return cleaned;
   }
+  constructor(public dialog:MatDialog,private server:ServerService) {
+  }
+  scatterData!:any[]
+  lineData!:any[]
+  bursts:burstRow[] = []
+  mapChartOptions!:Function
   public accentColor:string = '#ffd640';
   public primaryColor:string = '#683ab7';
     ngOnInit(): void {
-    this.innerWidth = window.innerWidth;
-    this.displayedColumns = ['max','maxAt','avg']
-    this.displayedColumnsMain = ['number','burst',...this.displayedColumns]
-    this.metaData = this.data.map((burst:number[][],i:number,[])=>{
-      return {
-        'max': Math.round(Math.max(...burst[1])*100)/100,
-        'maxAt':Math.round(burst[0][burst[1].indexOf(Math.max(...burst[1]))]*100)/100,
-        'avg':Math.round(burst[1].reduce((x,y)=>(x+y),0)/burst[1].length*100)/100
+    this.server.getBursts().subscribe((data:any)=>{
+      this.bursts = this.cleanedData(data)
+      // console.log(this)
+      for(let j=0;j<this.bursts.length;j++){
+        this.linescatters.toArray()[j].updateChartOptions(this.bursts[j])
       }
+      console.log(this.bursts)
+
     })
+    this.innerWidth = window.innerWidth;
+    // this.displayedColumns = ['max','maxAt','avg']
+    this.displayedColumnsMain = ['peakTime','meta','chartNS']
     this.tableData = this.data.map((burst,i,[])=>{
       let meta = this.metaData;  
       return {number:(i+1),burst:burst,...meta[i]};
       })
   
-  
+    this.mapChartOptions = (burst:burstRow,type:number)=>{
+      return {
+        series: [
+          {
+            name: `Burst Fit at ${burst.peakTime}`,
+            type: 'line',
+            data: type===0?burst.NS.fit:burst.LM.fit,
+            color:this.primaryColor,//primary
+          },
+          {
+            name: `Burst Data at ${burst.peakTime}`,
+            type:'scatter',
+            data:type===0?burst.NS.rate:burst.LM.rate
+          }
+        ],
+        chart: {
+          // height: 350,
+          width:'150%',
+          type: "line",
+          stacked:false,
+          zoom: {
+            enabled: false
+          },
+          animations:{
+            enabled:false
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          width: [1, 1, 4]
+        },
+        title: {
+          text: "Burst",
+          align: "left",
+          offsetX: 110
+        },
+        xaxis: {
+          categories: type===0?burst.NS.moments:burst.LM.moments
+        },
+        yaxis: [
+          {
+            axisTicks: {
+              show: true
+            },
+            axisBorder: {
+              show: true,
+              color: "#008FFB"
+            },
+            labels: {
+              style: {
+                color: "#008FFB"
+              }
+            },
+            title: {
+              text: "Power???",
+              style: {
+                color: "#008FFB"
+              }
+            },
+            tooltip: {
+              enabled: true
+            }
+          },
+          {
+            seriesName: "Income",
+            opposite: true,
+            axisTicks: {
+              show: true
+            },
+            axisBorder: {
+              show: true,
+              color: "#00E396"
+            },
+            labels: {
+              style: {
+                color: "#00E396"
+              }
+            },
+            title: {
+              text: "Operating Cashflow (thousand crores)",
+              style: {
+                color: "#00E396"
+              }
+            }
+          },
+          {
+            seriesName: "Revenue",
+            opposite: true,
+            axisTicks: {
+              show: true
+            },
+            axisBorder: {
+              show: true,
+              color: "#FEB019"
+            },
+            labels: {
+              style: {
+                color: "#FEB019"
+              }
+            },
+            title: {
+              text: "Revenue (thousand crores)",
+              style: {
+                color: "#FEB019"
+              }
+            }
+          }
+        ],
+        tooltip: {
+          fixed: {
+            enabled: true,
+            position: "topLeft", // topRight, topLeft, bottomRight, bottomLeft
+            offsetY: 30,
+            offsetX: 60
+          }
+        },
+        legend: {
+          horizontalAlign: "left",
+          offsetX: 40
+        }
+      };
+    }
     this.chartOptions = this.data.map((burst:number[][],i:number,[])=>{
       return {
         series: [

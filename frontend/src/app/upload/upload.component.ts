@@ -67,7 +67,7 @@ export class UploadComponent implements OnInit {
       this.onBurstsReady.emit('OK');
       return;
     }
-    this.server.getOutput().subscribe((data:any)=>{
+    this.server.getProgress().subscribe((data:any)=>{
       if(data['taskDone']>=1){
         this.progress = 100;
         this.finalData = data;

@@ -27,6 +27,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
 // Addons
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatDialogModule } from '@angular/material/dialog';
+import { LinescatterComponent } from './components/linescatter/linescatter.component';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import { MatDialogModule } from '@angular/material/dialog';
     AppComponent,
     UploadComponent,
     ReportComponent,
-    DialogOptionsDialog
+    DialogOptionsDialog,
+    LinescatterComponent
   ],
   imports: [
     BrowserModule,

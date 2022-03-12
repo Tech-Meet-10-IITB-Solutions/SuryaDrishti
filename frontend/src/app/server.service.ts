@@ -25,12 +25,15 @@ export class ServerService {
     // }
     return this.http.post(baseUrl+'upload',uploadData)
   }
-  getOutput(){
+  getProgress(){
     return this.http.get(baseUrl+'output',httpop);
   }
   
   toggleVars(b:number,v:number){
     return this.http.get('')
+  }
+  getBursts(){
+    return this.http.get(baseUrl+'bursts',httpop)
   }
   request(method: string, route: string, data?: any) {
     if (method === 'GET') {
