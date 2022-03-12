@@ -72,6 +72,7 @@ export class UploaderComponent implements OnInit {
       if(data['taskDone']>=1){
         this.progress = 100;
         this.finalData = data;
+        console.log(data);
         console.log('emitted')
         this.onDataReceived.emit('OK');
       }
