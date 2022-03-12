@@ -40,6 +40,12 @@ class NeuralNetwork():
     for i in range(len(processed_data[0])):
       processed_data[1][i] = spline(processed_data[0][i])
     return processed_data
+  
+  def EFP(self, A, B, C, D, start_time, end_time):
+    Z = (2*B + C**2*D)/(2*C)
+    x = np.linspace(start_time, end_time, num = self.n, endpoint = True)
+    EFP_output =  1/2 * np.sqrt(np.pi) *  A * C * np.exp(D*(B-x) + C**2*D**2/4) * (erf(Z) - erf(Z - x/C))
+    return EFP_output
 
 #Below code is for testing purposes
 NN = NeuralNetwork(100, 128, 128, 0.1, 0.1)
