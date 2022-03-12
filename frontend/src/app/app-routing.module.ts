@@ -1,7 +1,15 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes, RouterModule } from '@angular/router';
 
-const routes: Routes = [];
+import { UploadComponent } from './upload/upload.component';
+import { ReportComponent } from './report/report.component';
+
+// Specifies the route-component mapping
+const routes: Routes = [
+  { path: 'upload', component: UploadComponent },
+  { path: 'report', component: ReportComponent },
+  { path: '**', redirectTo: 'upload', },
+];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
