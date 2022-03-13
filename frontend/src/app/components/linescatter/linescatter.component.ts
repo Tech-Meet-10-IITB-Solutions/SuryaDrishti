@@ -234,6 +234,9 @@ export class LinescatterComponent implements OnInit {
       legend: {
         horizontalAlign: "left",
         offsetX: 40
+      },
+      xaxis:{
+        tickAmount:this.statData.moments.length
       }
   };
 }

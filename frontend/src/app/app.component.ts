@@ -1,4 +1,4 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { UploadComponent } from './upload/upload.component';
 
@@ -17,4 +17,8 @@ export class AppComponent {
     })
     window.location.href = "/report"
   }
+  @HostListener('window:beforeunload', ['$event'])
+  unloadHandler(event: Event) {
+    window.opener.location.reload();
+}
 }
