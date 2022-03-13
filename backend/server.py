@@ -1,11 +1,13 @@
+import sys
 import os
-import shutil
 import zipfile
 from threading import Thread
-from time import sleep
 
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+
+sys.path.append("..")
+from models.stat.lc import LC
 
 app = FastAPI()
 origins = ['*']
@@ -17,148 +19,86 @@ app.add_middleware(
     allow_headers=['*']
 )
 
-# further populated post analysis:
-globalDict = {
-    'taskDone': 0
-}
+complete = 0.0
+error = None
+file_path = ''
+lc = None
 
 
-def analysis(pathToDataDir):
-    # do work
-    while(globalDict['taskDone'] < 1):
-        sleep(1)
-        globalDict['taskDone'] += 0.07
-    globalDict['bursts'] = [
-        {
-            'peakTime': 30,
-            'peakValue': 120,
-            'BGValue': 140,
-            'MLConf': 60,
-            'Char': 'M',
-            'NS': {
-                    'moments': [0, 1, 2, 3, 4, 5],
-                    'rate':[2, 3, 4, 1, None, 5],
-                    'fit':[1, 2, 3, 4, 5, 6],
-                    'isDetected':True,
-                    'params':{
-                        'chiSq': 70,
-                        'A': 8,
-                        'B': 89,
-                        'C': 23,
-                        'D': 43
-                    }
-            },
-            'LM': {
-                'moments': [0, 1, 2, 3, 4, 5],
-                'rate':[2, 3, 4, 1, None, 5],
-                'fit':[1, 2, 3, 4, 5, 6],
-                'isDetected':True,
-                'params':{
-                    'chiSq': 90,
-                    'A': 8,
-                    'B': 89,
-                    'C': 23,
-                    'D': 43
-                }
-            },
-        },
-        {
-            'peakTime': 56,
-            'peakValue': 90,
-            'BGValue': 140,
-            'MLConf': 60,
-            'Char': 'X',
-            'NS': {
-                    'moments': [0, 1, 2, 3, 4, 5],
-                    'rate':[2, 3, 4, 1, None, 5],
-                    'fit':[1, 2, 3, 4, 5, 6],
-                    'isDetected':True,
-                    'params':{
-                        'chiSq': 60,
-                        'A': 8,
-                        'B': 89,
-                        'C': 23,
-                        'D': 43
-                    }
-            },
-            'LM': None,
-        },
-        {
-            'peakTime': 34,
-            'peakValue': 150,
-            'BGValue': 140,
-            'MLConf': 60,
-            'Char': 'A',
-            'NS': {
-                    'moments': [0, 1, 2, 3, 4, 5],
-                    'rate':[2, None, 4, 1, None, 5],
-                    'fit':[1, 2, 3, 4, 5, 6],
-                    'isDetected':True,
-                    'params':{
-                        'chiSq': 90,
-                        'A': 8,
-                        'B': 89,
-                        'C': 23,
-                        'D': 43
-                    }
-            },
-            'LM': {
-                'moments': [0, 1, 2, 3, 4, 5],
-                'rate':[2, 3, 4, 1, None, 5],
-                'fit':[1, 2, 3, 4, 5, 6],
-                'isDetected':True,
-                'params':{
-                    'chiSq': 40,
-                    'A': 8,
-                    'B': 89,
-                    'C': 23,
-                    'D': 43
-                }
-            },
-        }
+def process_zip(content):
+    global complete, error, file_path
 
-    ]
+    try:
+        with open('input.zip', 'wb') as outfile:
+            outfile.write(content)
+
+        with zipfile.ZipFile('input.zip', 'r') as zip_ref:
+            zip_ref.extractall('input/')
+    except Exception:
+        error = 'Unable to extract ZIP file'
+
+    complete = 0.8
+
+    files = os.listdir('input/')
+    if len(files) == 1:
+        file_path = 'input/' + files[0]
+    else:
+        error = 'ZIP file contains more than one file'
+
+    complete = 1.0
 
 
-def processZipFile(content):
-    # TEST rmtree on linux cmdline
-    if(os.path.isdir('input')):
-        shutil.rmtree('input', ignore_errors=True)
-    if(os.path.isfile('input.zip')):
-        os.remove('input.zip')
-    globalDict['taskDone'] = 0
-    with open('input.zip', 'wb') as outfile:
-        outfile.write(content)
+@ app.post('/upload')
+def upload(file: UploadFile = File(...)):
+    global complete, file_path, error, lc
 
-    with zipfile.ZipFile('input.zip', 'r') as zip_ref:
-        zip_ref.extractall('input/')
-    analysis('input')
+    complete = 0.0
+    file_path = ''
+    error = None
+    lc = None
+    os.system('rm -rf input*')
 
+    content = file.read()
 
-@app.post('/upload')
-async def upload(file1: UploadFile = File(...)):
-    content = await file1.read()
-    thread = Thread(target=processZipFile, args=(content,))
+    thread = Thread(target=process_zip, args=(content,))
     thread.start()
+
+    complete = 0.3
+
     return {'status': 200}
 
 
-@app.get('/output')
-def output():
-    print(globalDict['taskDone'])
-    if(globalDict['taskDone'] < 1):
-        return {'taskDone': round(globalDict['taskDone'], 2)}
-    return globalDict
+@ app.get('/progress')
+def progress():
+    global complete, error, lc
+
+    if error is not None:
+        return {'status': 422, 'error': error}
+
+    return {'status': 200, 'complete': complete}
 
 
-@app.get('/bursts')
-def bursts():
-    if(globalDict['taskDone'] < 1):
-        return {'success': False, 'detail': 'Data Not Ready'}
-    return {'success': True, 'bursts': globalDict['bursts']}
+@ app.get('/flares')
+def bursts(bin_size: int = 20):
+    global file_path, lc
+
+    lc = LC(file_path, bin_size)
+    flares = lc.get_flares()
+
+    for flare in flares:
+        flare['bg_rate'] = flare['peak_rate']
+        flare['ml_conf'] = 60
+        flare['class'] = 'A'
+
+    return {'status': 200, 'flares': flares}
 
 
-@app.get('/train')
-def train():
-    pass
-    return {}
+@ app.post('/train')
+def train(content: dict = Form(...)):
+    global lc
+
+    labels = content['labels']
+
+    print(labels)
+
+    return {'status': 200}
