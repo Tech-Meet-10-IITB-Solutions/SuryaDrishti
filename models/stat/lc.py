@@ -33,11 +33,16 @@ class LC:
 
         self.flares = self.add_efp(self.base_flares, self.processed_lc)
 
+        self.ml_data = self.gen_ml_data(self.flares)
+
     def get_lc(self):
         return self.processed_lc
 
     def get_flares(self):
         return self.flares
+
+    def get_ml_data(self):
+        return self.ml_data
 
     def load_lc(self, lc_path):
         lc = fits.open(lc_path)
@@ -217,6 +222,9 @@ class LC:
             flares.append(flare_propr)
 
         return flares
+
+    def gen_ml_data(self, flares, time, rates):
+        return None
 
 
 if __name__ == '__main__':
