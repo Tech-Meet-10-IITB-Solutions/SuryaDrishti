@@ -1,3 +1,7 @@
 fastapi==0.75.0
 python-multipart==0.0.5
 uvicorn==0.17.6
+numpy==1.22.3
+scipy==1.8.0
+astropy==5.0.2
+tensorflow==2.8.0
