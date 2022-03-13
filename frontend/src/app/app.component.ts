@@ -17,8 +17,5 @@ export class AppComponent {
     })
     window.location.href = "/report"
   }
-  @HostListener('window:beforeunload', ['$event'])
-  unloadHandler(event: Event) {
-    window.opener.location.reload();
-}
+
 }

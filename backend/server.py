@@ -27,17 +27,17 @@ def analysis(pathToDataDir):
     globalDict['bursts']=[
         {
             'peakTime':30,
-            'peakValue':150,
+            'peakValue':120,
             'BGValue':140,
             'MLConf':60,
-            'Char':'A',
+            'Char':'M',
             'NS':{
                     'moments':[0,1,2,3,4,5],
                     'rate':[2,3,4,1,None,5],
                     'fit':[1,2,3,4,5,6],
                     'isDetected':True,
                     'params':{
-                        'chiSq':90,
+                        'chiSq':70,
                         'A':8,
                         'B':89,
                         'C':23,
@@ -59,18 +59,18 @@ def analysis(pathToDataDir):
                 },
         },
         {
-            'peakTime':34,
-            'peakValue':150,
+            'peakTime':56,
+            'peakValue':90,
             'BGValue':140,
             'MLConf':60,
-            'Char':'A',
+            'Char':'X',
             'NS':{
                     'moments':[0,1,2,3,4,5],
                     'rate':[2,3,4,1,None,5],
                     'fit':[1,2,3,4,5,6],
                     'isDetected':True,
                     'params':{
-                        'chiSq':90,
+                        'chiSq':60,
                         'A':8,
                         'B':89,
                         'C':23,
@@ -80,7 +80,7 @@ def analysis(pathToDataDir):
             'LM':None,
         },
         {
-            'peakTime':56,
+            'peakTime':34,
             'peakValue':150,
             'BGValue':140,
             'MLConf':60,
@@ -104,7 +104,7 @@ def analysis(pathToDataDir):
                     'fit':[1,2,3,4,5,6],
                     'isDetected':True,
                     'params':{
-                        'chiSq':90,
+                        'chiSq':40,
                         'A':8,
                         'B':89,
                         'C':23,
@@ -120,7 +120,7 @@ def processZipFile(content):
         shutil.rmtree('input',ignore_errors=True)
     if(os.path.isfile('input.zip')):
         os.remove('input.zip')
-
+    globalDict['taskDone'] = 0
     with open('input.zip','wb') as outfile:
         outfile.write(content)
     

@@ -178,7 +178,10 @@ export class LinescatterComponent implements OnInit {
       chart: {
         width: 350,
         type:'line',
-        stacked: false
+        stacked: false,
+        zoom:{
+          type:'x'
+        }
       },
       dataLabels: {
         enabled: false
@@ -207,7 +210,7 @@ export class LinescatterComponent implements OnInit {
             }
           },
           title: {
-            text: "Power??",
+            text: "Photon CPS",
             style: {
               color: "#000000"
             }

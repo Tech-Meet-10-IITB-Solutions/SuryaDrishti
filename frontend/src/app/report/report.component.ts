@@ -1,4 +1,5 @@
 import { Component, ElementRef, HostListener, Inject, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { MatOptionSelectionChange } from '@angular/material/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import {
@@ -12,6 +13,7 @@ import {
   ApexGrid
 } from "ng-apexcharts";
 import { ServerService } from 'src/app/server.service';
+import { __values } from 'tslib';
 import { BurstTableComponent } from '../components/burst-table/burst-table.component';
 import { LinescatterComponent } from '../components/linescatter/linescatter.component';
 export type ChartOptions = {
@@ -85,10 +87,10 @@ export class ReportComponent implements OnInit {
       this.burstTable.toArray()[i].burstListEditable = !this.burstTable.toArray()[i].burstListEditable
     }
   }
-  filterAccepted(data:burstRow[]){
+  filterAccepted(data:Partial<burstRow>[]){
     return data.filter((v,i,[])=>!this.rejectedBursts.includes(i));
   }
-  filterRejected(data:any[]){
+  filterRejected(data:Partial<burstRow>[]){
     // console.log('rejcheck')
     return data.filter((v,i,[])=>this.rejectedBursts.includes(i))
   }
@@ -145,6 +147,14 @@ export class ReportComponent implements OnInit {
   lineData!:any[]
   bursts:Partial<burstRow>[] = []
   mapChartOptions!:Function
+  sortables = [
+    {viewValue:'Peak Value',value:'peakValue'},
+    {viewValue:'Peak Time',value:'peakTime'},
+    {viewValue:'Characteristic',value:'Char'},
+    {viewValue:'Confidence',value:'MLConf'},
+    {viewValue:'Chi Sq (NS)',value:'chisq-NS'},
+    {viewValue:'Chi Sq (LM)',value:'chisq-LM'}
+  ]
   templateBursts:burstRow[] = [
     {
         "peakTime": 30,
@@ -358,8 +368,50 @@ export class ReportComponent implements OnInit {
         }
     }
 ]
+  allowUnload:boolean = false;
   public accentColor:string = '#ffd640';
   public primaryColor:string = '#683ab7';
+  @HostListener('window:beforeunload', ['$event'])
+  unloadHandler(event: Event) {
+    // event.preventDefault()
+    if(!this.allowUnload){
+      window.opener.location.reload();
+    }
+
+}
+stringMap(burst1:Partial<burstRow>):Map<string,number>{
+  let map = new Map<string,number>();
+  map.set('peakTime',burst1.peakTime!)
+  map.set('peakValue',burst1.peakValue!)
+  map.set('MLConf',burst1.MLConf!)
+  map.set('Char',-burst1.Char?.charCodeAt(0)!)
+  map.set('chisq-NS',burst1.NS?burst1.NS?.params.chiSq:Infinity)
+  map.set('chisq-LM',burst1.LM?burst1.LM.params.chiSq:Infinity)
+  return map;
+}
+sortBursts(value:string){
+
+  let RBursts = this.filterRejected(this.bursts)
+  let key = value
+  let tieBreakerKey = 'peakTime';
+  this.rejectedBursts = []
+  // console.log(value.source.value)
+  this.bursts = this.bursts.sort((burst1:Partial<burstRow>, burst2:Partial<burstRow>)=>{
+    let map1 = this.stringMap(burst1)
+    let map2 = this.stringMap(burst2)
+    let compval = (map1.get(key)! - map2.get(key)!)
+    if(compval===0){
+      compval = (map1.get(tieBreakerKey)! - map2.get(tieBreakerKey)!)
+    }
+    return compval;
+  })
+
+  this.rejectedBursts = RBursts.map(v=>this.bursts.indexOf(v));
+}
+revertToUploadPage(){
+  this.allowUnload = true;
+  window.location.href = '/upload'
+}
     ngOnInit(): void {
     this.server.getBursts().subscribe((data:any)=>{
       console.log(data)

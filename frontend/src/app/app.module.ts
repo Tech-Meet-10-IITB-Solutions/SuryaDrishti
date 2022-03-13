@@ -29,6 +29,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatDialogModule } from '@angular/material/dialog';
 import { LinescatterComponent } from './components/linescatter/linescatter.component';
 import { BurstTableComponent } from './components/burst-table/burst-table.component';
+import { MatSelectModule } from '@angular/material/select';
 
 
 @NgModule({
@@ -50,6 +51,7 @@ import { BurstTableComponent } from './components/burst-table/burst-table.compon
     MatSnackBarModule,
     MatGridListModule,
     MatSliderModule,
+    MatSelectModule,
     MatButtonToggleModule,
     MatCardModule,
     MatFormFieldModule,
