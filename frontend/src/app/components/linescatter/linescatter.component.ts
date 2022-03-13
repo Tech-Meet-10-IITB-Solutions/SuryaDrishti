@@ -14,7 +14,7 @@ import {
   ApexMarkers,
   ApexStroke
 } from "ng-apexcharts";
-import { burstRow } from "src/app/report/report.component";
+import { burstRow, statModelData } from "src/app/report/report.component";
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -37,40 +37,146 @@ export type ChartOptions = {
 })
 export class LinescatterComponent implements OnInit {
   title = "CodeSandbox";
-  @Input('scatterData') scatterData!:any[]
-  @Input('lineData') lineData!:any[]
+  // @Input('scatterData') scatterData!:any[]
+  scatterData!:any[]
+  // @Input('lineData') lineData!:any[]
   @Input('burst') burst!:burstRow;
+  @Input('statData') statData!:statModelData;
   @ViewChild("chart") chart!: ChartComponent;
   public chartOptions!: Partial<ChartOptions>;
-  getScatterData(burst:burstRow){
-    this.scatterData = [];
-    for(let i=0;i<burst.NS.moments.length;i++){
-      this.scatterData.push(
-        {x:burst.NS.moments[i]-0.01,y:null},
-        {x:burst.NS.moments[i],y:burst.NS.rate[i]},
-        {x:burst.NS.moments[i]+0.01,y:null}
-        )
+  getScatterData(statData:statModelData){
+    if(statData){
+      this.scatterData = [];
+      for(let i=0;i<statData.moments.length;i++){
+        this.scatterData.push(
+          {x:statData.moments[i]-0.01,y:null},
+          {x:statData.moments[i],y:statData.rate[i]},
+          {x:statData.moments[i]+0.01,y:null}
+          )
+      }
+      return this.scatterData
     }
-    return this.scatterData
+    return []
   }
-  public updateChartOptions(burst:burstRow){
+  getLineData(statData:statModelData){
+    if(statData){
+      return statData.moments.map((mom,j,[])=>{
+        return {x:mom,y:statData.fit[j]}
+      })        
+    }
+    return []
+  }
+  // public updateChartOptions(burst:burstRow){
+  //   this.chartOptions = {
+  //     series: [
+  //       {
+  //         name: "Pulse",
+  //         type: "line",
+  //         data:this.getLineData(burst)
+  //       },
+  //       {
+  //         name: "Revenue",
+  //         type: "line",
+  //         data: this.getScatterData(burst)
+  //       }
+  //     ],
+  //     chart: {
+  //       height: 350,
+  //       type:'line',
+  //       stacked: false
+  //     },
+  //     dataLabels: {
+  //       enabled: false
+  //     },
+  //     stroke: {
+  //       width: [20,20]
+  //     },
+  //     title: {
+  //       text: "XYZ - Stock Analysis (2009 - 2016)",
+  //       align: "left",
+  //       offsetX: 110
+  //     },
+  //     yaxis: [
+  //       {
+  //         axisTicks: {
+  //           show: true
+  //         },
+  //         axisBorder: {
+  //           show: true,
+  //           color: "#008FFB"
+  //         },
+  //         labels: {
+  //           style: {
+  //             colors: "#008FFB"
+  //           }
+  //         },
+  //         title: {
+  //           text: "Pulse",
+  //           style: {
+  //             color: "#000000"
+  //           }
+  //         },
+  //         tooltip: {
+  //           enabled: true
+  //         }
+  //       },
+  //       {
+  //         seriesName: "Revenue",
+  //         opposite: true,
+  //         axisTicks: {
+  //           show: true
+  //         },
+  //         axisBorder: {
+  //           show: true,
+  //           color: "#FEB019"
+  //         },
+  //         labels: {
+  //           style: {
+  //             colors: "#FEB019"
+  //           }
+  //         },
+  //         title: {
+  //           text: "Income (thousand crores)",
+  //           style: {
+  //             color: "#008FFB"
+  //           }
+  //         }
+  //       },
+  //     ],
+  //     markers: {
+  //       size: [30,30]
+  //     },
+  //     tooltip: {
+  //       fixed: {
+  //         enabled: true,
+  //         position: "topLeft", // topRight, topLeft, bottomRight, bottomLeft
+  //         offsetY: 30,
+  //         offsetX: 60
+  //       }
+  //     },
+  //     legend: {
+  //       horizontalAlign: "left",
+  //       offsetX: 40
+  //     }
+  //   };
+  // }
+  constructor() {}  
+  ngOnInit(): void {
     this.chartOptions = {
       series: [
         {
-          name: "Pulse",
+          name: "Data",
           type: "line",
-          data:burst.NS.moments.map((mom,j,[])=>{
-            return {x:mom,y:burst.NS.fit[j]}
-          })
+          data:this.getScatterData(this.statData)
         },
         {
-          name: "Revenue",
+          name: "Fit",
           type: "line",
-          data: this.getScatterData(burst)
+          data: this.getLineData(this.statData)
         }
       ],
       chart: {
-        height: 350,
+        width: 350,
         type:'line',
         stacked: false
       },
@@ -78,171 +184,59 @@ export class LinescatterComponent implements OnInit {
         enabled: false
       },
       stroke: {
-        width: [20,20]
-      },
-      title: {
-        text: "XYZ - Stock Analysis (2009 - 2016)",
-        align: "left",
-        offsetX: 110
-      },
-      yaxis: [
-        {
-          axisTicks: {
-            show: true
-          },
-          axisBorder: {
-            show: true,
-            color: "#008FFB"
-          },
-          labels: {
-            style: {
-              colors: "#008FFB"
-            }
-          },
-          title: {
-            text: "Pulse",
-            style: {
-              color: "#000000"
-            }
-          },
-          tooltip: {
-            enabled: true
-          }
-        },
-        {
-          seriesName: "Revenue",
-          opposite: true,
-          axisTicks: {
-            show: true
-          },
-          axisBorder: {
-            show: true,
-            color: "#FEB019"
-          },
-          labels: {
-            style: {
-              colors: "#FEB019"
-            }
-          },
-          title: {
-            text: "Income (thousand crores)",
-            style: {
-              color: "#008FFB"
-            }
-          }
-        },
-      ],
-      markers: {
-        size: [30,30]
-      },
-      tooltip: {
-        fixed: {
-          enabled: true,
-          position: "topLeft", // topRight, topLeft, bottomRight, bottomLeft
-          offsetY: 30,
-          offsetX: 60
-        }
-      },
-      legend: {
-        horizontalAlign: "left",
-        offsetX: 40
-      }
-    };
-  }
-  constructor() {
-    this.chartOptions = {
-      series: [
-        {
-          name: "Pulse",
-          type: "line",
-          data:[]
-        },
-        {
-          name: "Revenue",
-          type: "line",
-          data: []
-        }
-      ],
-      chart: {
-        height: 350,
-        type:'line',
-        stacked: false
-      },
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        width: [20,20]
-      },
-      title: {
-        text: "XYZ - Stock Analysis (2009 - 2016)",
-        align: "left",
-        offsetX: 110
-      },
-      yaxis: [
-        {
-          axisTicks: {
-            show: true
-          },
-          axisBorder: {
-            show: true,
-            color: "#008FFB"
-          },
-          labels: {
-            style: {
-              colors: "#008FFB"
-            }
-          },
-          title: {
-            text: "Pulse",
-            style: {
-              color: "#000000"
-            }
-          },
-          tooltip: {
-            enabled: true
-          }
-        },
-        {
-          seriesName: "Revenue",
-          opposite: true,
-          axisTicks: {
-            show: true
-          },
-          axisBorder: {
-            show: true,
-            color: "#FEB019"
-          },
-          labels: {
-            style: {
-              colors: "#FEB019"
-            }
-          },
-          title: {
-            text: "Income (thousand crores)",
-            style: {
-              color: "#008FFB"
-            }
-          }
-        },
-      ],
-      markers: {
-        size: [30,30]
-      },
-      tooltip: {
-        fixed: {
-          enabled: true,
-          position: "topLeft", // topRight, topLeft, bottomRight, bottomLeft
-          offsetY: 30,
-          offsetX: 60
-        }
-      },
-      legend: {
-        horizontalAlign: "left",
-        offsetX: 40
-      }
-    };
-  }
+        width: [20,20],
 
-  ngOnInit(): void { }
+      },
+      title: {
+        text: "XYZ - Stock Analysis (2009 - 2016)",
+        align: "left",
+        offsetX: 110
+      },
+      yaxis: [
+        {
+          axisTicks: {
+            show: false,
+          },
+          axisBorder: {
+            show: true,
+            color: "#008FFB"
+          },
+          labels: {
+            style: {
+              colors: "#008FFB"
+            }
+          },
+          title: {
+            text: "Power??",
+            style: {
+              color: "#000000"
+            }
+          },
+          tooltip: {
+            enabled: true
+          }
+        },
+
+      ],
+      markers: {
+        size: [30,30],
+        radius:20,
+        shape:'circle'
+      },
+      tooltip: {
+        fixed: {
+          enabled: true,
+          position: "topLeft", // topRight, topLeft, bottomRight, bottomLeft
+          offsetY: 30,
+          offsetX: 60
+        }
+      },
+      legend: {
+        horizontalAlign: "left",
+        offsetX: 40
+      }
+  };
+}
+
+
 }

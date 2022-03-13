@@ -28,6 +28,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatDialogModule } from '@angular/material/dialog';
 import { LinescatterComponent } from './components/linescatter/linescatter.component';
+import { BurstTableComponent } from './components/burst-table/burst-table.component';
 
 
 @NgModule({
@@ -36,7 +37,8 @@ import { LinescatterComponent } from './components/linescatter/linescatter.compo
     UploadComponent,
     ReportComponent,
     DialogOptionsDialog,
-    LinescatterComponent
+    LinescatterComponent,
+    BurstTableComponent
   ],
   imports: [
     BrowserModule,

@@ -77,19 +77,7 @@ def analysis(pathToDataDir):
                         'D':43
                     }
                 },
-            'LM':{
-                    'moments':[0,1,2,3,4,5],
-                    'rate':[2,3,4,1,None,5],
-                    'fit':[1,2,3,4,5,6],
-                    'isDetected':True,
-                    'params':{
-                        'chiSq':90,
-                        'A':8,
-                        'B':89,
-                        'C':23,
-                        'D':43
-                    }
-                },
+            'LM':None,
         },
         {
             'peakTime':56,
@@ -155,7 +143,7 @@ def output():
 def bursts():
     if(globalDict['taskDone']<1):
         return {'success':False,'detail':'Data Not Ready'}
-    return globalDict['bursts']
+    return {'success':True,'bursts':globalDict['bursts']}
 @app.get('/train')
 def train():
     pass

@@ -12,6 +12,7 @@ import {
   ApexGrid
 } from "ng-apexcharts";
 import { ServerService } from 'src/app/server.service';
+import { BurstTableComponent } from '../components/burst-table/burst-table.component';
 import { LinescatterComponent } from '../components/linescatter/linescatter.component';
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -53,10 +54,7 @@ export interface burstRow{
 export class ReportComponent implements OnInit {
   @Input('data') data:number[][][] = []
   @Input('editable') editable:boolean = false;
-  @ViewChildren('expanel') expanels!:QueryList<MatExpansionPanel>;
-  @ViewChildren('chartcell') chartcell!:QueryList<ElementRef>;
-  @ViewChild('charts') charts!:ElementRef;
-  @ViewChildren('linescatter') linescatters!:QueryList<LinescatterComponent>;
+  @ViewChildren('burstTable') burstTable!:QueryList<BurstTableComponent>
   rejectedBursts:number[] = []
   burstListEditable:boolean = false;
   tableMode:boolean = true;
@@ -81,13 +79,26 @@ export class ReportComponent implements OnInit {
 
   innerWidth!: number;
   displayedColumns!: string[];
-  displayedColumnsMain!:string[];
+  invertEditable(){
+    this.burstListEditable = !this.burstListEditable
+    for(let i=0;i<this.burstTable.length;i++){
+      this.burstTable.toArray()[i].burstListEditable = !this.burstTable.toArray()[i].burstListEditable
+    }
+  }
   filterAccepted(data:burstRow[]){
     return data.filter((v,i,[])=>!this.rejectedBursts.includes(i));
   }
   filterRejected(data:any[]){
-    console.log('rejcheck')
+    // console.log('rejcheck')
     return data.filter((v,i,[])=>this.rejectedBursts.includes(i))
+  }
+  removeBurst(ev:number){
+    this.rejectedBursts.push(ev)
+    this.burstTable.toArray()[1].rejectedBursts.push(ev)
+  }
+  addBurst(ev:number){
+    this.rejectedBursts.splice(this.rejectedBursts.indexOf(ev),1)
+    this.burstTable.toArray()[0].rejectedBursts.splice(this.burstTable.toArray()[0].rejectedBursts.indexOf(ev),1)
   }
   openPanel(burstIndex:number){
     const dialogRef = this.dialog.open(DialogOptionsDialog,{
@@ -112,262 +123,260 @@ export class ReportComponent implements OnInit {
     //   tempPanels[burstIndex].open();
     // }
   }
-  cleanedData(data:burstRow[]){
-    let cleaned = data.map((burst:burstRow,j,[])=>{
-      return {
-        ...burst,
-        NS:{
-          ...burst.NS,
-          moments:burst.NS.moments.filter((mom,j,[])=>(burst.NS.rate[j]!==null)),
-          rate:burst.NS.rate.filter((mom,j,[])=>(burst.NS.rate[j]!==null))
-        },
-        LM:{
-          ...burst.LM,
-          moments:burst.LM.moments.filter((mom,j,[])=>(burst.LM.rate[j]!==null)),
-          rate:burst.LM.moments.filter((mom,j,[])=>(burst.LM.rate[j]!==null))
+  cleanedData(data:Partial<burstRow>[]){
+    let cleaned = data.map((burst:Partial<burstRow>,j,[])=>{
+      let obj = {...burst}
+      let NS = obj.NS;
+      if(NS){
+        obj.NS = {
+          ...NS,
+          moments:NS.moments.filter((mom,j,[])=>(NS!.rate[j]!==null)),
+          rate:NS.rate.filter((mom,j,[])=>(NS!.rate[j]!==null))
         }
       }
-    })
+      return obj
+      }
+    )
     return cleaned;
   }
   constructor(public dialog:MatDialog,private server:ServerService) {
   }
   scatterData!:any[]
   lineData!:any[]
-  bursts:burstRow[] = []
+  bursts:Partial<burstRow>[] = []
   mapChartOptions!:Function
+  templateBursts:burstRow[] = [
+    {
+        "peakTime": 30,
+        "peakValue": 150,
+        "BGValue": 140,
+        "MLConf": 60,
+        "Char": "A",
+        "NS": {
+            "moments": [
+                0,
+                1,
+                2,
+                3,
+                5
+            ],
+            "rate": [
+                2,
+                3,
+                4,
+                1,
+                5
+            ],
+            "fit": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "isDetected": true,
+            "params": {
+                "chiSq": 90,
+                "A": 8,
+                "B": 89,
+                "C": 23,
+                "D": 43
+            }
+        },
+        "LM": {
+            "moments": [
+                0,
+                1,
+                2,
+                3,
+                5
+            ],
+            "rate": [
+                0,
+                1,
+                2,
+                3,
+                5
+            ],
+            "fit": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "isDetected": true,
+            "params": {
+                "chiSq": 90,
+                "A": 8,
+                "B": 89,
+                "C": 23,
+                "D": 43
+            }
+        }
+    },
+    {
+        "peakTime": 34,
+        "peakValue": 150,
+        "BGValue": 140,
+        "MLConf": 60,
+        "Char": "A",
+        "NS": {
+            "moments": [
+                0,
+                1,
+                2,
+                3,
+                5
+            ],
+            "rate": [
+                2,
+                3,
+                4,
+                1,
+                5
+            ],
+            "fit": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "isDetected": true,
+            "params": {
+                "chiSq": 90,
+                "A": 8,
+                "B": 89,
+                "C": 23,
+                "D": 43
+            }
+        },
+        "LM": {
+            "moments": [
+                0,
+                1,
+                2,
+                3,
+                5
+            ],
+            "rate": [
+                0,
+                1,
+                2,
+                3,
+                5
+            ],
+            "fit": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "isDetected": true,
+            "params": {
+                "chiSq": 90,
+                "A": 8,
+                "B": 89,
+                "C": 23,
+                "D": 43
+            }
+        }
+    },
+    {
+        "peakTime": 56,
+        "peakValue": 150,
+        "BGValue": 140,
+        "MLConf": 60,
+        "Char": "A",
+        "NS": {
+            "moments": [
+                0,
+                2,
+                3,
+                5
+            ],
+            "rate": [
+                2,
+                4,
+                1,
+                5
+            ],
+            "fit": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "isDetected": true,
+            "params": {
+                "chiSq": 90,
+                "A": 8,
+                "B": 89,
+                "C": 23,
+                "D": 43
+            }
+        },
+        "LM": {
+            "moments": [
+                0,
+                1,
+                2,
+                3,
+                5
+            ],
+            "rate": [
+                0,
+                1,
+                2,
+                3,
+                5
+            ],
+            "fit": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "isDetected": true,
+            "params": {
+                "chiSq": 90,
+                "A": 8,
+                "B": 89,
+                "C": 23,
+                "D": 43
+            }
+        }
+    }
+]
   public accentColor:string = '#ffd640';
   public primaryColor:string = '#683ab7';
     ngOnInit(): void {
     this.server.getBursts().subscribe((data:any)=>{
-      this.bursts = this.cleanedData(data)
-      // console.log(this)
-      for(let j=0;j<this.bursts.length;j++){
-        this.linescatters.toArray()[j].updateChartOptions(this.bursts[j])
+      console.log(data)
+      if(data.success){
+        this.bursts = this.cleanedData(data.bursts)
+        console.log(this.bursts)  
       }
-      console.log(this.bursts)
-
+      else{
+        window.alert(data.detail)
+        window.location.href = '/upload'
+      }
+    },err=>{
+      window.alert("ILYA an error")
+      window.alert(err)
     })
     this.innerWidth = window.innerWidth;
     // this.displayedColumns = ['max','maxAt','avg']
-    this.displayedColumnsMain = ['peakTime','meta','chartNS']
-    this.tableData = this.data.map((burst,i,[])=>{
-      let meta = this.metaData;  
-      return {number:(i+1),burst:burst,...meta[i]};
-      })
-  
-    this.mapChartOptions = (burst:burstRow,type:number)=>{
-      return {
-        series: [
-          {
-            name: `Burst Fit at ${burst.peakTime}`,
-            type: 'line',
-            data: type===0?burst.NS.fit:burst.LM.fit,
-            color:this.primaryColor,//primary
-          },
-          {
-            name: `Burst Data at ${burst.peakTime}`,
-            type:'scatter',
-            data:type===0?burst.NS.rate:burst.LM.rate
-          }
-        ],
-        chart: {
-          // height: 350,
-          width:'150%',
-          type: "line",
-          stacked:false,
-          zoom: {
-            enabled: false
-          },
-          animations:{
-            enabled:false
-          }
-        },
-        dataLabels: {
-          enabled: false
-        },
-        stroke: {
-          width: [1, 1, 4]
-        },
-        title: {
-          text: "Burst",
-          align: "left",
-          offsetX: 110
-        },
-        xaxis: {
-          categories: type===0?burst.NS.moments:burst.LM.moments
-        },
-        yaxis: [
-          {
-            axisTicks: {
-              show: true
-            },
-            axisBorder: {
-              show: true,
-              color: "#008FFB"
-            },
-            labels: {
-              style: {
-                color: "#008FFB"
-              }
-            },
-            title: {
-              text: "Power???",
-              style: {
-                color: "#008FFB"
-              }
-            },
-            tooltip: {
-              enabled: true
-            }
-          },
-          {
-            seriesName: "Income",
-            opposite: true,
-            axisTicks: {
-              show: true
-            },
-            axisBorder: {
-              show: true,
-              color: "#00E396"
-            },
-            labels: {
-              style: {
-                color: "#00E396"
-              }
-            },
-            title: {
-              text: "Operating Cashflow (thousand crores)",
-              style: {
-                color: "#00E396"
-              }
-            }
-          },
-          {
-            seriesName: "Revenue",
-            opposite: true,
-            axisTicks: {
-              show: true
-            },
-            axisBorder: {
-              show: true,
-              color: "#FEB019"
-            },
-            labels: {
-              style: {
-                color: "#FEB019"
-              }
-            },
-            title: {
-              text: "Revenue (thousand crores)",
-              style: {
-                color: "#FEB019"
-              }
-            }
-          }
-        ],
-        tooltip: {
-          fixed: {
-            enabled: true,
-            position: "topLeft", // topRight, topLeft, bottomRight, bottomLeft
-            offsetY: 30,
-            offsetX: 60
-          }
-        },
-        legend: {
-          horizontalAlign: "left",
-          offsetX: 40
-        }
-      };
-    }
-    this.chartOptions = this.data.map((burst:number[][],i:number,[])=>{
-      return {
-        series: [
-          {
-            name: `Burst ${i+1}`,
-            data: burst[1].map(v=>Math.round(v*100)/100),
-            color:this.primaryColor,//primary
-          }
-        ],
-        chart: {
-          // height: 350,
-          width:'150%',
-          type: "line",
-          zoom: {
-            enabled: false
-          },
-          animations:{
-            enabled:false
-          }
-        },
-        dataLabels: {
-          enabled: false
-        },
-        stroke: {
-          curve: "straight"
-        },
-        title: {
-          text: `Burst ${i+1}`,
-          align: "left"
-        },
-        grid: {
-          row: {
-            colors: [this.accentColor, "transparent"], // takes an array which will be repeated on columns
-            opacity: 0.5,
-             
-          },
-        },
-        xaxis: {
-          categories: burst[0].map(v=>Math.round(v*100)/100).map(v=>v.toString())
-        },
-        
-      };
-  
-    })
-    this.tableChartOptions = this.data.map((burst,i,[])=>{
-      return {
-        series: [
-          {
-            name: `Burst ${i+1}`,
-            data: burst[1].map(v=>Math.round(v*100)/100),
-            color:this.primaryColor//primary
-          }
-        ],
-        chart: {
-          height: 250,
-          width:300,
-          type: "line",
-          zoom: {
-            enabled: false
-          },
-          animations: {
-            enabled: false,
-          }  
-        },
-        dataLabels: {
-          enabled: false
-        },
-        stroke: {
-          curve: "straight"
-        },
-        title: {
-          text: ``,
-          align: "left"
-        },
-        grid: {
-          row: {
-            colors: [this.accentColor, "transparent"], // takes an array which will be repeated on columns
-            opacity: 0.5,
-             
-          },
-        },
-        xaxis: {
-          categories: burst[0].map(v=>Math.round(v*100)/100).map(v=>v.toString())
-        }
-      };
-  
-    })
-    this.data.filter((v,i,[])=>this.rejectedBursts.includes(i))
   }
   @HostListener('window:resize', ['$event'])
   onResize(event:any) {
