@@ -27,6 +27,11 @@ class LC:
         self.processed_lc = np.array([self.sm_time, self.sm_rates])
         # self.processed_lc = np.array([self.bin_time, self.bin_rates])
 
+        self.ns_flares = self.ns(self.processed_lc[0], self.processed_lc[1])
+        self.lm_flares = self.lm(self.processed_lc[0], self.processed_lc[1])
+
+        self.base_flares = self.merge_flares(self.ns_flares, self.lm_flares)
+
     def get_lc(self):
         return self.processed_lc
 
@@ -79,6 +84,72 @@ class LC:
                 continue
         return box_time, box_count
 
+    def ns(self, time, rates):
+        np.random.seed(0)
+        flares = []
+        sampled = sorted(np.random.choice(range(len(time)), size=10, replace=False))
+        for i in range(0, len(sampled), 2):
+            # start_time = time[sampled[i]]
+            # end_time = time[sampled[i + 1]]
+            peak_time = sampled[i] + np.argmax(rates[sampled[i]:sampled[i + 1]])
+            flares.append([sampled[i], sampled[i + 1], peak_time])
+        return flares
+
+    def lm(self, time, rates):
+        np.random.seed(0)
+        flares = []
+        sampled = sorted(np.random.choice(range(len(time)), size=12, replace=False))
+        for i in range(0, len(sampled), 2):
+            # start_time = time[sampled[i]]
+            # end_time = time[sampled[i + 1]]
+            peak_time = sampled[i] + np.argmax(rates[sampled[i]:sampled[i + 1]])
+            flares.append([sampled[i], sampled[i + 1], peak_time])
+        return flares
+
+    def merge_flares(self, ns_flares, lm_flares):
+        flares = []
+        for flare in ns_flares:
+            flare_base = {
+                'peak_idx': flare[2],
+                'ns': {},
+                'lm': {}
+            }
+
+            flare_base['ns']['is_detected'] = True
+            flare_base['ns']['start_idx'] = flare[0]
+            flare_base['ns']['end_idx'] = flare[1]
+
+            flare_base['lm']['is_detected'] = False
+
+            flares.append(flare_base)
+
+        for flare in lm_flares:
+            found = False
+            for flare_old in flares:
+                if(flare[2] == flare_old['peak_idx']):
+                    flare_old['lm']['is_detected'] = True
+                    flare_old['lm']['start_idx'] = flare[0]
+                    flare_old['lm']['end_idx'] = flare[1]
+                    found = True
+                    break
+
+            if (not found):
+                flare_base = {
+                    'peak_idx': flare[2],
+                    'ns': {},
+                    'lm': {}
+                }
+
+                flare_base['ns']['is_detected'] = False
+
+                flare_base['lm']['is_detected'] = True
+                flare_base['lm']['start_idx'] = flare[0]
+                flare_base['lm']['end_idx'] = flare[1]
+
+                flares.append(flare_base)
+
+        return flares
+
 
 if __name__ == '__main__':
     lc = LC('../../../ch2_xsm_20211013_v1_level2.lc', 20)
@@ -90,3 +161,8 @@ if __name__ == '__main__':
     # plt.plot(lc.bin_time, lc.bin_rates)
     # plt.scatter(lc.bin_time, lc.bin_rates, s=0.2)
     # plt.show()
+
+    print(lc.ns_flares)
+    print(lc.lm_flares)
+    for flare in lc.flares:
+        print(flare)
