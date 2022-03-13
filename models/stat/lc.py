@@ -6,6 +6,8 @@ import numpy as np
 
 from scipy.stats import linregress
 
+import matplotlib.pyplot as plt
+
 
 class LC:
     def __init__(self, lc_path, bin_size):
@@ -19,10 +21,11 @@ class LC:
         self.sm_time, self.sm_rates = self.smoothen(
             self.raw_time, self.raw_rates, self.sm_batch_size, self.sm_kernel_size)
 
-        self.binned_time, self.binned_rates = self.rebin_lc(
+        self.bin_time, self.bin_rates = self.rebin_lc(
             self.sm_time, self.sm_rates, 1.0, self.bin_size)
 
-        self.processed_lc = np.array([self.binned_time, self.binned_rates])
+        self.processed_lc = np.array([self.sm_time, self.sm_rates])
+        # self.processed_lc = np.array([self.bin_time, self.bin_rates])
 
     def get_lc(self):
         return self.processed_lc
@@ -79,5 +82,11 @@ class LC:
 
 if __name__ == '__main__':
     lc = LC('../../../ch2_xsm_20211013_v1_level2.lc', 20)
+
     print(lc.raw_time.shape, lc.processed_lc.shape)
-    print(lc.get_lc())
+
+    # plt.plot(lc.sm_time, lc.sm_rates)
+    # plt.scatter(lc.sm_time, lc.sm_rates, s=0.01)
+    # plt.plot(lc.bin_time, lc.bin_rates)
+    # plt.scatter(lc.bin_time, lc.bin_rates, s=0.2)
+    # plt.show()
