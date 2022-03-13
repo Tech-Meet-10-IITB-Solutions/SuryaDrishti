@@ -56,7 +56,7 @@ class SNN():
             * (erf(Z) - erf(Z - x / C))
         return EFP_fit
 
-    def train(self, processed_data, parameters_ns, parameters_lm, snr, labeled_data, epochs):
+    def train(self, processed_data, parameters_ns, parameters_lm, snr, labels, epochs):
         A_ns, B_ns, C_ns, D_ns, start_time_ns, end_time_ns, chisq_ns = parameters_ns
         A_lm, B_lm, C_lm, D_lm, start_time_lm, end_time_lm, chisq_lm = parameters_lm
 
@@ -67,7 +67,7 @@ class SNN():
         training_data = np.concatenate(
             (processed_fit, ns_fit, lm_fit, chisq_ns, chisq_lm, snr), axis=1)
 
-        history = self.model.fit(training_data, labeled_data,
+        history = self.model.fit(training_data, labels,
                                  epochs=epochs, verbose=1, batch_size=1)
         return history
 
