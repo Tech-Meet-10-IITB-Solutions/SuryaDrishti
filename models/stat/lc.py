@@ -24,8 +24,7 @@ class LC:
         self.bin_time, self.bin_rates = self.rebin_lc(
             self.sm_time, self.sm_rates, 1.0, self.bin_size)
 
-        self.processed_lc = np.array([self.sm_time, self.sm_rates])
-        # self.processed_lc = np.array([self.bin_time, self.bin_rates])
+        self.processed_lc = np.array([self.bin_time, self.bin_rates])
 
         self.ns_flares = self.ns(self.processed_lc[0], self.processed_lc[1])
         self.lm_flares = self.lm(self.processed_lc[0], self.processed_lc[1])
@@ -61,9 +60,13 @@ class LC:
         new_time = np.arange(time[0] - t_bin / 2 + t_bin_new / 2,
                              time[-1] + t_bin / 2 + t_bin_new / 2, t_bin_new)
         bin_edges = self.bin_edges_from_time(new_time, t_bin_new)
+
         bin_counts = np.histogram(time, bins=bin_edges, weights=rates)[0]
-        bin_widths = bin_edges[1:] - bin_edges[:-1]
-        bin_rates = bin_counts / bin_widths
+        bin_widths = np.histogram(time, bins=bin_edges, weights=np.ones_like(rates))[0]
+
+        bin_rates = np.nan * bin_widths
+        bin_rates[bin_widths != 0] = bin_counts[bin_widths != 0] / bin_widths[bin_widths != 0]
+
         return new_time, bin_rates
 
     def bin_edges_from_time(self, time, t_bin):
@@ -94,9 +97,7 @@ class LC:
         flares = []
         sampled = sorted(np.random.choice(range(len(time)), size=10, replace=False))
         for i in range(0, len(sampled), 2):
-            # start_time = time[sampled[i]]
-            # end_time = time[sampled[i + 1]]
-            peak_time = sampled[i] + np.argmax(rates[sampled[i]:sampled[i + 1]])
+            peak_time = sampled[i] + np.nanargmax(rates[sampled[i]:sampled[i + 1]])
             flares.append([sampled[i], sampled[i + 1], peak_time])
         return flares
 
@@ -105,9 +106,7 @@ class LC:
         flares = []
         sampled = sorted(np.random.choice(range(len(time)), size=12, replace=False))
         for i in range(0, len(sampled), 2):
-            # start_time = time[sampled[i]]
-            # end_time = time[sampled[i + 1]]
-            peak_time = sampled[i] + np.argmax(rates[sampled[i]:sampled[i + 1]])
+            peak_time = sampled[i] + np.nanargmax(rates[sampled[i]:sampled[i + 1]])
             flares.append([sampled[i], sampled[i + 1], peak_time])
         return flares
 
@@ -166,7 +165,7 @@ class LC:
 
     def fit_efp(self, params, time):
         A, B, C, D = params['A'], params['B'], params['C'], params['D']
-        return A * np.exp(-B) + C * np.exp(-D)
+        return (A * np.exp(-B) + C * np.exp(-D)) * np.log(time)
 
     def add_efp(self, base_flares, data):
         time = data[0]
