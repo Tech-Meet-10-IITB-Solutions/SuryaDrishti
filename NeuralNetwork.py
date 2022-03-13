@@ -78,14 +78,14 @@ class ML():
     EFP_output =  1/2 * np.sqrt(np.pi) *  A * C * np.exp(D*(B-x) + C**2*D**2/4) * (erf(Z) - erf(Z - x/C))
     return EFP_output #Returns the fitted points. 
 
-  def train(self, raw_data, parameters_ns, parameters_lm, snr, epochs):
+  def train(self, raw_data, parameters_ns, parameters_lm, snr, epochs): #snr should be an array of shape (number of curves, 1)
     #parameters_ns and parameters_lm are lists we obtain from the stat model containing A, B, C, D, start_time and end_time.
-    A_ns, B_ns, C_ns, D_ns, start_time_ns, end_time_ns, chisq_ns = parameters_ns
-    A_lm, B_lm, C_lm, D_lm, start_time_lm, end_time_lm, chisq_lm = parameters_lm
+    A_ns, B_ns, C_ns, D_ns, start_time_ns, end_time_ns, chisq_ns = parameters_ns #chisq_ns should be an array of shape (number of curves, 1)
+    A_lm, B_lm, C_lm, D_lm, start_time_lm, end_time_lm, chisq_lm = parameters_lm #Same as chisq_ns
     processed_data = self.imputate(raw_data) 
     ns_data = self.EFP(A_ns, B_ns, C_ns, D_ns, start_time_ns, end_time_ns)
     lm_data = self.EFP(A_lm, B_lm, C_lm, D_lm, start_time_lm, end_time_lm)
-    training_data = np.concatenate((processed_data, ns_data, lm_data), axis = 1)
+    training_data = np.concatenate((processed_data, ns_data, lm_data, chisq_ns, chisq_lm, snr), axis = 1)
     history = self.train(training_data, labeled_data, epochs)
     return history
 
