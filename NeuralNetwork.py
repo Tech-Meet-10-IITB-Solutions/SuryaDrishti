@@ -18,9 +18,10 @@ from scipy.special import erf
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LeakyReLU
+from keras.models import load_model
 # %matplotlib inline
 
-n = 100
+n = 10
 
 class ML():
 #n denotes the number of light curve data points
@@ -44,6 +45,13 @@ class ML():
     history = self.model.fit(training_data, labeled_data, epochs = epochs, verbose = 1) 
     #verbose provides progress bar. Can be set to 0 if no info needs to be displayed.
     return history
+
+  def save(self, path_loc):
+    self.model.save(path_loc, optimizer = True, save_format = 'h5')
+  
+  def load(self, path_loc):
+    del self.model
+    self.model = load_model(path_loc)
 
   def imputate(self, raw_data): #raw_data is a an array of shape (2, n) i.e. we have n pairs of (time, counts)
     d_indices = []
@@ -74,6 +82,7 @@ class ML():
     lm_data = self.EFP(A_lm, B_lm, C_lm, D_lm, start_time_lm, end_time_lm)
     training_data = np.concatenate(processed_data, ns_data, lm_data, axis = 0)
     history = self.train(training_data, labeled_data, epochs)
+    return history
 
 NN = ML(n)
 
@@ -86,9 +95,9 @@ acc = history.history['accuracy']
 output = NN.forward(training_data)
 print(output)
 
-raw_data = np.random.rand(2, n)
-#raw_data = np.array([[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],[5, None, 10, 6, None, 9, 1, None, 0, 2.5]])
-raw_data = np.sort(raw_data)
+#raw_data = np.random.rand(2, n)
+raw_data = np.array([[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],[5, None, 10, 6, None, 9, 1, None, 0, 2.5]])
+#raw_data = np.sort(raw_data)
 plt.plot(raw_data[0], raw_data[1], marker = 'o')
 plt.show()
 
