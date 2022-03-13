@@ -12,8 +12,9 @@ from keras.models import load_model
 from keras.layers import LeakyReLU
 from keras.layers import Dense
 from keras.models import Sequential
+from keras import initializers
 
-#tf.device('cpu:0')
+tf.device('cpu:0')
 
 
 class SNN():
@@ -21,11 +22,11 @@ class SNN():
         self.n = 10
 
         self.model = Sequential()
-        self.model.add(Dense(128, input_dim=3 * self.n + 3))
+        self.model.add(Dense(128, input_dim=3 * self.n + 3, name = 'layer1'))
         self.model.add(LeakyReLU(alpha=0.1))
-        self.model.add(Dense(128))
+        self.model.add(Dense(128, name = 'layer2'))
         self.model.add(LeakyReLU(alpha=0.1))
-        self.model.add(Dense(1, activation='sigmoid'))
+        self.model.add(Dense(1, activation='sigmoid', name = 'layer3'))
         self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         self.model.summary()
 
@@ -34,7 +35,7 @@ class SNN():
         return output
 
     def save(self, path_loc):
-        self.model.save(path_loc, optimizer=True, save_format='h5')
+        self.model.save(path_loc, include_optimizer=True, save_format='h5')
 
     def load(self, arg):
         if arg == 'checkpoint':
@@ -74,6 +75,13 @@ class SNN():
                                  epochs=epochs, verbose=1, batch_size=1)
         return history
 
+    def create_base(self):
+        ones_initializer = tf.keras.intializers.Ones()
+        zeros_initializer = tf.keras.initializers.Zeros()
+        self.model.layer1 = Dense(128, bias_initializer = zeros_initializer)
+        self.model.layer2 = Dense(128, bias_initializer = zeros_initializer)
+        self.model.layer3 = Dense(1, bias_initializer = ones_initializer)
+        self.save('base')
 
 if __name__ == '__main__':
     model = SNN()
