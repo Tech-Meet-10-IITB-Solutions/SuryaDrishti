@@ -32,6 +32,8 @@ class LC:
 
         self.base_flares = self.merge_flares(self.ns_flares, self.lm_flares)
 
+        self.flares = self.add_efp(self.base_flares, self.processed_lc)
+
     def get_lc(self):
         return self.processed_lc
 
@@ -147,6 +149,70 @@ class LC:
                 flare_base['lm']['end_idx'] = flare[1]
 
                 flares.append(flare_base)
+
+        return flares
+
+    def efp(self, time, rates):
+        res = {}
+        res['A'] = np.random.rand()
+        res['B'] = np.random.rand()
+        res['C'] = np.random.rand()
+        res['D'] = np.random.rand()
+        res['ChiSq'] = np.random.rand()
+        return res
+
+    def fit_efp(self, params, time):
+        A, B, C, D = params['A'], params['B'], params['C'], params['D']
+        return A * np.exp(-B) + C * np.exp(-D)
+
+    def add_efp(self, base_flares, data):
+        time = data[0]
+        rates = data[1]
+        flares = []
+
+        for flare in base_flares:
+            flare_propr = {
+                'peak_time': time[flare['peak_idx']],
+                'peak_rate': rates[flare['peak_idx']],
+                'ns': {},
+                'lm': {}
+            }
+
+            if flare['ns']['is_detected']:
+                fl_time = time[flare['ns']['start_idx']:flare['ns']['end_idx']]
+                fl_rates = rates[flare['ns']['start_idx']:flare['ns']['end_idx']]
+                fit_params = self.efp(fl_time, fl_rates)
+                fit_rates = self.fit_efp(fit_params, fl_time)
+                flare_propr['ns'] = {
+                    'is_detected': True,
+                    'time': fl_time,
+                    'rates': fl_rates,
+                    'fit': fit_rates,
+                    'fit_params': fit_params
+                }
+            else:
+                flare_propr['ns'] = {
+                    'is_detected': False,
+                }
+
+            if flare['lm']['is_detected']:
+                fl_time = time[flare['lm']['start_idx']:flare['lm']['end_idx']]
+                fl_rates = rates[flare['lm']['start_idx']:flare['lm']['end_idx']]
+                fit_params = self.efp(fl_time, fl_rates)
+                fit_rates = self.fit_efp(fit_params, fl_time)
+                flare_propr['lm'] = {
+                    'is_detected': True,
+                    'time': fl_time,
+                    'rates': fl_rates,
+                    'fit': fit_rates,
+                    'fit_params': fit_params
+                }
+            else:
+                flare_propr['lm'] = {
+                    'is_detected': False,
+                }
+
+            flares.append(flare_propr)
 
         return flares
 
