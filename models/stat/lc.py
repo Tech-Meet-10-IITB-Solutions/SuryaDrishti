@@ -6,7 +6,7 @@ import numpy as np
 
 from scipy.stats import linregress
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 class LC:
@@ -47,12 +47,15 @@ class LC:
         return time, rates
 
     def bg_correction(self, time, rates, mode='linear'):
-        if (mode == 'linear'):
+        if mode == 'linear':
             slope, intercept, r, p, se = linregress(time, rates)
             return rates - (slope * time + intercept)
-        elif(mode == 'constant'):
+
+        if mode == 'constant':
             mean, _, _ = scs(rates)
             return rates - mean
+
+        return rates
 
     def rebin_lc(self, time, rates, t_bin, t_bin_new):
         new_time = np.arange(time[0] - t_bin / 2 + t_bin_new / 2,
@@ -73,7 +76,7 @@ class LC:
     def smoothen(self, time, rates, box_bin, kernel_size):
         box_time, box_count = np.array([]), np.array([])
         for i in range(len(time[:]) // box_bin):
-            if(box_bin * i + i <= len(rates)):
+            if box_bin * i + i <= len(rates):
                 counts = rates[box_bin * i + i:box_bin * (i + 1) + kernel_size + 1 + i]
                 boxavg_counts = convolve(counts, Box1DKernel(kernel_size))[
                     kernel_size // 2:box_bin + kernel_size // 2 + 1]
@@ -128,14 +131,14 @@ class LC:
         for flare in lm_flares:
             found = False
             for flare_old in flares:
-                if(flare[2] == flare_old['peak_idx']):
+                if flare[2] == flare_old['peak_idx']:
                     flare_old['lm']['is_detected'] = True
                     flare_old['lm']['start_idx'] = flare[0]
                     flare_old['lm']['end_idx'] = flare[1]
                     found = True
                     break
 
-            if (not found):
+            if not found:
                 flare_base = {
                     'peak_idx': flare[2],
                     'ns': {},
