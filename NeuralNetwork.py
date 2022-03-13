@@ -21,10 +21,10 @@ from keras.layers import LeakyReLU
 from keras.models import load_model
 # %matplotlib inline
 
-n = 10
+n = 10 #Specifies the number of data points we are going to use. 
+N = 5 #Specifies number of light curves being provided.
 
 class ML():
-#n denotes the number of light curve data points
   def __init__(self, n):
     self.n = n
     self.model = Sequential()   
@@ -40,17 +40,18 @@ class ML():
     output = self.model(input)
     return output
 
-  def train(self, training_data, labeled_data, epochs):
-    #training_data is a column matrix of shape (number of data points, 3n + 3)
-    history = self.model.fit(training_data, labeled_data, epochs = epochs, verbose = 1) 
+  def train_only(self, training_data, labeled_data, epochs):
+    #training_data is an array of shape (number of curves, 3n + 3)
+    #labeled_data is an array of shape (number of curves, 1)
+    history = self.model.fit(training_data, labeled_data, epochs = epochs, verbose = 1, batch_size = 1) 
     #verbose provides progress bar. Can be set to 0 if no info needs to be displayed.
     return history
 
   def save(self, path_loc):
-    self.model.save(path_loc, optimizer = True, save_format = 'h5')
+    self.model.save(path_loc, optimizer = True, save_format = 'h5') #Saves the complete model (weights + architecture) in h5 format.
   
   def load(self, path_loc):
-    del self.model
+    del self.model  #Deletes the previous model before loading the new one.
     self.model = load_model(path_loc)
 
   def imputate(self, raw_data): #raw_data is a an array of shape (2, n) i.e. we have n pairs of (time, counts)
@@ -61,7 +62,9 @@ class ML():
       pprocessed_data = np.zeros((2, self.n - len(d_indices)))  
       pprocessed_data[0] = np.delete(raw_data[0], d_indices)
       pprocessed_data[1] = np.delete(raw_data[1], d_indices)
-    spline = CubicSpline(pprocessed_data[0], pprocessed_data[1], extrapolate = True)
+    #pprocessed_data contains all the data points from the light curves with the ones with the value None removed.
+    
+    spline = CubicSpline(pprocessed_data[0], pprocessed_data[1], extrapolate = True) #Fits a cubic spline to the obtained data.
     processed_data = np.zeros((2, self.n))
     processed_data[0] = raw_data[0]
     for i in range(len(processed_data[0])):
@@ -69,25 +72,40 @@ class ML():
     return processed_data
 
   def EFP(self, A, B, C, D, start_time, end_time):
+    #EFP is the curve fitting we are using. A, B, C, D, start_time and end_time will be provided by the stat model.
     Z = (2*B + C**2*D)/(2*C)
     x = np.linspace(start_time, end_time, num = self.n, endpoint = True)
     EFP_output =  1/2 * np.sqrt(np.pi) *  A * C * np.exp(D*(B-x) + C**2*D**2/4) * (erf(Z) - erf(Z - x/C))
-    return EFP_output
+    return EFP_output #Returns the fitted points. 
 
-  def train_prep(self, raw_data, parameters_ns, parameters_lm, epochs):
-    A_ns, B_ns, C_ns, D_ns, start_time_ns, end_time_ns = parameters_ns
-    A_lm, B_lm, C_lm, D_lm, start_time_lm, end_time_lm = parameters_lm
-    processed_data = self.imputate(raw_data)
+  def train(self, raw_data, parameters_ns, parameters_lm, snr, epochs):
+    #parameters_ns and parameters_lm are lists we obtain from the stat model containing A, B, C, D, start_time and end_time.
+    A_ns, B_ns, C_ns, D_ns, start_time_ns, end_time_ns, chisq_ns = parameters_ns
+    A_lm, B_lm, C_lm, D_lm, start_time_lm, end_time_lm, chisq_lm = parameters_lm
+    processed_data = self.imputate(raw_data) 
     ns_data = self.EFP(A_ns, B_ns, C_ns, D_ns, start_time_ns, end_time_ns)
     lm_data = self.EFP(A_lm, B_lm, C_lm, D_lm, start_time_lm, end_time_lm)
-    training_data = np.concatenate(processed_data, ns_data, lm_data, axis = 0)
+    training_data = np.concatenate((processed_data, ns_data, lm_data), axis = 1)
     history = self.train(training_data, labeled_data, epochs)
     return history
 
+#Below code is all for testing stuff
+
+raw_data = np.random.rand(100, 300)
+data_1 = np.random.rand(100, 300)
+data_2 = np.random.rand(100, 300)
+final = np.concatenate((raw_data, data_1, data_2), axis = 1)
+print(np.shape(final))
+
+x = np.random.rand(3,2)
+print(x)
+
 NN = ML(n)
 
-training_data = np.random.rand(100, 303)
-labeled_data = np.random.randint(0, 2, (100, 1))
+training_data = np.random.rand(10, 3*n + 3)
+labeled_data = np.random.randint(0, 2, (10, 1))
+print(np.shape(training_data))
+print(labeled_data)
 
 history = NN.train(training_data, labeled_data, 20)
 acc = history.history['accuracy']
