@@ -181,8 +181,13 @@ export class LinescatterComponent implements OnInit {
         stacked: false,
         zoom:{
           type:'x'
+        },
+        animations:{
+          enabled:false
         }
       },
+      
+      
       dataLabels: {
         enabled: false
       },

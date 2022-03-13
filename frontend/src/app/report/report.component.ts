@@ -416,7 +416,7 @@ revertToUploadPage(){
     this.server.getBursts().subscribe((data:any)=>{
       console.log(data)
       if(data.success){
-        this.bursts = this.cleanedData(data.bursts)
+        this.bursts = data.bursts
         console.log(this.bursts)  
       }
       else{
