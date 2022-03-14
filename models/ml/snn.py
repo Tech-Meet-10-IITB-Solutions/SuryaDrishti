@@ -12,6 +12,7 @@ from keras.models import load_model
 from keras.layers import LeakyReLU
 from keras.layers import Dense
 from keras.models import Sequential
+from keras import initializers
 
 tf.device('cpu:0')
 
@@ -21,11 +22,11 @@ class SNN():
         self.n = 10
 
         self.model = Sequential()
-        self.model.add(Dense(128, input_dim=3 * self.n + 3))
+        self.model.add(Dense(128, input_dim=3 * self.n + 3, name='layer1'))
         self.model.add(LeakyReLU(alpha=0.1))
-        self.model.add(Dense(128))
+        self.model.add(Dense(128, name='layer2'))
         self.model.add(LeakyReLU(alpha=0.1))
-        self.model.add(Dense(1, activation='sigmoid'))
+        self.model.add(Dense(1, activation='sigmoid', name='layer3'))
         self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         self.model.summary()
 
@@ -33,16 +34,26 @@ class SNN():
         output = self.model(input)
         return output
 
+    def create_base(self):
+        ones_initializer = initializers.Ones()
+        zeros_initializer = initializers.Zeros()
+        self.model.layer3 = Dense(1, kernel_initializer=zeros_initializer,
+                                  bias_initializer=ones_initializer)
+        self.save('base')
+
     def save(self, path_loc):
-        self.model.save(path_loc, optimizer=True, save_format='h5')
+        self.model.save(path_loc, include_optimizer=True, save_format='h5')
 
-    def load(self, path_loc):
-        self.model = load_model(path_loc)
+    def load(self, arg):
+        if arg == 'checkpoint':
+            self.model = load_model('checkpoint')
+        else:
+            self.model = load_model('base')
 
-    def interpolate(self, processed_data):
-        spline = CubicSpline(processed_data[0], processed_data[1], extrapolate=True)
+    def interpolate(self, processed_lc):
+        spline = CubicSpline(processed_lc[0], processed_lc[1], extrapolate=True)
 
-        start_time, end_time = processed_data[0][0], processed_data[0][-1]
+        start_time, end_time = processed_lc[0][0], processed_lc[0][-1]
         x = np.linspace(start_time, end_time, num=self.n, endpoint=True)
 
         return spline(x)
