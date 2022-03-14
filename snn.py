@@ -69,7 +69,7 @@ class SNN():
         lm_fit = self.EFP(A_lm, B_lm, C_lm, D_lm, start_time_lm, end_time_lm)
 
         training_data = np.concatenate(
-            (processed_fit, ns_fit, lm_fit, chisq_ns, chisq_lm, snr), axis=1)
+            (processed_fit, ns_fit, lm_fit, 1/chisq_ns, 1/chisq_lm, snr), axis=1)
 
         history = self.model.fit(training_data, labeled_data,
                                  epochs=epochs, verbose=1, batch_size=1)
