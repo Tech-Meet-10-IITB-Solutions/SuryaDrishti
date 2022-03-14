@@ -15,6 +15,7 @@ from keras.models import Sequential
 from keras import initializers
 
 tf.device('cpu:0')
+ml_dir = os.path.dirname((os.path.realpath(__file__)))
 
 
 class SNN():
@@ -28,7 +29,6 @@ class SNN():
         self.model.add(LeakyReLU(alpha=0.1))
         self.model.add(Dense(1, activation='sigmoid', name='layer3'))
         self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-        self.model.summary()
 
     def forward(self, input):
         output = self.model(input)
@@ -39,16 +39,16 @@ class SNN():
         zeros_initializer = initializers.Zeros()
         self.model.layer3 = Dense(1, kernel_initializer=zeros_initializer,
                                   bias_initializer=ones_initializer)
-        self.save('base')
+        self.save(os.path.join(ml_dir, 'base.h5'))
 
     def save(self, path_loc):
         self.model.save(path_loc, include_optimizer=True, save_format='h5')
 
     def load(self, arg):
         if arg == 'checkpoint':
-            self.model = load_model('checkpoint')
+            self.model = load_model(os.path.join(ml_dir, 'checkpoint.h5'))
         else:
-            self.model = load_model('base')
+            self.model = load_model(os.path.join(ml_dir, 'base.h5'))
 
     def interpolate(self, processed_lc):
         spline = CubicSpline(processed_lc[0], processed_lc[1], extrapolate=True)
