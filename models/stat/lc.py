@@ -33,7 +33,7 @@ class LC:
 
         self.flares = self.add_efp(self.base_flares, self.processed_lc)
 
-        self.ml_data = self.gen_ml_data(self.flares)
+        self.ml_data = self.gen_ml_data(self.flares, self.processed_lc[0], self.processed_lc[1])
 
     def get_lc(self):
         return self.processed_lc
@@ -240,5 +240,5 @@ if __name__ == '__main__':
 
     print(lc.ns_flares)
     print(lc.lm_flares)
-    for flare in lc.flares:
-        print(flare)
+    # for flare in lc.flares:
+    #     print(flare)

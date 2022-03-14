@@ -36,6 +36,7 @@ def process_zip(content):
             zip_ref.extractall('input/')
     except Exception:
         error = 'Unable to extract ZIP file'
+        return
 
     complete = 0.8
 
@@ -45,11 +46,12 @@ def process_zip(content):
     else:
         error = 'ZIP file contains more than one file'
 
+    print(file_path)
     complete = 1.0
 
 
 @ app.post('/upload')
-def upload(file: UploadFile = File(...)):
+async def upload(file: UploadFile = File(...)):
     global complete, file_path, error, lc
 
     complete = 0.0
@@ -58,7 +60,7 @@ def upload(file: UploadFile = File(...)):
     lc = None
     os.system('rm -rf input*')
 
-    content = file.read()
+    content = await file.read()
 
     thread = Thread(target=process_zip, args=(content,))
     thread.start()
@@ -82,6 +84,7 @@ def progress():
 def bursts(bin_size: int = 20):
     global file_path, lc
 
+    print(file_path)
     lc = LC(file_path, bin_size)
     flares = lc.get_flares()
 
