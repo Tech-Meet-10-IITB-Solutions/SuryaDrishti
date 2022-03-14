@@ -68,18 +68,13 @@ export class UploadComponent implements OnInit {
       return;
     }
     this.server.getProgress().subscribe((data:any)=>{
-      if(data['taskDone']>=1){
-        this.progress = 100;
-        this.finalData = data;
-        console.log(data);
-        console.log('emitted')
-        window.location.href="/report"
+      if(data['error']){
+        window.alert(data['error'])
+        //TODO:option to remove file
       }
       else{
-        this.progress = data['taskDone']*100
-        setTimeout(()=>{
-          this.updateProgress();
-        },1000)            
+        this.progress = 100
+        window.location.href = '/report'
       }
     })
   }

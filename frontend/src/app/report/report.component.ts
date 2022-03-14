@@ -415,13 +415,13 @@ revertToUploadPage(){
     ngOnInit(): void {
     this.server.getBursts().subscribe((data:any)=>{
       console.log(data)
-      if(data.success){
-        this.bursts = data.bursts
+      if(data.status===200){
+        // this.bursts = data.flares
         console.log(this.bursts)  
       }
       else{
         window.alert(data.detail)
-        window.location.href = '/upload'
+        // window.location.href = '/upload'
       }
     },err=>{
       window.alert("ILYA an error")

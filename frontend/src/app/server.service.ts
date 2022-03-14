@@ -19,21 +19,28 @@ export class ServerService {
   sendFiles(files:any[]){
     let uploadData = new FormData();
     console.log(files[0].name);
-    uploadData.append('file1',files[0],files[0].name)
+    uploadData.append('file',files[0],files[0].name)
     // for(let i=0;i<files.length;i++){
     //   uploadData.append(`file${i}`,files[i],files[i].name)
     // }
     return this.http.post(baseUrl+'upload',uploadData)
   }
   getProgress(){
-    return this.http.get(baseUrl+'output',httpop);
+    return this.http.get(baseUrl+'progress',httpop);
   }
   
   toggleVars(b:number,v:number){
     return this.http.get('')
   }
-  getBursts(){
-    return this.http.get(baseUrl+'bursts',httpop)
+  getBursts(binSize?:number){
+    if(binSize){
+      return this.http.get(baseUrl+'flares?bin_size='+binSize.toString(),httpop)
+    }
+    else{
+      //backend defaults bs to 20.
+      return this.http.get(baseUrl+'flares',httpop)
+    }
+
   }
   request(method: string, route: string, data?: any) {
     if (method === 'GET') {

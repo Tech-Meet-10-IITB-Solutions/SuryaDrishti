@@ -40,6 +40,7 @@ def process_zip(content):
     complete = 0.8
 
     files = os.listdir('input/')
+    print(files)
     if len(files) == 1:
         file_path = 'input/' + files[0]
     else:
@@ -49,7 +50,7 @@ def process_zip(content):
 
 
 @ app.post('/upload')
-def upload(file: UploadFile = File(...)):
+async def upload(file: UploadFile = File(...)):
     global complete, file_path, error, lc
 
     complete = 0.0
@@ -58,7 +59,7 @@ def upload(file: UploadFile = File(...)):
     lc = None
     os.system('rm -rf input*')
 
-    content = file.read()
+    content = await file.read()
 
     thread = Thread(target=process_zip, args=(content,))
     thread.start()
@@ -81,7 +82,6 @@ def progress():
 @ app.get('/flares')
 def bursts(bin_size: int = 20):
     global file_path, lc
-
     lc = LC(file_path, bin_size)
     flares = lc.get_flares()
 
@@ -89,7 +89,7 @@ def bursts(bin_size: int = 20):
         flare['bg_rate'] = flare['peak_rate']
         flare['ml_conf'] = 60
         flare['class'] = 'A'
-
+    
     return {'status': 200, 'flares': flares}
 
 
