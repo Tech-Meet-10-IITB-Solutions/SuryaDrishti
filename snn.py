@@ -78,9 +78,7 @@ class SNN():
     def create_base(self):
         ones_initializer = tf.keras.intializers.Ones()
         zeros_initializer = tf.keras.initializers.Zeros()
-        self.model.layer1 = Dense(128, bias_initializer = zeros_initializer)
-        self.model.layer2 = Dense(128, bias_initializer = zeros_initializer)
-        self.model.layer3 = Dense(1, bias_initializer = ones_initializer)
+        self.model.layer3 = Dense(1, kernel_initializer = zeros_initializer, bias_initializer = ones_initializer)
         self.save('base')
 
 if __name__ == '__main__':
