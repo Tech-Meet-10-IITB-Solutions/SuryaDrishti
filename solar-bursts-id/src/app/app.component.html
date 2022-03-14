@@ -1,0 +1,25 @@
+<mat-toolbar color="primary">
+    <span>IDying Solar Bursts</span>
+</mat-toolbar>
+<!-- <h1 style="display: flex;justify-content: center;font-size: 50px;margin: 20px;">IDying Solar Bursts</h1> -->
+<ng-container [ngSwitch]="currentPageIndex">
+    <app-uploader *ngSwitchCase="0" (onDataReceived)="onDataReceived($event)" #uploader></app-uploader>
+    <div *ngSwitchCase="1">
+        <div style="display:flex;justify-content: space-around;width: 400px;margin: auto;margin-bottom: 0px;padding: 30px;">
+            <button *ngIf="!burstListEditable" mat-raised-button color="accent" (click)="revertToUploadPage()">
+                Upload Again
+            </button>
+            <button mat-raised-button color="primary" (click)="burstListEditable=!burstListEditable">
+                {{burstListEditable?'Save List':'Edit List'}}
+            </button>
+            <button *ngIf="!burstListEditable" mat-raised-button color="accent" (click)="proceedToML()">
+                Proceed to ML Model
+            </button>
+        </div>
+
+        <app-burstsgrid  #burstsgrid [data]="templateBursts" [editable]="burstListEditable"></app-burstsgrid>
+        <div style="height: 40px;">
+        </div>
+    </div>
+    <div *ngSwitchCase="2">Placeholder for ML Model Results</div>
+</ng-container>

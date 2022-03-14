@@ -1,0 +1,85 @@
+<table  style="width: 90%;margin: 5%;" mat-table [dataSource]="areDeleted?filterRejected(bursts):filterAccepted(bursts)" class="mat-elevation-z8">
+    <ng-container matColumnDef="peakTime">
+        <th mat-header-cell *matHeaderCellDef>PeakTime</th>
+        <td mat-cell *matCellDef="let element">
+            <div class="editButtonsTable">
+                <p [style]="areDeleted?'opacity: 0.4;':''">
+                t = {{element.peakTime}}
+                </p>
+                <button 
+                *ngIf="burstListEditable&&(!areDeleted)"
+                mat-raised-button 
+                style="color: white;background-color: red;"
+                (click)="remove(bursts.indexOf(element))"
+                >
+                Remove
+                    <mat-icon>delete</mat-icon>
+                </button>    
+                <button 
+                *ngIf="burstListEditable&&(areDeleted)"
+                mat-raised-button 
+                style="color: white;background-color: green;"
+                (click)="add(bursts.indexOf(element))"
+                >
+                Add
+                    <mat-icon>check</mat-icon>
+                </button>    
+            </div>
+        </td>
+    </ng-container>
+    
+    <ng-container matColumnDef="chartNS" #charts>
+        <th mat-header-cell *matHeaderCellDef>Chart - NS</th>
+        <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element" #chartcell>
+            <app-linescatter *ngIf="element.NS!==null" [statData]="element.NS"></app-linescatter>
+            <h1 *ngIf="element.NS===null">Not detected by NS</h1>
+        </td>
+    </ng-container>
+    <ng-container matColumnDef="dataNS" #charts>
+        <th mat-header-cell *matHeaderCellDef>Data - NS</th>
+        <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element" #chartcell>
+            <ul *ngIf="element.NS!==null">
+                <p>Chi Sq: {{element.NS.params.chiSq}}</p>
+                <p>A: {{element.NS.params.A}}</p>
+                <p>B: {{element.NS.params.B}}</p>
+                <p>C: {{element.NS.params.C}}</p>
+                <p>D: {{element.NS.params.D}}</p>
+            </ul>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="chartLM" #charts>
+        <th mat-header-cell *matHeaderCellDef>Chart - NS</th>
+        <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element" #chartcell>
+            <app-linescatter *ngIf="element.LM!==null"[statData]="element.LM"></app-linescatter>
+            <h1 *ngIf="element.LM===null">
+                Not detected by LM
+            </h1>
+        </td>
+    </ng-container>
+    <ng-container matColumnDef="dataLM" #charts>
+        <th mat-header-cell *matHeaderCellDef>Data - LM</th>
+        <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element" #chartcell>
+            <ul *ngIf="element.LM!==null">
+                <p>Chi Sq: {{element.LM.params.chiSq}}</p>
+                <p>A: {{element.LM.params.A}}</p>
+                <p>B: {{element.LM.params.B}}</p>
+                <p>C: {{element.LM.params.C}}</p>
+                <p>D: {{element.LM.params.D}}</p>
+            </ul>
+        </td>
+    </ng-container>
+    <ng-container matColumnDef="meta">
+        <th mat-header-cell *matHeaderCellDef>Metadata</th>
+        <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element">
+            <ul>
+                <p>Peak Value: {{element.peakValue}}</p>
+                <p>BGValue: {{element.BGValue}}</p>
+                <p>MLConf: {{element.MLConf}}</p>
+                <p>Characteristic: {{element.Char}}</p>
+            </ul>
+        </td>
+    </ng-container>
+    <tr mat-header-row  *matHeaderRowDef="displayedColumnsMain"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumnsMain;"></tr>
+</table>

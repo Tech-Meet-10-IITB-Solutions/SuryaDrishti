@@ -1,0 +1,42 @@
+{
+    "name": "Solar Bursts IDer",
+    "short_name": "SBID",
+    "start_url": "./",
+    "theme_color": "#683AB7",
+    "background_color": "#FFFFFF",
+    "display": "standalone",
+    "description": "An app to identify solar bursts",
+    "icons": [
+        {
+            "src": "/assets/images/sun16.png",
+            "sizes": "16x16",
+            "type": "image/png"
+        },
+        {
+             "src": "/assets/images/sun32.png",
+             "sizes": "32x32",
+             "type": "image/png"
+         },
+         {
+             "src": "/assets/images/sun150.png",
+             "sizes": "150x150",
+             "type": "image/png"
+         },
+         {
+             "src": "/assets/images/sun180.png",
+             "sizes": "180x180",
+             "type": "image/png"
+         },
+         {
+             "src": "/assets/images/sun192.png",
+             "sizes": "192x192",
+             "type": "image/png"
+         },
+         {
+             "src": "/assets/images/sun512.png",
+             "sizes": "512x512",
+             "type": "image/png"
+         }
+    ]
+ }
+ 
