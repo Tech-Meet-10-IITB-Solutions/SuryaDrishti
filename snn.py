@@ -76,7 +76,7 @@ class SNN():
         return history
 
     def create_base(self):
-        ones_initializer = tf.keras.intializers.Ones()
+        ones_initializer = tf.keras.initializers.Ones()
         zeros_initializer = tf.keras.initializers.Zeros()
         self.model.layer3 = Dense(1, kernel_initializer = zeros_initializer, bias_initializer = ones_initializer)
         self.save('base')
