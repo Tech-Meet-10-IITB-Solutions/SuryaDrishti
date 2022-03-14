@@ -261,7 +261,10 @@ class LC:
             else:
                 params_ns = {
                     'is_detected': False,
-                    'bg_value': flare['bg_rate'],
+                    'bg_rate': flare['bg_rate'],
+                    'fit_params': {
+                        'ChiSq': np.inf
+                    }
                 }
 
             if flare['lm']['is_detected']:
@@ -275,6 +278,9 @@ class LC:
                 params_lm = {
                     'is_detected': False,
                     'bg_rate': flare['bg_rate'],
+                    'fit_params': {
+                        'ChiSq': np.inf
+                    }
                 }
 
             snr = flare['peak_rate'] / np.std(processed_lc[1])
