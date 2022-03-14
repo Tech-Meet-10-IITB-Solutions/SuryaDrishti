@@ -21,9 +21,10 @@ ml_dir = os.path.dirname((os.path.realpath(__file__)))
 class SNN():
     def __init__(self):
         self.n = 10
+        self.input_dim = 3 * self.n + 3
 
         self.model = Sequential()
-        self.model.add(Dense(128, input_dim=3 * self.n + 3, name='layer1'))
+        self.model.add(Dense(128, input_dim=self.input_dim, name='layer1'))
         self.model.add(LeakyReLU(alpha=0.1))
         self.model.add(Dense(128, name='layer2'))
         self.model.add(LeakyReLU(alpha=0.1))
@@ -75,7 +76,7 @@ class SNN():
             return np.ones((self.n,)) * params['bg_rate']
 
     def train(self, data_list, labels, epochs):
-        training_data = []
+        training_data = np.empty((0, self.input_dim))
         for data in data_list:
             processed_fit = self.interpolate(data['processed_lc'])
             ns_fit = self.EFP(data['params_ns'])
@@ -84,12 +85,13 @@ class SNN():
             ns_chisq = data['params_ns']['fit_params']['ChiSq']
             lm_chisq = data['params_lm']['fit_params']['ChiSq']
 
-            training_data = np.concatenate((processed_fit,
-                                            ns_fit,
-                                            lm_fit,
-                                            np.array([1 / ns_chisq, 1 / lm_chisq, snr])
-                                            ))
-            training_data = np.expand_dims(training_data, axis=0)
+            input_data = np.concatenate((processed_fit,
+                                         ns_fit,
+                                         lm_fit,
+                                         np.array([1 / ns_chisq, 1 / lm_chisq, snr])
+                                         ))
+            input_data = np.expand_dims(input_data, axis=0)
+            training_data = np.concatenate((training_data, input_data), axis=0)
 
         bs = min(32, len(training_data))
         history = self.model.fit(training_data, labels, epochs=epochs, verbose=1, batch_size=bs)
