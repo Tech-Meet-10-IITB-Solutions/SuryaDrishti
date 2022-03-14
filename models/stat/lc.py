@@ -1,5 +1,4 @@
 from astropy.io import fits
-from astropy.stats import sigma_clipped_stats as scs
 from astropy.convolution import convolve, Box1DKernel
 
 import numpy as np
@@ -50,37 +49,6 @@ class LC:
         time = lc[1].data['TIME']
         return time, rates
 
-    def bg_correction(self, time, rates, mode='linear'):
-        if mode == 'linear':
-            slope, intercept, r, p, se = linregress(time, rates)
-            return rates - (slope * time + intercept)
-
-        if mode == 'constant':
-            mean, _, _ = scs(rates)
-            return rates - mean
-
-        return rates
-
-    def rebin_lc(self, time, rates, t_bin, t_bin_new):
-        new_time = np.arange(time[0] - t_bin / 2 + t_bin_new / 2,
-                             time[-1] + t_bin / 2 + t_bin_new / 2, t_bin_new)
-        bin_edges = self.bin_edges_from_time(new_time, t_bin_new)
-
-        bin_counts = np.histogram(time, bins=bin_edges, weights=rates)[0]
-        bin_widths = np.histogram(time, bins=bin_edges, weights=np.ones_like(rates))[0]
-
-        bin_rates = np.nan * bin_widths
-        bin_rates[bin_widths != 0] = bin_counts[bin_widths != 0] / bin_widths[bin_widths != 0]
-
-        return new_time, bin_rates
-
-    def bin_edges_from_time(self, time, t_bin):
-        time = np.array(time)
-        bin_edges = (time[1:] + time[:-1]) / 2.0
-        bin_edges = np.insert(bin_edges, 0, bin_edges[0] - t_bin)
-        bin_edges = np.append(bin_edges, bin_edges[-1] + t_bin)
-        return bin_edges
-
     def smoothen(self, time, rates, box_bin, kernel_size):
         box_time, box_count = np.array([]), np.array([])
         for i in range(len(time[:]) // box_bin):
@@ -96,6 +64,26 @@ class LC:
             else:
                 continue
         return box_time, box_count
+
+    def bin_edges_from_time(self, time, t_bin):
+        time = np.array(time)
+        bin_edges = (time[1:] + time[:-1]) / 2.0
+        bin_edges = np.insert(bin_edges, 0, bin_edges[0] - t_bin)
+        bin_edges = np.append(bin_edges, bin_edges[-1] + t_bin)
+        return bin_edges
+
+    def rebin_lc(self, time, rates, t_bin, t_bin_new):
+        new_time = np.arange(time[0] - t_bin / 2 + t_bin_new / 2,
+                             time[-1] + t_bin / 2 + t_bin_new / 2, t_bin_new)
+        bin_edges = self.bin_edges_from_time(new_time, t_bin_new)
+
+        bin_counts = np.histogram(time, bins=bin_edges, weights=rates)[0]
+        bin_widths = np.histogram(time, bins=bin_edges, weights=np.ones_like(rates))[0]
+
+        bin_rates = np.nan * bin_widths
+        bin_rates[bin_widths != 0] = bin_counts[bin_widths != 0] / bin_widths[bin_widths != 0]
+
+        return new_time, bin_rates
 
     def ns(self, time, rates):
         np.random.seed(0)
@@ -158,6 +146,22 @@ class LC:
                 flares.append(flare_base)
 
         return flares
+
+    def bg_fit(self, data, flares):
+        time = data[0]
+        rates = data[1].copy()
+
+        for flare in flares:
+            rates[flare['start_idx']:flare['end_idx']] = np.nan
+
+        not_nan_ids = ~np.isnan(rates)
+
+        if np.sum(not_nan_ids):
+            slope, intercept, _, _, _ = linregress(time[not_nan_ids], rates[not_nan_ids])
+        else:
+            slope, intercept, _, _, _ = linregress(time, rates)
+
+        return (slope, intercept)
 
     def efp(self, time, rates):
         res = {}
