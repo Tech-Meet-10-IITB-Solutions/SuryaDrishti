@@ -58,29 +58,59 @@ class SNN():
 
         return spline(x)
 
-    def EFP(self, A, B, C, D, start_time, end_time):
-        x = np.linspace(start_time, end_time, num=self.n, endpoint=True)
+    def EFP(self, params):
+        if params['is_detected']:
+            x = np.linspace(params['start_time'], params['end_time'], num=self.n, endpoint=True)
+            A = params['fit_params']['A']
+            B = params['fit_params']['B']
+            C = params['fit_params']['C']
+            D = params['fit_params']['D']
 
-        Z = (2 * B + C**2 * D) / (2 * C)
-        EFP_fit = (0.5 * np.sqrt(np.pi) * A * C) \
-            * np.exp(D * (B - x) + C**2 * D**2 / 4) \
-            * (erf(Z) - erf(Z - x / C))
-        return EFP_fit
+            Z = (2 * B + C**2 * D) / (2 * C)
+            EFP_fit = (0.5 * np.sqrt(np.pi) * A * C) \
+                * np.exp(D * (B - x) + C**2 * D**2 / 4) \
+                * (erf(Z) - erf(Z - x / C))
+            return EFP_fit
+        else:
+            return np.ones((self.n,)) * params['bg_rate']
 
-    def train(self, processed_data, parameters_ns, parameters_lm, snr, labels, epochs):
-        A_ns, B_ns, C_ns, D_ns, start_time_ns, end_time_ns, chisq_ns = parameters_ns
-        A_lm, B_lm, C_lm, D_lm, start_time_lm, end_time_lm, chisq_lm = parameters_lm
+    def train(self, data_list, labels, epochs):
+        training_data = []
+        for data in data_list:
+            processed_fit = self.interpolate(data['processed_data'])
+            ns_fit = self.EFP(data['params_ns'])
+            lm_fit = self.EFP(data['params_lm'])
+            snr = data['snr']
+            ns_chisq = data['params_ns']['fit_params']['chiSq']
+            lm_chisq = data['params_lm']['fit_params']['chiSq']
 
-        processed_fit = self.interpolate(processed_data)
-        ns_fit = self.EFP(A_ns, B_ns, C_ns, D_ns, start_time_ns, end_time_ns)
-        lm_fit = self.EFP(A_lm, B_lm, C_lm, D_lm, start_time_lm, end_time_lm)
+            training_data.append(np.concatenate((processed_fit,
+                                                 ns_fit,
+                                                 lm_fit,
+                                                 1 / ns_chisq,
+                                                 1 / lm_chisq,
+                                                 snr), axis=1))
 
-        training_data = np.concatenate(
-            (processed_fit, ns_fit, lm_fit, chisq_ns, chisq_lm, snr), axis=1)
-
-        history = self.model.fit(training_data, labels,
-                                 epochs=epochs, verbose=1, batch_size=1)
+        bs = min(32, len(training_data))
+        history = self.model.fit(training_data, labels, epochs=epochs, verbose=1, batch_size=bs)
         return history
+
+    def get_conf(self, data):
+        processed_fit = self.interpolate(data['processed_data'])
+        ns_fit = self.EFP(data['params_ns'])
+        lm_fit = self.EFP(data['params_lm'])
+        snr = data['snr']
+        ns_chisq = data['params_ns']['fit_params']['chiSq']
+        lm_chisq = data['params_lm']['fit_params']['chiSq']
+
+        input_data = np.concatenate((processed_fit,
+                                     ns_fit,
+                                     lm_fit,
+                                     1 / ns_chisq,
+                                     1 / lm_chisq,
+                                     snr), axis=1)
+
+        return self.forward(input_data)
 
 
 if __name__ == '__main__':
