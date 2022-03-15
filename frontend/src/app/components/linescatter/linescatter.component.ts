@@ -176,7 +176,7 @@ export class LinescatterComponent implements OnInit {
         }
       ],
       chart: {
-        width: 350,
+        width: 400,
         type:'line',
         stacked: false,
         zoom:{
@@ -244,7 +244,14 @@ export class LinescatterComponent implements OnInit {
         offsetX: 40
       },
       xaxis:{
-        tickAmount:this.statData.time.length
+        tickAmount:20,
+        // labels:{
+        //   formatter:(value:string,timestamp:number)=>{
+        //     console.log(value)
+        //     console.log(timestamp)
+        //     return timestamp.toExponential()
+        //   }
+        // }
       }
   };
 }

@@ -99,19 +99,24 @@ def progress():
 
 
 @ app.get('/flares')
-def bursts(bin_size: int = 20):
+def bursts(bin_size: int = 100):
     global snn, file_path, lc
 
     print(file_path)
     lc = LC(file_path, bin_size)
     flares = lc.get_flares()
-
+    total = lc.get_lc()
+    print(len(flares))
     for flare in flares:
         flare['ml_conf'] = np.int64(snn.get_conf(flare['ml_data']))
         flare['class'] = 'A'
         flare['ml_data'] = None
     
-    return {'status': 200, 'flares': json.dumps(flares, cls=NpEncoder).replace('NaN','null') }
+    return {
+        'status': 200,
+        'flares': json.dumps(flares, cls=NpEncoder).replace('NaN','null'),
+        'total': json.dumps(total, cls=NpEncoder).replace('NaN','null')
+        }
 
 
 @ app.post('/train')

@@ -30,11 +30,14 @@
         </mat-select>
     </mat-form-field>
 </div>
-
-<app-burst-table [(rejectedBursts)] = "rejectedBursts" [burstListEditable]="burstListEditable"  [bursts]="bursts" [areDeleted]="false"  #burstTable></app-burst-table>
+<div class="reloadWithParams">
+    <mat-spinner *ngIf="!burstsDecoded"></mat-spinner>
+</div>
+<app-burst-table *ngIf="burstsDecoded" [(rejectedBursts)] = "rejectedBursts" [burstListEditable]="burstListEditable"  [bursts]="bursts" [areDeleted]="false"  #burstTable></app-burst-table>
 <div *ngIf="rejectedBursts.length>0" style="display: flex; flex-direction: column;align-items: center;">
     <h1>
         Rejected Bursts
     </h1>
 </div>
 <app-burst-table *ngIf="rejectedBursts.length>0"  [(rejectedBursts)] = "rejectedBursts" [burstListEditable]="burstListEditable" [bursts]="bursts" [areDeleted]="true" #burstTable></app-burst-table>
+<!-- <app-linescatter *ngIf="bursts[0]!==null" [statData]="bursts[0].ns!"></app-linescatter> -->

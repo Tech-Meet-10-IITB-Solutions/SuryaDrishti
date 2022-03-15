@@ -61,6 +61,7 @@ export class ReportComponent implements OnInit {
   rejectedBursts:number[] = []
   burstListEditable:boolean = false;
   tableMode:boolean = true;
+  burstsDecoded:boolean = false;
   public chartOptions:Partial<ChartOptions>[] = []
   public tableChartOptions:Partial<ChartOptions>[] = []
   metaData:any[] = [];
@@ -129,14 +130,41 @@ export class ReportComponent implements OnInit {
   cleanedData(data:Partial<burstRow>[]){
     let cleaned = data.map((burst:Partial<burstRow>,j,[])=>{
       let obj = {...burst}
-      let ns = obj.ns;
-      if(ns){
+      let ns = obj.ns;let lm = obj.lm;
+      if(ns?.is_detected){
         obj.ns = {
           ...ns,
-          time:ns.time.filter((mom,j,[])=>(ns!.rates[j]!==null)),
-          rates:ns.rates.filter((mom,j,[])=>(ns!.rates[j]!==null))
+          time:ns.time.filter((mom,j,[])=>(ns!.rates[j]!==null)).map(v=>Math.round(v)),
+          rates:ns.rates.filter((rate,j,[])=>(rate!==null)).map(v=>Math.round(v)),
+          fit:ns.fit.map(v=>Math.round(v)),
+          fit_params:{
+            A:Number.parseFloat(ns.fit_params.A.toPrecision(2)),
+            B:Number.parseFloat(ns.fit_params.B.toPrecision(2)),
+            C:Number.parseFloat(ns.fit_params.C.toPrecision(2)),
+            D:Number.parseFloat(ns.fit_params.D.toPrecision(2)),
+            ChiSq:Number.parseFloat(ns.fit_params.ChiSq.toPrecision(2)),
+          }
         }
       }
+      if(lm?.is_detected){
+        obj.lm = {
+          ...lm,
+          time:lm.time.filter((mom,j,[])=>(lm!.rates[j]!==null)).map(v=>Math.round(v)),
+          rates:lm.rates.filter((rate,j,[])=>(rate!==null)).map(v=>Math.round(v)),
+          fit:lm.fit.map(v=>Math.round(v)),
+          fit_params:{
+            A:Number.parseFloat(lm.fit_params.A.toPrecision(2)),
+            B:Number.parseFloat(lm.fit_params.B.toPrecision(2)),
+            C:Number.parseFloat(lm.fit_params.C.toPrecision(2)),
+            D:Number.parseFloat(lm.fit_params.D.toPrecision(2)),
+            ChiSq:Number.parseFloat(lm.fit_params.ChiSq.toPrecision(2)),
+          }
+        }
+      }
+      obj.bg_rate = Math.round(100*obj.bg_rate!)/100
+      obj.ml_conf = Math.round(100*obj.ml_conf!)/100
+      obj.peak_rate = Math.round(100*obj.peak_rate!)/100
+      obj.peak_time = Math.round(obj.peak_time!)
       return obj
       }
     )
@@ -416,8 +444,9 @@ revertToUploadPage(){
     ngOnInit(): void {
     this.server.getBursts().subscribe((data:any)=>{
       console.log(data)
-      console.log(JSON.parse(data.flares))
-      this.bursts = JSON.parse(data.flares)
+      // console.log(JSON.parse(data.flares))
+      this.bursts = this.cleanedData(JSON.parse(data.flares))
+      this.burstsDecoded = true;
     })
     this.innerWidth = window.innerWidth;
     // this.displayedColumns = ['max','maxAt','avg']
