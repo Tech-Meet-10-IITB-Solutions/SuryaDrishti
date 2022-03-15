@@ -21,26 +21,11 @@ app.add_middleware(
     allow_headers=['*']
 )
 
-import numpy as np
-import json
-
 complete = 0.0
 error = None
 file_path = ''
 lc = None
 snn = SNN()
-# snn.load('base')
-
-
-class NpEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.floating):
-            return float(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return super(NpEncoder, self).default(obj)
 
 
 def process_zip(content):
@@ -107,13 +92,12 @@ def bursts(bin_size: int = 20):
     print(file_path)
     lc = LC(file_path, bin_size)
     flares = lc.get_flares()
+    conf_list = snn.get_conf(lc.get_ml_data())
 
-    for flare in flares:
-        flare['ml_conf'] = np.int64(snn.get_conf(flare['ml_data']))
-        flare['class'] = 'A'
-        flare['ml_data'] = None
+    for i in range(len(flares)):
+        flares[i]['ml_conf'] = round(100.0 * conf_list[i])
 
-    return {'status': 200, 'flares': json.dumps(flares, cls=NpEncoder).replace('NaN', 'null')}
+    return {'status': 200, 'flares': flares}
 
 
 @ app.post('/train')
@@ -121,11 +105,7 @@ def train(content: dict = Form(...)):
     global snn, lc
 
     labels = content['labels']
-    ml_data_list = []
-    for flare in lc.get_flares():
-        ml_data_list.append(flare['ml_data'])
-
     print(labels)
-    snn.train(ml_data_list, labels, epochs=10)
+    snn.train(lc.get_ml_data(), labels, epochs=10)
 
     return {'status': 200}
