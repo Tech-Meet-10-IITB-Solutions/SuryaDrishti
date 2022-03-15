@@ -23,7 +23,8 @@ class LC:
         self.bin_time, self.bin_rates = self.rebin_lc(
             self.sm_time, self.sm_rates, 1.0, self.bin_size)
 
-        self.processed_lc = np.array([self.bin_time, self.bin_rates])
+        self.day_start = self.bin_time[0]
+        self.processed_lc = np.array([self.bin_time - self.day_start, self.bin_rates])
 
         self.ns_flares = self.ns(self.processed_lc[0], self.processed_lc[1])
         self.lm_flares = self.lm(self.processed_lc[0], self.processed_lc[1])
@@ -34,16 +35,41 @@ class LC:
 
         self.flares = self.add_efp(self.flares, self.processed_lc, self.bg_params)
 
-        self.flares = self.add_ml_data(self.flares, self.processed_lc)
+        self.ml_data_list = self.add_ml_data(self.flares, self.processed_lc)
 
     def get_lc(self):
-        return self.processed_lc
+        time, rates = self.processed_lc[:, ~np.isnan(self.processed_lc[1])]
+
+        res = {
+            'start': float(self.day_start),
+            'flare_count': len(self.flares),
+            'lc_data': [
+                {'x': round(x), 'y': round(y)}
+                for x, y in zip(time, rates)
+            ]
+        }
+        return res
 
     def get_flares(self):
-        return self.flares
+        res = []
+
+        for flare in self.flares:
+            res.append({
+                'peak_time': int(flare['peak_time']),
+                'peak_rate': round(flare['peak_rate']),
+                'bg_rate': round(flare['bg_rate']),
+                'ns': {
+                    'is_detected': False,
+                },
+                'lm': {
+                    'is_detected': False,
+                },
+                'char': 'A',
+            })
+        return res
 
     def get_ml_data(self):
-        return self.ml_data
+        return self.ml_data_list
 
     def load_lc(self, lc_path):
         lc = fits.open(lc_path)
@@ -199,6 +225,7 @@ class LC:
                 'bg_rate': intercept + slope * time[flare['peak_idx']],
                 'start_idx': flare['start_idx'],
                 'end_idx': flare['end_idx'],
+                'peak_idx': flare['peak_idx'],
                 'ns': {},
                 'lm': {}
             }
@@ -212,8 +239,8 @@ class LC:
                 fit_rates = self.fit_efp(fit_params, fl_time)
                 flare_prop['ns'] = {
                     'is_detected': True,
-                    'time': fl_time,
-                    'rates': fl_rates,
+                    'start_idx': flare['lm']['start_idx'],
+                    'end_idx': flare['lm']['end_idx'],
                     'duration': fl_duration,
                     'fit': fit_rates,
                     'fit_params': fit_params
@@ -231,8 +258,8 @@ class LC:
                 fit_rates = self.fit_efp(fit_params, fl_time)
                 flare_prop['lm'] = {
                     'is_detected': True,
-                    'time': fl_time,
-                    'rates': fl_rates,
+                    'start_idx': flare['lm']['start_idx'],
+                    'end_idx': flare['lm']['end_idx'],
                     'duration': fl_duration,
                     'fit': fit_rates,
                     'fit_params': fit_params
@@ -247,6 +274,7 @@ class LC:
         return flares_new
 
     def add_ml_data(self, flares, data):
+        ml_data_list = []
         for flare in flares:
             processed_lc = data[:, flare['start_idx']:flare['end_idx']]
             processed_lc = processed_lc[:, ~np.isnan(processed_lc[1])]
@@ -254,8 +282,8 @@ class LC:
             if flare['ns']['is_detected']:
                 params_ns = {
                     'is_detected': True,
-                    'start_time': flare['ns']['time'][0],
-                    'end_time': flare['ns']['time'][-1],
+                    'start_time': data[0][flare['ns']['start_idx']],
+                    'end_time': data[0][flare['ns']['end_idx']],
                     'fit_params': flare['ns']['fit_params'],
                 }
             else:
@@ -270,8 +298,8 @@ class LC:
             if flare['lm']['is_detected']:
                 params_lm = {
                     'is_detected': True,
-                    'start_time': flare['lm']['time'][0],
-                    'end_time': flare['lm']['time'][-1],
+                    'start_time': data[0][flare['lm']['start_idx']],
+                    'end_time': data[0][flare['lm']['end_idx']],
                     'fit_params': flare['lm']['fit_params'],
                 }
             else:
@@ -285,14 +313,14 @@ class LC:
 
             snr = flare['peak_rate'] / np.std(processed_lc[1])
 
-            flare['ml_data'] = {
+            ml_data_list.append({
                 'processed_lc': processed_lc,
                 'params_ns': params_ns,
                 'params_lm': params_lm,
                 'snr': snr,
-            }
+            })
 
-        return flares
+        return ml_data_list
 
 
 if __name__ == '__main__':
@@ -309,5 +337,7 @@ if __name__ == '__main__':
 
     # plt.show()
 
-    print(lc.flares[-1])
-    print(lc.flares[-1].keys())
+    # print(lc.flares[-1])
+    print(lc.get_flares()[-1].keys())
+    print(lc.processed_lc[0] - lc.processed_lc[0][0])
+    print(lc.get_lc().keys())
