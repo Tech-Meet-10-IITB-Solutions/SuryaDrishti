@@ -62,9 +62,9 @@ async def upload(file: UploadFile = File(...)):
     file_path = ''
     error = None
     lc = None
-    # os.system('rm -rf input*')
-    shutil.rmtree('input/', ignore_errors=True)
-    os.remove('input.zip')
+    os.system('rm -rf input*')
+    # shutil.rmtree('input/', ignore_errors=True)
+    # os.remove('input.zip')
     content = await file.read()
 
     thread = Thread(target=process_zip, args=(content,))

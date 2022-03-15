@@ -239,8 +239,8 @@ class LC:
                 fit_rates = self.fit_efp(fit_params, fl_time)
                 flare_prop['ns'] = {
                     'is_detected': True,
-                    'start_idx': flare['lm']['start_idx'],
-                    'end_idx': flare['lm']['end_idx'],
+                    'start_idx': flare['ns']['start_idx'],
+                    'end_idx': flare['ns']['end_idx'],
                     'duration': fl_duration,
                     'fit': fit_rates,
                     'fit_params': fit_params
