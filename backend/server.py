@@ -91,13 +91,14 @@ def bursts(bin_size: int = 20):
 
     print(file_path)
     lc = LC(file_path, bin_size)
+
     flares = lc.get_flares()
     conf_list = snn.get_conf(lc.get_ml_data())
 
     for i in range(len(flares)):
         flares[i]['ml_conf'] = round(100.0 * conf_list[i])
 
-    return {'status': 200, 'flares': flares}
+    return {'status': 200, 'flares': flares, 'total': lc.get_lc()}
 
 
 @ app.post('/train')
