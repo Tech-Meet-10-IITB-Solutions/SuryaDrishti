@@ -14,26 +14,25 @@ if __name__ == '__main__':
     lc = LC(file_path, bin_size)
 
     flares = lc.get_flares()
+    print(flares)
 
-    ml_data_list = []
-    for flare in lc.get_flares():
-        ml_data_list.append(flare['ml_data'])
+    ml_data_list = lc.get_ml_data()
 
-    for flare in flares:
-        flare['ml_conf'] = snn.get_conf(flare['ml_data'])
-        print(flare['ml_conf'])
+    conf_list = snn.get_conf(ml_data_list)
+    for conf in conf_list:
+        print(round(100.0 * conf))
 
     labels = np.ones((len(flares),))
     labels[-1] = 0.0
     snn.train(ml_data_list, labels, epochs=10)
 
-    for flare in flares:
-        flare['ml_conf'] = snn.get_conf(flare['ml_data'])
-        print(flare['ml_conf'])
+    conf_list = snn.get_conf(ml_data_list)
+    for conf in conf_list:
+        print(round(100.0 * conf))
 
     labels = np.ones((len(flares),))
     snn.train(ml_data_list, labels, epochs=10)
 
-    for flare in flares:
-        flare['ml_conf'] = snn.get_conf(flare['ml_data'])
-        print(flare['ml_conf'])
+    conf_list = snn.get_conf(ml_data_list)
+    for conf in conf_list:
+        print(round(100.0 * conf))
