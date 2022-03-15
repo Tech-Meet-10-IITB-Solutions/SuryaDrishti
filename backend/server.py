@@ -1,3 +1,4 @@
+import shutil
 import sys
 import os
 import zipfile
@@ -20,13 +21,25 @@ app.add_middleware(
     allow_headers=['*']
 )
 
+import numpy as np
+import json
+
 complete = 0.0
 error = None
 file_path = ''
 lc = None
 snn = SNN()
-snn.load('base')
+# snn.load('base')
 
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
 
 def process_zip(content):
     global complete, error, file_path
@@ -62,8 +75,9 @@ async def upload(file: UploadFile = File(...)):
     file_path = ''
     error = None
     lc = None
-    os.system('rm -rf input*')
-
+    # os.system('rm -rf input*')
+    shutil.rmtree('input/',ignore_errors=True)
+    os.remove('input.zip')
     content = await file.read()
 
     thread = Thread(target=process_zip, args=(content,))
@@ -93,10 +107,11 @@ def bursts(bin_size: int = 20):
     flares = lc.get_flares()
 
     for flare in flares:
-        flare['ml_conf'] = snn.get_conf(flare['ml_data'])
+        flare['ml_conf'] = np.int64(snn.get_conf(flare['ml_data']))
         flare['class'] = 'A'
+        flare['ml_data'] = None
     
-    return {'status': 200, 'flares': flares}
+    return {'status': 200, 'flares': json.dumps(flares, cls=NpEncoder).replace('NaN','null') }
 
 
 @ app.post('/train')

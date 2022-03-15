@@ -47,11 +47,11 @@ export class LinescatterComponent implements OnInit {
   getScatterData(statData:statModelData){
     if(statData){
       this.scatterData = [];
-      for(let i=0;i<statData.moments.length;i++){
+      for(let i=0;i<statData.time.length;i++){
         this.scatterData.push(
-          {x:statData.moments[i]-0.01,y:null},
-          {x:statData.moments[i],y:statData.rate[i]},
-          {x:statData.moments[i]+0.01,y:null}
+          {x:statData.time[i]-0.01,y:null},
+          {x:statData.time[i],y:statData.rates[i]},
+          {x:statData.time[i]+0.01,y:null}
           )
       }
       return this.scatterData
@@ -60,7 +60,7 @@ export class LinescatterComponent implements OnInit {
   }
   getLineData(statData:statModelData){
     if(statData){
-      return statData.moments.map((mom,j,[])=>{
+      return statData.time.map((mom,j,[])=>{
         return {x:mom,y:statData.fit[j]}
       })        
     }
@@ -244,7 +244,7 @@ export class LinescatterComponent implements OnInit {
         offsetX: 40
       },
       xaxis:{
-        tickAmount:this.statData.moments.length
+        tickAmount:this.statData.time.length
       }
   };
 }

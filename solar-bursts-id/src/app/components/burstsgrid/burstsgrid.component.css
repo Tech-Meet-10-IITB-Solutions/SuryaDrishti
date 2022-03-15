@@ -70,7 +70,7 @@ apx-chart.disabled{
     display: flex;
     flex-direction: row;
 }
-.params{
+.fit_params{
     flex: 4;
 }
 .reloadWithParams{

@@ -14,7 +14,7 @@ export class BurstTableComponent implements OnInit {
   @Output('rejectedBurstsChange') rejectedBurstsChange = new EventEmitter<number[]>()
   @Input('burstListEditable') burstListEditable!:boolean;
   @Input('rejectedBursts') rejectedBursts!:number[]
-  displayedColumnsMain:string[]= ['peakTime','meta','chartNS', 'dataNS','chartLM','dataLM'];
+  displayedColumnsMain:string[]= ['peak_time','meta','chartNS', 'dataNS','chartLM','dataLM'];
   // rejectedBursts:number[] = []
   filterAccepted(data:Partial<burstRow>[]){
     return data.filter((v,i,[])=>!this.rejectedBursts.includes(i));

@@ -26,27 +26,28 @@ export type ChartOptions = {
   title: ApexTitleSubtitle;
 }
 export interface statModelParams{
-  chiSq:number,
+  ChiSq:number,
   A:number,
   B:number,
   C:number,
   D:number
 }
 export interface statModelData{
-  moments:number[],
-  rate:number[],
+  time:number[],
+  rates:number[],
   fit:number[],
-  isDetected:boolean,
-  params:statModelParams
+  is_detected:boolean,
+  fit_params:statModelParams,
+  duration:number
 }
 export interface burstRow{
-  BGValue:number,
-  peakTime:number,
-  peakValue:number,
-  MLConf:number,
-  LM:statModelData,
-  NS:statModelData,
-  Char:string
+  bg_rate:number,
+  peak_time:number,
+  peak_rate:number,
+  ml_conf:number,
+  lm:statModelData,
+  ns:statModelData,
+  class:string
 }
 @Component({
   selector: 'app-report',
@@ -128,12 +129,12 @@ export class ReportComponent implements OnInit {
   cleanedData(data:Partial<burstRow>[]){
     let cleaned = data.map((burst:Partial<burstRow>,j,[])=>{
       let obj = {...burst}
-      let NS = obj.NS;
-      if(NS){
-        obj.NS = {
-          ...NS,
-          moments:NS.moments.filter((mom,j,[])=>(NS!.rate[j]!==null)),
-          rate:NS.rate.filter((mom,j,[])=>(NS!.rate[j]!==null))
+      let ns = obj.ns;
+      if(ns){
+        obj.ns = {
+          ...ns,
+          time:ns.time.filter((mom,j,[])=>(ns!.rates[j]!==null)),
+          rates:ns.rates.filter((mom,j,[])=>(ns!.rates[j]!==null))
         }
       }
       return obj
@@ -148,226 +149,226 @@ export class ReportComponent implements OnInit {
   bursts:Partial<burstRow>[] = []
   mapChartOptions!:Function
   sortables = [
-    {viewValue:'Peak Value',value:'peakValue'},
-    {viewValue:'Peak Time',value:'peakTime'},
-    {viewValue:'Characteristic',value:'Char'},
-    {viewValue:'Confidence',value:'MLConf'},
-    {viewValue:'Chi Sq (NS)',value:'chisq-NS'},
-    {viewValue:'Chi Sq (LM)',value:'chisq-LM'}
+    {viewValue:'Peak Value',value:'peak_rate'},
+    {viewValue:'Peak Time',value:'peak_time'},
+    {viewValue:'Characteristic',value:'class'},
+    {viewValue:'Confidence',value:'ml_conf'},
+    {viewValue:'Chi Sq (ns)',value:'chisq-ns'},
+    {viewValue:'Chi Sq (lm)',value:'chisq-lm'}
   ]
-  templateBursts:burstRow[] = [
-    {
-        "peakTime": 30,
-        "peakValue": 150,
-        "BGValue": 140,
-        "MLConf": 60,
-        "Char": "A",
-        "NS": {
-            "moments": [
-                0,
-                1,
-                2,
-                3,
-                5
-            ],
-            "rate": [
-                2,
-                3,
-                4,
-                1,
-                5
-            ],
-            "fit": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "isDetected": true,
-            "params": {
-                "chiSq": 90,
-                "A": 8,
-                "B": 89,
-                "C": 23,
-                "D": 43
-            }
-        },
-        "LM": {
-            "moments": [
-                0,
-                1,
-                2,
-                3,
-                5
-            ],
-            "rate": [
-                0,
-                1,
-                2,
-                3,
-                5
-            ],
-            "fit": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "isDetected": true,
-            "params": {
-                "chiSq": 90,
-                "A": 8,
-                "B": 89,
-                "C": 23,
-                "D": 43
-            }
-        }
-    },
-    {
-        "peakTime": 34,
-        "peakValue": 150,
-        "BGValue": 140,
-        "MLConf": 60,
-        "Char": "A",
-        "NS": {
-            "moments": [
-                0,
-                1,
-                2,
-                3,
-                5
-            ],
-            "rate": [
-                2,
-                3,
-                4,
-                1,
-                5
-            ],
-            "fit": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "isDetected": true,
-            "params": {
-                "chiSq": 90,
-                "A": 8,
-                "B": 89,
-                "C": 23,
-                "D": 43
-            }
-        },
-        "LM": {
-            "moments": [
-                0,
-                1,
-                2,
-                3,
-                5
-            ],
-            "rate": [
-                0,
-                1,
-                2,
-                3,
-                5
-            ],
-            "fit": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "isDetected": true,
-            "params": {
-                "chiSq": 90,
-                "A": 8,
-                "B": 89,
-                "C": 23,
-                "D": 43
-            }
-        }
-    },
-    {
-        "peakTime": 56,
-        "peakValue": 150,
-        "BGValue": 140,
-        "MLConf": 60,
-        "Char": "A",
-        "NS": {
-            "moments": [
-                0,
-                2,
-                3,
-                5
-            ],
-            "rate": [
-                2,
-                4,
-                1,
-                5
-            ],
-            "fit": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "isDetected": true,
-            "params": {
-                "chiSq": 90,
-                "A": 8,
-                "B": 89,
-                "C": 23,
-                "D": 43
-            }
-        },
-        "LM": {
-            "moments": [
-                0,
-                1,
-                2,
-                3,
-                5
-            ],
-            "rate": [
-                0,
-                1,
-                2,
-                3,
-                5
-            ],
-            "fit": [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6
-            ],
-            "isDetected": true,
-            "params": {
-                "chiSq": 90,
-                "A": 8,
-                "B": 89,
-                "C": 23,
-                "D": 43
-            }
-        }
-    }
-]
+  // templateBursts:burstRow[] = [
+  //   {
+  //       "peak_time": 30,
+  //       "peak_rate": 150,
+  //       "bg_rate": 140,
+  //       "ml_conf": 60,
+  //       "class": "A",
+  //       "ns": {
+  //           "time": [
+  //               0,
+  //               1,
+  //               2,
+  //               3,
+  //               5
+  //           ],
+  //           "rates": [
+  //               2,
+  //               3,
+  //               4,
+  //               1,
+  //               5
+  //           ],
+  //           "fit": [
+  //               1,
+  //               2,
+  //               3,
+  //               4,
+  //               5,
+  //               6
+  //           ],
+  //           "is_detected": true,
+  //           "fit_params": {
+  //               "ChiSq": 90,
+  //               "A": 8,
+  //               "B": 89,
+  //               "C": 23,
+  //               "D": 43
+  //           }
+  //       },
+  //       "lm": {
+  //           "time": [
+  //               0,
+  //               1,
+  //               2,
+  //               3,
+  //               5
+  //           ],
+  //           "rates": [
+  //               0,
+  //               1,
+  //               2,
+  //               3,
+  //               5
+  //           ],
+  //           "fit": [
+  //               1,
+  //               2,
+  //               3,
+  //               4,
+  //               5,
+  //               6
+  //           ],
+  //           "is_detected": true,
+  //           "fit_params": {
+  //               "ChiSq": 90,
+  //               "A": 8,
+  //               "B": 89,
+  //               "C": 23,
+  //               "D": 43
+  //           }
+  //       }
+  //   },
+  //   {
+  //       "peak_time": 34,
+  //       "peak_rate": 150,
+  //       "bg_rate": 140,
+  //       "ml_conf": 60,
+  //       "class": "A",
+  //       "ns": {
+  //           "time": [
+  //               0,
+  //               1,
+  //               2,
+  //               3,
+  //               5
+  //           ],
+  //           "rates": [
+  //               2,
+  //               3,
+  //               4,
+  //               1,
+  //               5
+  //           ],
+  //           "fit": [
+  //               1,
+  //               2,
+  //               3,
+  //               4,
+  //               5,
+  //               6
+  //           ],
+  //           "is_detected": true,
+  //           "fit_params": {
+  //               "ChiSq": 90,
+  //               "A": 8,
+  //               "B": 89,
+  //               "C": 23,
+  //               "D": 43
+  //           }
+  //       },
+  //       "lm": {
+  //           "time": [
+  //               0,
+  //               1,
+  //               2,
+  //               3,
+  //               5
+  //           ],
+  //           "rates": [
+  //               0,
+  //               1,
+  //               2,
+  //               3,
+  //               5
+  //           ],
+  //           "fit": [
+  //               1,
+  //               2,
+  //               3,
+  //               4,
+  //               5,
+  //               6
+  //           ],
+  //           "is_detected": true,
+  //           "fit_params": {
+  //               "ChiSq": 90,
+  //               "A": 8,
+  //               "B": 89,
+  //               "C": 23,
+  //               "D": 43
+  //           }
+  //       }
+  //   },
+  //   {
+  //       "peak_time": 56,
+  //       "peak_rate": 150,
+  //       "bg_rate": 140,
+  //       "ml_conf": 60,
+  //       "class": "A",
+  //       "ns": {
+  //           "time": [
+  //               0,
+  //               2,
+  //               3,
+  //               5
+  //           ],
+  //           "rates": [
+  //               2,
+  //               4,
+  //               1,
+  //               5
+  //           ],
+  //           "fit": [
+  //               1,
+  //               2,
+  //               3,
+  //               4,
+  //               5,
+  //               6
+  //           ],
+  //           "is_detected": true,
+  //           "fit_params": {
+  //               "ChiSq": 90,
+  //               "A": 8,
+  //               "B": 89,
+  //               "C": 23,
+  //               "D": 43
+  //           }
+  //       },
+  //       "lm": {
+  //           "time": [
+  //               0,
+  //               1,
+  //               2,
+  //               3,
+  //               5
+  //           ],
+  //           "rates": [
+  //               0,
+  //               1,
+  //               2,
+  //               3,
+  //               5
+  //           ],
+  //           "fit": [
+  //               1,
+  //               2,
+  //               3,
+  //               4,
+  //               5,
+  //               6
+  //           ],
+  //           "is_detected": true,
+  //           "fit_params": {
+  //               "ChiSq": 90,
+  //               "A": 8,
+  //               "B": 89,
+  //               "C": 23,
+  //               "D": 43
+  //           }
+  //       }
+  //   }
+// ]
   allowUnload:boolean = false;
   public accentColor:string = '#ffd640';
   public primaryColor:string = '#683ab7';
@@ -381,19 +382,19 @@ export class ReportComponent implements OnInit {
 }
 stringMap(burst1:Partial<burstRow>):Map<string,number>{
   let map = new Map<string,number>();
-  map.set('peakTime',burst1.peakTime!)
-  map.set('peakValue',burst1.peakValue!)
-  map.set('MLConf',burst1.MLConf!)
-  map.set('Char',-burst1.Char?.charCodeAt(0)!)
-  map.set('chisq-NS',burst1.NS?burst1.NS?.params.chiSq:Infinity)
-  map.set('chisq-LM',burst1.LM?burst1.LM.params.chiSq:Infinity)
+  map.set('peak_time',burst1.peak_time!)
+  map.set('peak_rate',burst1.peak_rate!)
+  map.set('ml_conf',burst1.ml_conf!)
+  map.set('class',-burst1.class?.charCodeAt(0)!)
+  map.set('chisq-ns',burst1.ns?burst1.ns?.fit_params.ChiSq:Infinity)
+  map.set('chisq-lm',burst1.lm?burst1.lm.fit_params.ChiSq:Infinity)
   return map;
 }
 sortBursts(value:string){
 
   let RBursts = this.filterRejected(this.bursts)
   let key = value
-  let tieBreakerKey = 'peakTime';
+  let tieBreakerKey = 'peak_time';
   this.rejectedBursts = []
   // console.log(value.source.value)
   this.bursts = this.bursts.sort((burst1:Partial<burstRow>, burst2:Partial<burstRow>)=>{
@@ -415,14 +416,8 @@ revertToUploadPage(){
     ngOnInit(): void {
     this.server.getBursts().subscribe((data:any)=>{
       console.log(data)
-      if(data.status===200){
-        // this.bursts = data.flares
-        console.log(this.bursts)  
-      }
-      else{
-        window.alert(data.detail)
-        // window.location.href = '/upload'
-      }
+      console.log(JSON.parse(data.flares))
+      this.bursts = JSON.parse(data.flares)
     })
     this.innerWidth = window.innerWidth;
     // this.displayedColumns = ['max','maxAt','avg']
@@ -455,7 +450,7 @@ export class DialogOptionsDialog implements OnInit{
   ){}
   updateData(){
     this.dataService.toggleVars(this.binSzValue,this.varSzValue).subscribe((v:any)=>{
-      console.log(v)
+      
     })
   }
   binSzMin:number = 5;
