@@ -7,12 +7,18 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 import tensorflow as tf
+from tensorflow.keras.optimizers import SGD
 
 from keras.models import load_model
 from keras.layers import LeakyReLU
 from keras.layers import Dense
+from keras.layers import Activation
 from keras.models import Sequential
 from keras import initializers
+from keras import backend as K
+from keras.utils.generic_utils import get_custom_objects
+
+from math import exp
 
 tf.device('cpu:0')
 ml_dir = os.path.dirname((os.path.realpath(__file__)))
@@ -20,6 +26,19 @@ ml_dir = os.path.dirname((os.path.realpath(__file__)))
 
 class SNN():
     def __init__(self):
+
+        self.index = 0
+
+        def custom_activation(x):
+            return K.sigmoid(0.05 * x)
+
+        get_custom_objects().update({'custom_activation': Activation(custom_activation)})
+
+        ones_initializer = initializers.Constant(value=100)
+        zeros_initializer = initializers.Zeros()
+
+        opt = SGD(learning_rate=0.002)
+
         self.n = 10
         self.input_dim = 3 * self.n + 3
 
@@ -28,28 +47,25 @@ class SNN():
         self.model.add(LeakyReLU(alpha=0.1))
         self.model.add(Dense(128, name='layer2'))
         self.model.add(LeakyReLU(alpha=0.1))
-        self.model.add(Dense(1, activation='sigmoid', name='layer3'))
-        self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-        self.model = load_model(os.path.join(ml_dir, 'base.h5'))
+        self.model.add(Dense(1, name='layer3', kernel_initializer=zeros_initializer,
+                       bias_initializer=ones_initializer))
+        self.model.add(Activation(custom_activation, name='SpecialActivation'))
+        self.model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
 
     def forward(self, input):
         output = self.model(input)
         return output
 
-    def create_base(self):
-        ones_initializer = initializers.Ones()
-        zeros_initializer = initializers.Zeros()
-        self.model.layer3 = Dense(1, kernel_initializer=zeros_initializer,
-                                  bias_initializer=ones_initializer)
-        self.save(os.path.join(ml_dir, 'base.h5'))
-
     def save_chkpt(self):
         self.model.save(os.path.join(ml_dir, 'checkpoint.h5'), overwrite=True,
                         include_optimizer=True, save_format='h5')
+        with open('index.txt', 'w') as output:
+            output.write(self.index)
 
     def load_chkpt(self):
         self.model = load_model(os.path.join(ml_dir, 'checkpoint.h5'))
+        with open('index.txt', 'r') as output:
+            self.index = int(output.read(-1))
 
     def interpolate(self, processed_lc):
         spline = CubicSpline(processed_lc[0], processed_lc[1], extrapolate=True)
@@ -94,7 +110,11 @@ class SNN():
             training_data = np.concatenate((training_data, input_data), axis=0)
 
         bs = min(32, len(training_data))
-        history = self.model.fit(training_data, labels, epochs=epochs, verbose=1, batch_size=bs)
+        history = self.model.fit(training_data, labels, epochs=epochs, verbose=0, batch_size=bs)
+
+        K.set_value(self.model.optimizer.learning_rate, 0.0001 + 0.002 * exp(-0.1 * self.index))
+        self.index = self.index + 1
+
         return history
 
     def get_conf(self, data_list):
