@@ -39,3 +39,48 @@ if __name__ == '__main__':
     for flare in flares:
         flare['ml_conf'] = snn.get_conf(flare['ml_data'])
         print(flare['ml_conf'])
+    
+    labels = np.ones((len(flares),))
+    labels[2] = 0.0
+    snn.train(ml_data_list, labels, epochs=5)
+    
+    print('Training = 3')
+    for flare in flares:
+        flare['ml_conf'] = snn.get_conf(flare['ml_data'])
+        print(flare['ml_conf'])
+
+    labels = np.ones((len(flares),))
+    labels[3] = 0.0
+    snn.train(ml_data_list, labels, epochs=5)
+    
+    print('Training = 4')
+    for flare in flares:
+        flare['ml_conf'] = snn.get_conf(flare['ml_data'])
+        print(flare['ml_conf'])
+
+    labels = np.ones((len(flares),))
+    labels[-1] = 0.0
+    snn.train(ml_data_list, labels, epochs=5)
+    
+    print('Training = 5')
+    for flare in flares:
+        flare['ml_conf'] = snn.get_conf(flare['ml_data'])
+        print(flare['ml_conf'])
+
+    labels = np.ones((len(flares),))
+    labels[0] = 0.0
+    snn.train(ml_data_list, labels, epochs=5)
+    
+    print('Training = 6')
+    for flare in flares:
+        flare['ml_conf'] = snn.get_conf(flare['ml_data'])
+        print(flare['ml_conf'])
+
+    labels = np.ones((len(flares),))
+    snn.train(ml_data_list, labels, epochs=5)
+    
+    print('Training = 7')
+    for flare in flares:
+        flare['ml_conf'] = snn.get_conf(flare['ml_data'])
+        print(flare['ml_conf'])
+

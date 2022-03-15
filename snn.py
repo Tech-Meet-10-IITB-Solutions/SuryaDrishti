@@ -26,21 +26,15 @@ ml_dir = '/content/drive/MyDrive/B76-ISRO-PS/models/ml'
 
 class SNN():
     def __init__(self):
-        
-        a = 0.0001
-        b = 0.002
-        sigma = 0.05
-        n = 10
-        init_value = 100
 
         self.index = 0
         
         def custom_activation(x):
-            return K.sigmoid(sigma*x)
+            return K.sigmoid(0.05*x)
 
         get_custom_objects().update({'custom_activation': Activation(custom_activation)})
 
-        ones_initializer = initializers.Constant(value = init_value)
+        ones_initializer = initializers.Constant(value = 100)
         zeros_initializer = initializers.Zeros()
 
         opt = SGD(lr = 0.002)
@@ -60,13 +54,6 @@ class SNN():
     def forward(self, input):
         output = self.model(input)
         return output
-
-    def create_base(self):
-        ones_initializer = initializers.Ones()
-        zeros_initializer = initializers.Zeros()
-        self.model.layers[4] = Dense(1, kernel_initializer=zeros_initializer,
-                                  bias_initializer=ones_initializer)
-        self.model.save(os.path.join(ml_dir, 'base.h5'), overwrite=True)
 
     def save_chkpt(self):
         self.model.save(os.path.join(ml_dir, 'checkpoint.h5'), overwrite=True,
@@ -125,7 +112,7 @@ class SNN():
         bs = min(32, len(training_data))
         history = self.model.fit(training_data, labels, epochs=epochs, verbose=0, batch_size=bs)
 
-        K.set_value(self.model.optimizer.learning_rate, a + b*exp(-self.index))
+        K.set_value(self.model.optimizer.learning_rate, 0.0001 + 0.002*exp(-0.1*self.index))
         self.index = self.index + 1
 
         return history
