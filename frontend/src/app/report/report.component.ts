@@ -423,9 +423,6 @@ revertToUploadPage(){
         window.alert(data.detail)
         // window.location.href = '/upload'
       }
-    },err=>{
-      window.alert("ILYA an error")
-      window.alert(err)
     })
     this.innerWidth = window.innerWidth;
     // this.displayedColumns = ['max','maxAt','avg']
