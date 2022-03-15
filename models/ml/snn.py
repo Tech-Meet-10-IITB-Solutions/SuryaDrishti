@@ -97,22 +97,25 @@ class SNN():
         history = self.model.fit(training_data, labels, epochs=epochs, verbose=1, batch_size=bs)
         return history
 
-    def get_conf(self, data):
-        processed_fit = self.interpolate(data['processed_lc'])
-        ns_fit = self.EFP(data['params_ns'])
-        lm_fit = self.EFP(data['params_lm'])
-        snr = data['snr']
-        ns_chisq = data['params_ns']['fit_params']['ChiSq']
-        lm_chisq = data['params_lm']['fit_params']['ChiSq']
+    def get_conf(self, data_list):
+        conf_data = np.empty((0, self.input_dim))
+        for data in data_list:
+            processed_fit = self.interpolate(data['processed_lc'])
+            ns_fit = self.EFP(data['params_ns'])
+            lm_fit = self.EFP(data['params_lm'])
+            snr = data['snr']
+            ns_chisq = data['params_ns']['fit_params']['ChiSq']
+            lm_chisq = data['params_lm']['fit_params']['ChiSq']
 
-        input_data = np.concatenate((processed_fit,
-                                     ns_fit,
-                                     lm_fit,
-                                     np.array([1 / ns_chisq, 1 / lm_chisq, snr])
-                                     ))
-        input_data = np.expand_dims(input_data, axis=0)
+            input_data = np.concatenate((processed_fit,
+                                         ns_fit,
+                                         lm_fit,
+                                         np.array([1 / ns_chisq, 1 / lm_chisq, snr])
+                                         ))
+            input_data = np.expand_dims(input_data, axis=0)
+            conf_data = np.concatenate((conf_data, input_data), axis=0)
 
-        return np.int(100.0 * self.forward(input_data))
+        return self.model.predict(conf_data).flatten()
 
 
 if __name__ == '__main__':
