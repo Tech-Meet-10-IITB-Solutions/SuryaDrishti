@@ -57,21 +57,64 @@ class LC:
         return res
 
     def get_flares(self):
+        time = self.processed_lc[0]
+        rates = self.processed_lc[1]
         res = []
 
         for flare in self.flares:
-            # if flare['ns']['is_detected']:
-            #     ns = {
-            #         'is_detected': True,
-            #     }
-            # else:
-            ns = {
-                'is_detected': False
-            }
+            if flare['ns']['is_detected']:
+                ns = {
+                    'is_detected': True,
+                }
+                ns['fit_params'] = flare['ns']['fit_params']
+                ns['duration'] = flare['ns']['duration']
+                time_range = time[flare['ns']['start_idx']:flare['ns']['end_idx']]
+                true = rates[flare['ns']['start_idx']:flare['ns']['end_idx']]
+                no_nan_ids = ~np.isnan(true)
+                fit = EFP(time_range,
+                          flare['ns']['fit_params']['A'],
+                          flare['ns']['fit_params']['B'],
+                          flare['ns']['fit_params']['C'],
+                          flare['ns']['fit_params']['D'])
+                ns['true_data'] = [
+                    {'x': round(x), 'y': round(y)}
+                    for x, y in zip(time_range[no_nan_ids], true[no_nan_ids])
+                ]
+                ns['fit_data'] = [
+                    {'x': round(x), 'y': round(y)}
+                    for x, y in zip(time_range, fit)
+                ]
+            else:
+                ns = {
+                    'is_detected': False
+                }
 
-            lm = {
-                'is_detected': False,
-            }
+            if flare['lm']['is_detected']:
+                lm = {
+                    'is_detected': True,
+                }
+                lm['fit_params'] = flare['lm']['fit_params']
+                lm['duration'] = flare['lm']['duration']
+                time_range = time[flare['lm']['start_idx']:flare['lm']['end_idx']]
+                true = rates[flare['lm']['start_idx']:flare['lm']['end_idx']]
+                no_nan_ids = ~np.isnan(true)
+                fit = EFP(time_range,
+                          flare['lm']['fit_params']['A'],
+                          flare['lm']['fit_params']['B'],
+                          flare['lm']['fit_params']['C'],
+                          flare['lm']['fit_params']['D'])
+                lm['true_data'] = [
+                    {'x': round(x), 'y': round(y)}
+                    for x, y in zip(time_range[no_nan_ids], true[no_nan_ids])
+                ]
+                lm['fit_data'] = [
+                    {'x': round(x), 'y': round(y)}
+                    for x, y in zip(time_range, fit)
+                ]
+            else:
+                lm = {
+                    'is_detected': False
+                }
 
             res.append({
                 'peak_time': int(flare['peak_time']),
@@ -225,10 +268,6 @@ class LC:
 
         return (slope, intercept)
 
-    def fit_efp(self, params, time):
-        A, B, C, D = params['A'], params['B'], params['C'], params['D']
-        return EFP(time, A, B, C, D)
-
     def add_efp(self, flares, data, bg_params):
         time = data[0]
         rates = data[1]
@@ -253,13 +292,11 @@ class LC:
                 fl_rates = rates[flare['ns']['start_idx']: flare['ns']['end_idx']]
                 fl_duration = fl_time[-1] - fl_time[0]
                 fit_params = efp(fl_time, fl_rates, flare_prop['peak_time'])
-                fit_rates = self.fit_efp(fit_params, fl_time)
                 flare_prop['ns'] = {
                     'is_detected': True,
                     'start_idx': flare['ns']['start_idx'],
                     'end_idx': flare['ns']['end_idx'],
                     'duration': fl_duration,
-                    'fit': fit_rates,
                     'fit_params': fit_params
                 }
             else:
@@ -272,13 +309,11 @@ class LC:
                 fl_rates = rates[flare['lm']['start_idx']:flare['lm']['end_idx']]
                 fl_duration = fl_time[-1] - fl_time[0]
                 fit_params = efp(fl_time, fl_rates, flare_prop['peak_time'])
-                fit_rates = self.fit_efp(fit_params, fl_time)
                 flare_prop['lm'] = {
                     'is_detected': True,
                     'start_idx': flare['lm']['start_idx'],
                     'end_idx': flare['lm']['end_idx'],
                     'duration': fl_duration,
-                    'fit': fit_rates,
                     'fit_params': fit_params
                 }
             else:
