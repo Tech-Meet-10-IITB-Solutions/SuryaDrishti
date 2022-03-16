@@ -192,6 +192,7 @@ export class ReportComponent implements OnInit {
     private router:Router,
     private route:ActivatedRoute) {
   }
+  sortableIndex:number = 0
   scatterData!:any[]
   lineData!:any[]
   bursts:Partial<burstRow>[] = []

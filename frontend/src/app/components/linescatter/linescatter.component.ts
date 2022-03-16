@@ -79,7 +79,7 @@ export class LinescatterComponent implements OnInit {
     }
 ],
 chart: {
-    width: 600,
+    width: 450,
     type: "line",
     stacked: false,
     animations:{

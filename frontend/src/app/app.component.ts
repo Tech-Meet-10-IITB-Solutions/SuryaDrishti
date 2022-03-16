@@ -10,6 +10,9 @@ import { UploadComponent } from './upload/upload.component';
 export class AppComponent {
   title = 'frontend';
   constructor(private route:ActivatedRoute){}
+  toUpload(){
+    window.location.href= '/report/100'
+  }
   onBurstsReady(elementRef:any){
     console.log('hi')
     elementRef.onBurstsReady.subscribe((ev:any)=>{
