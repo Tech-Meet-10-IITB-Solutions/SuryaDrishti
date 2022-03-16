@@ -9,6 +9,7 @@ from scipy.stats import linregress
 
 from efp import EFP, efp
 from prop import calc_flux, find_flare_class, calc_temperature, calc_EM
+from lm import local_maxima
 
 
 class LC:
@@ -29,7 +30,7 @@ class LC:
         self.day_start = self.bin_time[0]
         self.processed_lc = np.array([self.bin_time - self.day_start, self.bin_rates])
 
-        self.ns_flares = self.ns(self.processed_lc[0], self.processed_lc[1])
+        self.ns_flares = self.lm(self.processed_lc[0], self.processed_lc[1])
         self.lm_flares = self.lm(self.processed_lc[0], self.processed_lc[1])
 
         self.flares = self.merge_flares(self.ns_flares, self.lm_flares)
@@ -130,22 +131,22 @@ class LC:
             flares.append([sampled[i], sampled[i + 1], peak_time])
         return flares
 
-    def lm(self, time, rates):
-        np.random.seed(0)
-        flares = []
-        sampled = sorted(np.random.choice(range(len(time)), size=12, replace=False))
-        for i in range(0, len(sampled), 2):
-            peak_time = sampled[i] + np.nanargmax(rates[sampled[i]:sampled[i + 1]])
-            flares.append([sampled[i], sampled[i + 1], peak_time])
-        return flares
-
     # def lm(self, time, rates):
+    #     np.random.seed(0)
     #     flares = []
-    #     start_ids, end_ids = local_maxima(time, rates)
-    #     for i in range(len(start_ids)):
-    #         peak_idx = start_ids[i] + np.nanargmax(rates[start_ids[i]:end_ids[i]])
-    #         flares.append([start_ids[i], end_ids[i + 1], peak_idx])
+    #     sampled = sorted(np.random.choice(range(len(time)), size=12, replace=False))
+    #     for i in range(0, len(sampled), 2):
+    #         peak_time = sampled[i] + np.nanargmax(rates[sampled[i]:sampled[i + 1]])
+    #         flares.append([sampled[i], sampled[i + 1], peak_time])
     #     return flares
+
+    def lm(self, time, rates):
+        flares = []
+        start_ids, end_ids = local_maxima(time, rates)
+        for i in range(len(start_ids)):
+            peak_idx = start_ids[i] + np.nanargmax(rates[start_ids[i]:end_ids[i]])
+            flares.append([start_ids[i], end_ids[i], peak_idx])
+        return flares
 
     def merge_flares(self, ns_flares, lm_flares):
         flares = []
@@ -341,7 +342,7 @@ class LC:
 
 
 if __name__ == '__main__':
-    lc = LC('../../../ch2_xsm_20211013_v1_level2.lc', 20)
+    lc = LC('../../../ch2_xsm_20200914_v1_level2.lc', 70)
 
     print(lc.raw_time.shape, lc.processed_lc.shape)
     # plt.plot(lc.sm_time, lc.sm_rates)
@@ -358,3 +359,6 @@ if __name__ == '__main__':
     print(lc.get_flares()[-1].keys())
     print(lc.processed_lc[0] - lc.processed_lc[0][0])
     print(lc.get_lc().keys())
+    print(len(lc.flares))
+    for flare in lc.flares:
+        print(flare['ns']['fit_params'])

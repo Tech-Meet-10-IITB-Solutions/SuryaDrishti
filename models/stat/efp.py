@@ -4,6 +4,8 @@ from scipy.optimize import curve_fit
 from scipy.special import erf
 from scipy.stats import chisquare
 
+import matplotlib.pyplot as plt
+
 
 def EFP(x, A, B, C, D):
     Z = (2 * B + C**2 * D) / (2 * C)
@@ -17,19 +19,32 @@ def efp(time, rates, peak_time):
 
     popt, pcov = curve_fit(EFP, np.float128(time[non_nan_ids]),
                            np.float128(rates[non_nan_ids]),
-                           p0=([25, peak_time, 17, 0.1]))
+                           p0=([np.nanmax(rates), peak_time, 1, 0.2]))
 
-    try:
-        chisq, p = chisquare(EFP(np.float128(time[non_nan_ids]), *popt),
-                             np.float128(rates[non_nan_ids]))
-    except Exception:
-        chisq = np.nan
+    print(popt, peak_time)
+    print(rates)
+    plt.scatter(time[non_nan_ids], rates[non_nan_ids])
+    plt.plot(time[non_nan_ids], EFP(time[non_nan_ids], *popt))
+    plt.show()
+    exit(0)
+    # try:
+    #     chisq, p = chisquare(EFP(np.float64(time[non_nan_ids]), *popt),
+    #                      np.float64(rates[non_nan_ids]))
+    # except Exception:
+    #     chisq = np.nan
 
     res = {
         'A': popt[0],
         'B': popt[1],
         'C': popt[2],
         'D': popt[3],
-        'ChiSq': chisq,
+        'ChiSq': np.inf,
     }
+    # res = {
+    #     'A': np.random.rand(),
+    #     'B': np.random.rand(),
+    #     'C': np.random.rand(),
+    #     'D': np.random.rand(),
+    #     'ChiSq': np.inf,
+    # }
     return res
