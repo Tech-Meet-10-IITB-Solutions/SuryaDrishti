@@ -57,6 +57,13 @@ def rebin_lc(time, rates, t_bin, t_bin_new):
     bin_rates = bin_counts/bin_widths
     return new_time, bin_rates
 
+def bin_edges_from_time(time, t_bin):
+    time = np.array(time)
+    bin_edges = (time[1:] + time[:-1])/2.0
+    bin_edges = np.insert(bin_edges, 0, bin_edges[0] - t_bin)
+    bin_edges = np.append(bin_edges,bin_edges[-1] + t_bin)
+    return bin_edges
+
 def EFP(x, A, B, C, D):
     Z = (2*B + C**2*D)/(2*C)
     return 1/2 * np.sqrt(np.pi) *  A * C * np.exp(D*(B-x) + C**2*D**2/4) * (erf(Z) - erf(Z - x/C))
@@ -100,6 +107,7 @@ def plot_peak_countrates_hist(folder_path):
     plt.savefig("peak_hist.png")
     return 0
 #plot_peak_countrates_hist('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/')
+'''
 peak_countrates = np.loadtxt("peak.csv")
 print(peak_countrates)
 plt.figure(0)
@@ -110,3 +118,15 @@ plt.xlabel("counts/s")
 plt.ylabel("Number of peaks")
 #plt.gca().set_xscale("log")
 plt.savefig("peak_hist_log_lin.png")
+'''
+def n_sigma_main(filename, n, t_bin, t_bin_new):
+    time, rates = load_lc(filename)
+    print(time)
+    time_new, rates_new = rebin_lc(time, rates, t_bin, t_bin_new)
+    flags, mean, sigma = n_sigma(time_new, rates_new, n)
+    plt.plot(time_new,rates_new, alpha = 0.7)
+    plt.scatter(time_new[flags], rates_new[flags], color = 'r')
+    plt.show() 
+    print((time[-1] - time[0])/3600.0)
+    return 
+n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20211111_v1_level2.lc', 3, 1.0, 20.0)
