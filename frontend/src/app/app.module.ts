@@ -30,6 +30,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { LinescatterComponent } from './components/linescatter/linescatter.component';
 import { BurstTableComponent } from './components/burst-table/burst-table.component';
 import { MatSelectModule } from '@angular/material/select';
+import { LinechartComponent } from './components/linechart/linechart.component';
+import { TestComponent } from './components/test/test.component';
 
 
 @NgModule({
@@ -39,7 +41,9 @@ import { MatSelectModule } from '@angular/material/select';
     ReportComponent,
     DialogOptionsDialog,
     LinescatterComponent,
-    BurstTableComponent
+    BurstTableComponent,
+    LinechartComponent,
+    TestComponent
   ],
   imports: [
     BrowserModule,

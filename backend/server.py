@@ -27,6 +27,7 @@ import json
 complete = 0.0
 error = None
 file_path = ''
+userFileName = ''
 lc = None
 snn = SNN()
 
@@ -58,7 +59,7 @@ def process_zip(content):
 
 @ app.post('/upload')
 async def upload(file: UploadFile = File(...)):
-    global complete, file_path, error, lc
+    global complete, file_path, error, lc,userFileName
 
     complete = 0.0
     file_path = ''
@@ -66,7 +67,9 @@ async def upload(file: UploadFile = File(...)):
     lc = None
     # os.system('rm -rf input*')
     shutil.rmtree('input/',ignore_errors=True)
-    os.remove('input.zip')
+    if(os.path.isfile('input.zip')):
+        os.remove('input.zip')
+    userFileName = file.filename
     content = await file.read()
 
     thread = Thread(target=process_zip, args=(content,))
@@ -100,7 +103,7 @@ def bursts(bin_size: int = 100):
     for i in range(len(flares)):
         flares[i]['ml_conf'] = round(100.0 * conf_list[i])
 
-    return {'status': 200, 'flares': flares, 'total': lc.get_lc()}
+    return {'status': 200, 'flares': flares, 'total': {**lc.get_lc(), 'file_name':userFileName}}
 
 
 @ app.post('/train')

@@ -74,7 +74,7 @@ export class UploadComponent implements OnInit {
       }
       else{
         this.progress = 100
-        window.location.href = '/report'
+        window.location.href = '/report/100'
       }
     })
   }

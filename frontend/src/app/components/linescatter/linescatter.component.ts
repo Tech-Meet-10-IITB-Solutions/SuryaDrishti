@@ -14,7 +14,7 @@ import {
   ApexMarkers,
   ApexStroke
 } from "ng-apexcharts";
-import { burstRow, statModelData } from "src/app/report/report.component";
+import { burstRow, point, statModelData } from "src/app/report/report.component";
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -41,9 +41,14 @@ export class LinescatterComponent implements OnInit {
   scatterData!:any[]
   // @Input('lineData') lineData!:any[]
   @Input('burst') burst!:burstRow;
+  @Input('innerWidth') innerWidth!:number;
   @Input('statData') statData!:statModelData;
+  @Input('ptscatterData') ptscatterData!:point[];
   @ViewChild("chart") chart!: ChartComponent;
+  @Input() tickAmt:number|undefined = 20;
   public chartOptions!: Partial<ChartOptions>;
+  @Input('ptlineData') ptlineData!:point[]
+  @Input() chartHeight!:number;
   getScatterData(statData:statModelData){
     if(statData){
       this.scatterData = [];
@@ -162,21 +167,23 @@ export class LinescatterComponent implements OnInit {
   // }
   constructor() {}  
   ngOnInit(): void {
+    console.log(this.ptlineData)
     this.chartOptions = {
       series: [
         {
           name: "Data",
           type: "line",
-          data:this.getScatterData(this.statData)
+          data:this.ptscatterData!==null?this.ptscatterData:this.getScatterData(this.statData)
         },
         {
           name: "Fit",
           type: "line",
-          data: this.getLineData(this.statData)
+          data: this.ptlineData!==null?this.ptlineData:this.getLineData(this.statData)
         }
       ],
       chart: {
-        width: 400,
+        width: this.innerWidth!==null?(0.95*this.innerWidth):400,
+        height:(this.chartHeight!==null)?this.chartHeight!:undefined,
         type:'line',
         stacked: false,
         zoom:{
@@ -244,7 +251,7 @@ export class LinescatterComponent implements OnInit {
         offsetX: 40
       },
       xaxis:{
-        tickAmount:20,
+        tickAmount:this.tickAmt,
         // labels:{
         //   formatter:(value:string,timestamp:number)=>{
         //     console.log(value)

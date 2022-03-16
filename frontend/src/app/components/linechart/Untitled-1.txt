@@ -1,0 +1,2 @@
+server.readClientMsg(i,5,0)
+nbrs[i].clsock->readData(5,0)

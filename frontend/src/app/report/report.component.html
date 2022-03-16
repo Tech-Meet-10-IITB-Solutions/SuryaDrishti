@@ -15,7 +15,28 @@
     <div style="height: 40px;">
     </div>
 </div>
-<div style="display: flex; flex-direction: column;align-items: center;">
+<mat-card *ngIf="(totalData!==null)&&burstsDecoded">
+    <div class="totalCard">
+        <p>File Name: {{totalData.file_name}}</p> 
+        <p>Start Time: {{totalData.start}}</p>
+        <p>Flare Count: {{totalData.flare_count}}</p>
+        <p style="width:100%">
+            Bin Size: ({{binSzValue}})
+            <mat-slider [(ngModel)]="binSzValue" [max]="binSzMax" [min]="binSzMin">
+            </mat-slider>
+            <button mat-raised-button style="float: inline-end;" color="primary" (click)="resubmit()">Re-Submit</button>
+        </p>
+        <p>Flare Selection: </p>
+        <mat-button-toggle-group style="margin-left: 10px;display: inline-flex;"  [(ngModel)]="totalChartMode">
+            <mat-button-toggle [value]="0">NS</mat-button-toggle>
+            <mat-button-toggle [value]="1">LM</mat-button-toggle>
+            <mat-button-toggle [value]="2">Both</mat-button-toggle>
+          </mat-button-toggle-group>
+        <app-linechart [series]="totalData.chartSeries" [innerWidth]="innerWidth">
+        </app-linechart>
+    </div>
+</mat-card>
+<div *ngIf="burstsDecoded" style="display: flex; flex-direction: column;align-items: center;">
     <h1>
         {{rejectedBursts.length>0?'Selected Bursts':'Initial Bursts from EPF Model'}}
     </h1>

@@ -2,6 +2,7 @@ import { Component, ElementRef, HostListener, Inject, Input, OnInit, QueryList, 
 import { MatOptionSelectionChange } from '@angular/material/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatExpansionPanel } from '@angular/material/expansion';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   ChartComponent,
   ApexAxisChartSeries,
@@ -32,6 +33,14 @@ export interface statModelParams{
   C:number,
   D:number
 }
+export interface totalData{
+  start:number,
+  flare_count:number,
+  lc_data:point[],
+  ptlineData:point[],
+  file_name:string,
+  chartSeries:ApexAxisChartSeries
+}
 export interface statModelData{
   time:number[],
   rates:number[],
@@ -49,6 +58,10 @@ export interface burstRow{
   ns:statModelData,
   class:string
 }
+export interface point{
+  x:number,
+  y:number|null
+}
 @Component({
   selector: 'app-report',
   templateUrl: './report.component.html',
@@ -60,28 +73,35 @@ export class ReportComponent implements OnInit {
   @ViewChildren('burstTable') burstTable!:QueryList<BurstTableComponent>
   rejectedBursts:number[] = []
   burstListEditable:boolean = false;
-  tableMode:boolean = true;
+  totalChartMode:number = 0;
   burstsDecoded:boolean = false;
   public chartOptions:Partial<ChartOptions>[] = []
   public tableChartOptions:Partial<ChartOptions>[] = []
   metaData:any[] = [];
   tableData:any[] = [];
-  binSzMin:number = 5;
-  binSzMax:number=  50;
-  binSzValue:number = 10;
+  binSzMin:number = 20;
+  binSzMax:number=  500;
+  binSzValue:number = 100;
   varSzMin:number = 5;
   varSzMax:number=  50;
   varSzValue:number = 10;
-
+  @HostListener('window:resize', ['$event'])
+  OnResize(event:any){
+      this.innerWidth = window.innerWidth;
+  }
   mapClass:Function = (burst:number[][])=>{
     if(this.rejectedBursts.includes(this.data.indexOf(burst))){
       return 'disabled';
     }
     return ''
   }
+  totalData!: totalData;
   proceedToML(){}
-
-  innerWidth!: number;
+  resubmit(){
+    this.allowUnload = true;
+    window.location.href = `report/${this.binSzValue}`
+  }
+  innerWidth: number = window.innerWidth;
   displayedColumns!: string[];
   invertEditable(){
     this.burstListEditable = !this.burstListEditable
@@ -96,6 +116,7 @@ export class ReportComponent implements OnInit {
     // console.log('rejcheck')
     return data.filter((v,i,[])=>this.rejectedBursts.includes(i))
   }
+
   removeBurst(ev:number){
     this.rejectedBursts.push(ev)
     this.burstTable.toArray()[1].rejectedBursts.push(ev)
@@ -170,7 +191,10 @@ export class ReportComponent implements OnInit {
     )
     return cleaned;
   }
-  constructor(public dialog:MatDialog,private server:ServerService) {
+  constructor(public dialog:MatDialog,
+    private server:ServerService,
+    private router:Router,
+    private route:ActivatedRoute) {
   }
   scatterData!:any[]
   lineData!:any[]
@@ -442,10 +466,49 @@ revertToUploadPage(){
   window.location.href = '/upload'
 }
     ngOnInit(): void {
-    this.server.getBursts().subscribe((data:any)=>{
+    let binsize = JSON.parse(JSON.stringify(this.route.snapshot.paramMap.get('binsize') || '{}'));
+    console.log(binsize)
+    this.binSzValue = binsize
+    this.server.getBursts(binsize).subscribe((data:any)=>{
       console.log(data)
       // console.log(JSON.parse(data.flares))
-      this.bursts = this.cleanedData(JSON.parse(data.flares))
+      this.bursts = this.cleanedData(data.flares)
+      
+      this.totalData = {
+        ...data.total,
+         start:Math.round(data.total.start),
+          ptlineData:this.bursts.filter(burst=>
+            //TODO:Change boolean conditions
+            [
+               !burst.ns!.is_detected,
+               !burst.lm!.is_detected,
+               !(burst.lm!.is_detected||burst.ns!.is_detected)
+            ][this.totalChartMode]
+        ).map(burst=>{
+            return {
+                'x':burst.peak_time,
+                'y':burst.peak_rate
+            }
+        })};
+        let tempptdata = this.totalData.ptlineData
+        this.totalData.ptlineData = []
+        for(let i = 0;i<tempptdata.length;i++){
+          this.totalData.ptlineData.push(tempptdata[i]);
+          // this.totalData.ptlineData.push({x:tempptdata[i].x+0.01,y:null})
+        }
+        this.totalData.chartSeries = [
+          {
+            name:'Peaks',
+            data:this.totalData.ptlineData.map(obj=>[obj.x,obj.y]),
+            type:'scatter'
+          },
+          {
+            name:'Rates',
+            data:this.totalData.lc_data.map(obj=>[obj.x,obj.y]).filter((pt,j,[])=>(j%5===0)),
+            type:'scatter'
+          }
+        ] as ApexAxisChartSeries
+        console.log(this.totalData)
       this.burstsDecoded = true;
     })
     this.innerWidth = window.innerWidth;
@@ -482,9 +545,9 @@ export class DialogOptionsDialog implements OnInit{
       
     })
   }
-  binSzMin:number = 5;
-  binSzMax:number=  50;
-  binSzValue:number = 10;
+  binSzMin:number = 20;
+  binSzMax:number=  500;
+  binSzValue:number = 100;
   varSzMin:number = 5;
   varSzMax:number=  50;
   varSzValue:number = 10;  
