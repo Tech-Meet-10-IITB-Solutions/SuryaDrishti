@@ -86,7 +86,7 @@ def progress():
 
 
 @ app.get('/flares')
-def bursts(bin_size: int = 20):
+def bursts(bin_size: int = 100):
     global snn, file_path, lc
 
     print(file_path)
