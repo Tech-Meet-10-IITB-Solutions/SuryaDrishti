@@ -7,9 +7,9 @@ from scipy.stats import linregress
 
 # import matplotlib.pyplot as plt
 
-from efp import EFP, efp
-from prop import calc_flux, find_flare_class, calc_temperature, calc_EM
-from lm import local_maxima
+from .efp import EFP, efp2
+from .prop import calc_flux, find_flare_class, calc_temperature, calc_EM
+from .lm import local_maxima
 
 
 class LC:
@@ -252,7 +252,7 @@ class LC:
                 fl_time = time[flare['ns']['start_idx']: flare['ns']['end_idx']]
                 fl_rates = rates[flare['ns']['start_idx']: flare['ns']['end_idx']]
                 fl_duration = fl_time[-1] - fl_time[0]
-                fit_params = efp(fl_time, fl_rates, flare_prop['peak_time'])
+                fit_params = efp2(fl_time, fl_rates, flare_prop['peak_time'])
                 fit_rates = self.fit_efp(fit_params, fl_time)
                 flare_prop['ns'] = {
                     'is_detected': True,
@@ -271,7 +271,7 @@ class LC:
                 fl_time = time[flare['lm']['start_idx']:flare['lm']['end_idx']]
                 fl_rates = rates[flare['lm']['start_idx']:flare['lm']['end_idx']]
                 fl_duration = fl_time[-1] - fl_time[0]
-                fit_params = efp(fl_time, fl_rates, flare_prop['peak_time'])
+                fit_params = efp2(fl_time, fl_rates, flare_prop['peak_time'])
                 fit_rates = self.fit_efp(fit_params, fl_time)
                 flare_prop['lm'] = {
                     'is_detected': True,
@@ -351,11 +351,7 @@ class LC:
 
 
 if __name__ == '__main__':
-<<<<<<< HEAD
     lc = LC('../../backend/input/ch2_xsm_20211013_v1_level2.lc', 20)
-=======
-    lc = LC('../../../ch2_xsm_20200914_v1_level2.lc', 70)
->>>>>>> origin/master
 
     print(lc.raw_time.shape, lc.processed_lc.shape)
     # plt.plot(lc.sm_time, lc.sm_rates)
