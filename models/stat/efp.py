@@ -4,7 +4,7 @@ from scipy.optimize import curve_fit
 from scipy.special import erf
 from scipy.stats import chisquare
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 def EFP(x, A, B, C, D):
@@ -17,8 +17,8 @@ def EFP(x, A, B, C, D):
 def efp(time, rates, peak_time):
     non_nan_ids = ~np.isnan(rates)
 
-    popt, pcov = curve_fit(EFP, np.float128(time[non_nan_ids]),
-                           np.float128(rates[non_nan_ids]),
+    popt, pcov = curve_fit(EFP, np.float64(time[non_nan_ids]),
+                           np.float64(rates[non_nan_ids]),
                            p0=([np.nanmax(rates), peak_time, 1, 0.2]))
 
     # print(popt, peak_time)

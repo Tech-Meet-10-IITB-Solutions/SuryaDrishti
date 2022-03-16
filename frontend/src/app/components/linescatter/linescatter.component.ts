@@ -54,9 +54,9 @@ export class LinescatterComponent implements OnInit {
       this.scatterData = [];
       for(let i=0;i<statData.time.length;i++){
         this.scatterData.push(
-          {x:statData.time[i]-0.01,y:null},
+          // {x:statData.time[i]-0.01,y:null},
           {x:statData.time[i],y:statData.rates[i]},
-          {x:statData.time[i]+0.01,y:null}
+          // {x:statData.time[i]+0.01,y:null}
           )
       }
       return this.scatterData
@@ -171,95 +171,82 @@ export class LinescatterComponent implements OnInit {
     this.chartOptions = {
       series: [
         {
-          name: "Data",
-          type: "line",
-          data:this.ptscatterData!==null?this.ptscatterData:this.getScatterData(this.statData)
+            name: "Pulse",
+            type: "scatter",
+            data: this.ptscatterData!==null?this.ptscatterData:this.getScatterData(this.statData)
         },
         {
-          name: "Fit",
-          type: "line",
-          data: this.ptlineData!==null?this.ptlineData:this.getLineData(this.statData)
+            name: "Revenue",
+            type: "line",
+            data: this.ptlineData!==null?this.ptlineData:this.getLineData(this.statData)
         }
-      ],
-      chart: {
-        width: this.innerWidth!==null?(0.95*this.innerWidth):400,
-        height:(this.chartHeight!==null)?this.chartHeight!:undefined,
-        type:'line',
-        stacked: false,
-        zoom:{
-          type:'x'
-        },
-        animations:{
-          enabled:false
-        }
-      },
-      
-      
-      dataLabels: {
+    ],
+    chart: {
+        height: 350,
+        type: "line",
+        stacked: false
+    },
+    dataLabels: {
         enabled: false
-      },
-      stroke: {
-        width: [20,20],
-
-      },
-      title: {
+    },
+    stroke: {
+        width: [0, 5]
+    },
+    title: {
         text: "XYZ - Stock Analysis (2009 - 2016)",
         align: "left",
         offsetX: 110
-      },
-      yaxis: [
+    },
+    yaxis: [
         {
-          axisTicks: {
-            show: false,
-          },
-          axisBorder: {
-            show: true,
-            color: "#008FFB"
-          },
-          labels: {
-            style: {
-              colors: "#008FFB"
+            axisTicks: {
+                show: true
+            },
+            axisBorder: {
+                show: true,
+                color: "#008FFB"
+            },
+            labels: {
+                style: {
+                    colors: "#008FFB"
+                }
+            },
+            title: {
+                text: "Pulse",
+                style: {
+                    color: "#000000"
+                }
+            },
+            tooltip: {
+                enabled: true
             }
-          },
-          title: {
-            text: "Photon CPS",
-            style: {
-              color: "#000000"
-            }
-          },
-          tooltip: {
-            enabled: true
-          }
         },
-
-      ],
-      markers: {
-        size: [30,30],
-        radius:20,
-        shape:'circle'
-      },
-      tooltip: {
-        fixed: {
-          enabled: true,
-          position: "topLeft", // topRight, topLeft, bottomRight, bottomLeft
-          offsetY: 30,
-          offsetX: 60
+        {
+            seriesName: "Revenue",
+            opposite: true,
+            axisTicks: {
+                show: true
+            },
+            axisBorder: {
+                show: true,
+                color: "#FEB019"
+            },
+            labels: {
+                style: {
+                    colors: "#FEB019"
+                }
+            },
+            title: {
+                text: "Income (thousand crores)",
+                style: {
+                    color: "#008FFB"
+                }
+            }
         }
-      },
-      legend: {
-        horizontalAlign: "left",
-        offsetX: 40
-      },
-      xaxis:{
-        tickAmount:this.tickAmt,
-        // labels:{
-        //   formatter:(value:string,timestamp:number)=>{
-        //     console.log(value)
-        //     console.log(timestamp)
-        //     return timestamp.toExponential()
-        //   }
-        // }
-      }
+    ],
+    markers: {
+        size: [10, 1]
+    }
   };
 }
 

@@ -52,17 +52,7 @@ export class TestComponent implements OnInit {
                     name: "Revenue",
                     type: "line",
                     data: [{ x: 2009, y: 10.5 }, { x: 2010, y: 5.5 }, { x: 2011, y: 20 }, { x: 2012, y: 1.5 }, { x: 2013, y: 32 }, { x: 2014, y: 10.5 }, { x: 2015, y: 2.20 }, { x: 2016, y: 25.5 }]
-                }, {
-                    name: "Income",
-                    type: "column",
-                    data: [{ x: 2009, y: 50 }, { x: 2010, y: 1 }, { x: 2011, y: 20 }, { x: 2012, y: 15 }, { x: 2013, y: 22 }, { x: 2014, y: 10 }, { x: 2015, y: 20 }, { x: 2016, y: 55 }]
-                },
-                {
-                    name: "Cashflow",
-                    type: "column",
-                    data: [{ x: 2009, y: 20 }, { x: 2010, y: 10 }, { x: 2011, y: 50 }, { x: 2012, y: 10 }, { x: 2013, y: 32 }, { x: 2014, y: 15 }, { x: 2015, y: 10 }, { x: 2016, y: 25 }]
                 }
-
             ],
             chart: {
                 height: 350,
@@ -73,16 +63,13 @@ export class TestComponent implements OnInit {
                 enabled: false
             },
             stroke: {
-                width: [0, 5, 5, 5]
+                width: [0, 5]
             },
             title: {
                 text: "XYZ - Stock Analysis (2009 - 2016)",
                 align: "left",
                 offsetX: 110
             },
-            // xaxis: {
-            //   categories: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]
-            // },
             yaxis: [
                 {
                     axisTicks: {
@@ -128,66 +115,10 @@ export class TestComponent implements OnInit {
                             color: "#008FFB"
                         }
                     }
-                },
-                {
-                    seriesName: "Income",
-                    opposite: true,
-                    axisTicks: {
-                        show: true
-                    },
-                    axisBorder: {
-                        show: true,
-                        color: "#00E396"
-                    },
-                    labels: {
-                        style: {
-                            colors: "#00E396"
-                        }
-                    },
-                    title: {
-                        text: "Operating Cashflow (thousand crores)",
-                        style: {
-                            color: "#00E396"
-                        }
-                    }
-                },
-                {
-                    seriesName: "Revenue",
-                    opposite: true,
-                    axisTicks: {
-                        show: true
-                    },
-                    axisBorder: {
-                        show: true,
-                        color: "#FEB019"
-                    },
-                    labels: {
-                        style: {
-                            colors: "#FEB019"
-                        }
-                    },
-                    title: {
-                        text: "Revenue (thousand crores)",
-                        style: {
-                            color: "#FEB019"
-                        }
-                    }
                 }
             ],
             markers: {
-                size: [10, 1, 1, 5]
-            },
-            tooltip: {
-                fixed: {
-                    enabled: true,
-                    position: "topLeft", // topRight, topLeft, bottomRight, bottomLeft
-                    offsetY: 30,
-                    offsetX: 60
-                }
-            },
-            legend: {
-                horizontalAlign: "left",
-                offsetX: 40
+                size: [10, 1]
             }
         };
     }
