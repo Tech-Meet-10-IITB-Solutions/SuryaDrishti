@@ -83,8 +83,16 @@ class LC:
                 }
 
                 ns['duration'] = round(flare['ns']['duration'])
-                time_range = time[flare['ns']['start_idx']:flare['ns']['end_idx']]
-                true = rates[flare['ns']['start_idx']:flare['ns']['end_idx']]
+
+                if (flare['ns']['end_idx'] - flare['ns']['start_idx']) < 30:
+                    id_range = range(flare['ns']['start_idx'], flare['ns']['end_idx'] + 1)
+                else:
+                    id_range = np.linspace(flare['ns']['start_idx'],
+                                           flare['ns']['end_idx'],
+                                           num=30).astype(int)
+
+                time_range = time[id_range]
+                true = rates[id_range]
                 no_nan_ids = ~np.isnan(true)
 
                 fit = EFP(time_range, A, B, C, D)
@@ -121,9 +129,17 @@ class LC:
                     'ChiSq': float(ChiSq),
                 }
 
-                lm['duration'] = round(flare['lm']['duration'])
-                time_range = time[flare['lm']['start_idx']:flare['lm']['end_idx']]
-                true = rates[flare['lm']['start_idx']:flare['lm']['end_idx']]
+                ns['duration'] = round(flare['lm']['duration'])
+
+                if (flare['lm']['end_idx'] - flare['lm']['start_idx']) < 30:
+                    id_range = range(flare['lm']['start_idx'], flare['lm']['end_idx'] + 1)
+                else:
+                    id_range = np.linspace(flare['lm']['start_idx'],
+                                           flare['lm']['end_idx'],
+                                           num=30).astype(int)
+
+                time_range = time[id_range]
+                true = rates[id_range]
                 no_nan_ids = ~np.isnan(true)
 
                 fit = EFP(time_range, A, B, C, D)
