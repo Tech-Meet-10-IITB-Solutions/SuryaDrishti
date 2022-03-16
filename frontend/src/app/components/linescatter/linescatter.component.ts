@@ -54,9 +54,15 @@ export class LinescatterComponent implements OnInit {
       this.scatterData = [];
       for(let i=0;i<statData.time.length;i++){
         this.scatterData.push(
+<<<<<<< HEAD
           {x:statData.time[i]-0.01,y:null},
           {x:statData.time[i],y:statData.rates[i]},
           {x:statData.time[i]+0.01,y:null}
+=======
+          // {x:statData.time[i]-0.01,y:null},
+          {x:statData.time[i],y:statData.rates[i]},
+          // {x:statData.time[i]+0.01,y:null}
+>>>>>>> master
           )
       }
       return this.scatterData
@@ -171,6 +177,7 @@ export class LinescatterComponent implements OnInit {
     this.chartOptions = {
       series: [
         {
+<<<<<<< HEAD
           name: "Data",
           type: "line",
           data:this.ptscatterData!==null?this.ptscatterData:this.getScatterData(this.statData)
@@ -260,6 +267,84 @@ export class LinescatterComponent implements OnInit {
         //   }
         // }
       }
+=======
+            name: "Pulse",
+            type: "scatter",
+            data: this.ptscatterData!==null?this.ptscatterData:this.getScatterData(this.statData)
+        },
+        {
+            name: "Revenue",
+            type: "line",
+            data: this.ptlineData!==null?this.ptlineData:this.getLineData(this.statData)
+        }
+    ],
+    chart: {
+        height: 350,
+        type: "line",
+        stacked: false
+    },
+    dataLabels: {
+        enabled: false
+    },
+    stroke: {
+        width: [0, 5]
+    },
+    title: {
+        text: "XYZ - Stock Analysis (2009 - 2016)",
+        align: "left",
+        offsetX: 110
+    },
+    yaxis: [
+        {
+            axisTicks: {
+                show: true
+            },
+            axisBorder: {
+                show: true,
+                color: "#008FFB"
+            },
+            labels: {
+                style: {
+                    colors: "#008FFB"
+                }
+            },
+            title: {
+                text: "Pulse",
+                style: {
+                    color: "#000000"
+                }
+            },
+            tooltip: {
+                enabled: true
+            }
+        },
+        {
+            seriesName: "Revenue",
+            opposite: true,
+            axisTicks: {
+                show: true
+            },
+            axisBorder: {
+                show: true,
+                color: "#FEB019"
+            },
+            labels: {
+                style: {
+                    colors: "#FEB019"
+                }
+            },
+            title: {
+                text: "Income (thousand crores)",
+                style: {
+                    color: "#008FFB"
+                }
+            }
+        }
+    ],
+    markers: {
+        size: [10, 1]
+    }
+>>>>>>> master
   };
 }
 

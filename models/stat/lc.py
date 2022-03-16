@@ -7,7 +7,11 @@ from scipy.stats import linregress
 
 # import matplotlib.pyplot as plt
 
+<<<<<<< HEAD
 from .efp import EFP, efp2
+=======
+from .efp import EFP, efp
+>>>>>>> master
 from .prop import calc_flux, find_flare_class, calc_temperature, calc_EM
 from .lm import local_maxima
 
