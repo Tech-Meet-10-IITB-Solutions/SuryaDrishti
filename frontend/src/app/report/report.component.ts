@@ -53,12 +53,6 @@ export interface burstRow{
   bg_rate:number,
   peak_time:number,
   peak_rate:number,
-<<<<<<< HEAD
-  peak_em:number,
-  peak_flux:number,
-  peak_temp:number,
-=======
->>>>>>> master
   ml_conf:number,
   lm:statModelData,
   ns:statModelData,
