@@ -2,14 +2,14 @@ import numpy as np
 
 
 # W/m^2
-def calc_flux(count):
+def calc_flux(rate):
     start_energy_flux = np.log10(3e-9)
-    start_count_rate = np.log10(1e1)
+    start_rate = np.log10(1e1)
     end_energy_flux = np.log10(7e-7)
-    end_count_rate = np.log10(1e3)
-    flux_slope = ((end_count_rate - start_count_rate) / (end_energy_flux - start_energy_flux))
-    A = np.power(10, start_count_rate - flux_slope * start_energy_flux)
-    flux = np.power(np.array(count / A), 1 / flux_slope)
+    end_rate = np.log10(1e3)
+    flux_slope = ((end_rate - start_rate) / (end_energy_flux - start_energy_flux))
+    A = np.power(10, start_rate - flux_slope * start_energy_flux)
+    flux = np.power(np.array(rate / A), 1 / flux_slope)
     return flux
 
 
@@ -46,4 +46,4 @@ def calc_temperature(flux):
 
 # in cm^3
 def calc_EM(flux):
-    return 10**53 * np.log10(flux)**0.86
+    return 10**53 * flux**0.86
