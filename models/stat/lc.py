@@ -10,6 +10,7 @@ from scipy.stats import linregress
 from .efp import EFP, efp
 from .prop import calc_flux, find_flare_class, calc_temperature, calc_EM
 from .lm import local_maxima
+from .ns import n_sigma
 
 
 class LC:
@@ -30,7 +31,7 @@ class LC:
         self.day_start = self.bin_time[0]
         self.processed_lc = np.array([self.bin_time - self.day_start, self.bin_rates])
 
-        self.ns_flares = self.lm(self.processed_lc[0], self.processed_lc[1])
+        self.ns_flares = self.ns(self.processed_lc[0], self.processed_lc[1])
         self.lm_flares = self.lm(self.processed_lc[0], self.processed_lc[1])
 
         self.flares = self.merge_flares(self.ns_flares, self.lm_flares)
@@ -215,22 +216,12 @@ class LC:
         return new_time, bin_rates
 
     def ns(self, time, rates):
-        np.random.seed(0)
         flares = []
-        sampled = sorted(np.random.choice(range(len(time)), size=10, replace=False))
-        for i in range(0, len(sampled), 2):
-            peak_time = sampled[i] + np.nanargmax(rates[sampled[i]:sampled[i + 1]])
-            flares.append([sampled[i], sampled[i + 1], peak_time])
+        interval_ids = n_sigma(time, rates)
+        for interval in interval_ids:
+            peak_idx = interval[0] + np.nanargmax(rates[interval[0]:interval[1]])
+            flares.append([interval[0], interval[1], peak_idx])
         return flares
-
-    # def lm(self, time, rates):
-    #     np.random.seed(0)
-    #     flares = []
-    #     sampled = sorted(np.random.choice(range(len(time)), size=12, replace=False))
-    #     for i in range(0, len(sampled), 2):
-    #         peak_time = sampled[i] + np.nanargmax(rates[sampled[i]:sampled[i + 1]])
-    #         flares.append([sampled[i], sampled[i + 1], peak_time])
-    #     return flares
 
     def lm(self, time, rates):
         flares = []
@@ -426,7 +417,7 @@ class LC:
 
 
 if __name__ == '__main__':
-    lc = LC('../../../ch2_xsm_20210225_v1_level2.lc', 140)
+    lc = LC('../../../ch2_xsm_20211013_v1_level2.lc', 70)
 
     print(lc.raw_time.shape, lc.processed_lc.shape)
     # plt.plot(lc.sm_time, lc.sm_rates)
