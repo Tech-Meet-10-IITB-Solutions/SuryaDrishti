@@ -66,16 +66,28 @@ class LC:
                 ns = {
                     'is_detected': True,
                 }
-                ns['fit_params'] = flare['ns']['fit_params']
-                ns['duration'] = flare['ns']['duration']
+
+                A = flare['ns']['fit_params']['A']
+                B = flare['ns']['fit_params']['B']
+                C = flare['ns']['fit_params']['C']
+                D = flare['ns']['fit_params']['D']
+                ChiSq = flare['ns']['fit_params']['ChiSq']
+                if ChiSq == np.inf:
+                    ChiSq = -1
+                ns['fit_params'] = {
+                    'A': float(A),
+                    'B': float(B),
+                    'C': float(C),
+                    'D': float(D),
+                    'ChiSq': float(ChiSq),
+                }
+
+                ns['duration'] = round(flare['ns']['duration'])
                 time_range = time[flare['ns']['start_idx']:flare['ns']['end_idx']]
                 true = rates[flare['ns']['start_idx']:flare['ns']['end_idx']]
                 no_nan_ids = ~np.isnan(true)
-                fit = EFP(time_range,
-                          flare['ns']['fit_params']['A'],
-                          flare['ns']['fit_params']['B'],
-                          flare['ns']['fit_params']['C'],
-                          flare['ns']['fit_params']['D'])
+
+                fit = EFP(time_range, A, B, C, D)
                 ns['true_data'] = [
                     {'x': round(x), 'y': round(y)}
                     for x, y in zip(time_range[no_nan_ids], true[no_nan_ids])
@@ -93,16 +105,28 @@ class LC:
                 lm = {
                     'is_detected': True,
                 }
-                lm['fit_params'] = flare['lm']['fit_params']
-                lm['duration'] = flare['lm']['duration']
+
+                A = flare['lm']['fit_params']['A']
+                B = flare['lm']['fit_params']['B']
+                C = flare['lm']['fit_params']['C']
+                D = flare['lm']['fit_params']['D']
+                ChiSq = flare['lm']['fit_params']['ChiSq']
+                if ChiSq == np.inf:
+                    ChiSq = -1
+                lm['fit_params'] = {
+                    'A': float(A),
+                    'B': float(B),
+                    'C': float(C),
+                    'D': float(D),
+                    'ChiSq': float(ChiSq),
+                }
+
+                lm['duration'] = round(flare['lm']['duration'])
                 time_range = time[flare['lm']['start_idx']:flare['lm']['end_idx']]
                 true = rates[flare['lm']['start_idx']:flare['lm']['end_idx']]
                 no_nan_ids = ~np.isnan(true)
-                fit = EFP(time_range,
-                          flare['lm']['fit_params']['A'],
-                          flare['lm']['fit_params']['B'],
-                          flare['lm']['fit_params']['C'],
-                          flare['lm']['fit_params']['D'])
+
+                fit = EFP(time_range, A, B, C, D)
                 lm['true_data'] = [
                     {'x': round(x), 'y': round(y)}
                     for x, y in zip(time_range[no_nan_ids], true[no_nan_ids])
