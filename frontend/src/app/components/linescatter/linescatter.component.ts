@@ -79,9 +79,12 @@ export class LinescatterComponent implements OnInit {
     }
 ],
 chart: {
-    width: 350,
+    width: 600,
     type: "line",
-    stacked: false
+    stacked: false,
+    animations:{
+      enabled:false
+    }
 },
 dataLabels: {
     enabled: false
@@ -116,7 +119,7 @@ yaxis: [
 
 ],
 xaxis:{
-  tickAmount:20
+  tickAmount:10
 },
 markers: {
     size: [10, 1]

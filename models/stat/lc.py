@@ -84,12 +84,12 @@ class LC:
 
                 ns['duration'] = round(flare['ns']['duration'])
 
-                if (flare['ns']['end_idx'] - flare['ns']['start_idx']) < 30:
+                if (flare['ns']['end_idx'] - flare['ns']['start_idx']) < 20:
                     id_range = range(flare['ns']['start_idx'], flare['ns']['end_idx'] + 1)
                 else:
                     id_range = np.linspace(flare['ns']['start_idx'],
                                            flare['ns']['end_idx'],
-                                           num=30).astype(int)
+                                           num=20).astype(int)
 
                 time_range = time[id_range]
                 true = rates[id_range]
@@ -131,12 +131,12 @@ class LC:
 
                 ns['duration'] = round(flare['lm']['duration'])
 
-                if (flare['lm']['end_idx'] - flare['lm']['start_idx']) < 30:
+                if (flare['lm']['end_idx'] - flare['lm']['start_idx']) < 20:
                     id_range = range(flare['lm']['start_idx'], flare['lm']['end_idx'] + 1)
                 else:
                     id_range = np.linspace(flare['lm']['start_idx'],
                                            flare['lm']['end_idx'],
-                                           num=30).astype(int)
+                                           num=20).astype(int)
 
                 time_range = time[id_range]
                 true = rates[id_range]
