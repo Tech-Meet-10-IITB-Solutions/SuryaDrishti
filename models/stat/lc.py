@@ -8,6 +8,7 @@ from scipy.stats import linregress
 # import matplotlib.pyplot as plt
 
 from efp import EFP, efp
+from prop import calc_flux, find_flare_class, calc_temperature, calc_EM
 
 
 class LC:
@@ -37,6 +38,8 @@ class LC:
 
         self.flares = self.add_efp(self.flares, self.processed_lc, self.bg_params)
 
+        self.flares = self.add_char(self.flares)
+
         self.ml_data_list = self.add_ml_data(self.flares, self.processed_lc)
 
     def get_lc(self):
@@ -60,13 +63,16 @@ class LC:
                 'peak_time': int(flare['peak_time']),
                 'peak_rate': round(flare['peak_rate']),
                 'bg_rate': round(flare['bg_rate']),
+                'class': flare['class'],
+                'peak_flux': float(flare['peak_flux']),
+                'peak_temp': float(flare['peak_temp']),
+                'peak_em': float(flare['peak_em']),
                 'ns': {
                     'is_detected': False,
                 },
                 'lm': {
                     'is_detected': False,
                 },
-                'char': 'A',
             })
         return res
 
@@ -273,6 +279,16 @@ class LC:
             flares_new.append(flare_prop)
 
         return flares_new
+
+    def add_char(self, flares):
+        for flare in flares:
+            flux = calc_flux(flare['peak_rate'])
+            flare['peak_flux'] = flux
+            flare['class'] = find_flare_class(flux)
+            flare['peak_temp'] = calc_temperature(flux)
+            flare['peak_em'] = calc_EM(flux)
+
+        return flares
 
     def add_ml_data(self, flares, data):
         ml_data_list = []
