@@ -7,6 +7,10 @@ from scipy.stats import linregress
 
 # import matplotlib.pyplot as plt
 
+from efp import EFP, efp
+from prop import calc_flux, find_flare_class, calc_temperature, calc_EM
+from lm import local_maxima
+
 
 class LC:
     def __init__(self, lc_path, bin_size):
@@ -26,7 +30,7 @@ class LC:
         self.day_start = self.bin_time[0]
         self.processed_lc = np.array([self.bin_time - self.day_start, self.bin_rates])
 
-        self.ns_flares = self.ns(self.processed_lc[0], self.processed_lc[1])
+        self.ns_flares = self.lm(self.processed_lc[0], self.processed_lc[1])
         self.lm_flares = self.lm(self.processed_lc[0], self.processed_lc[1])
 
         self.flares = self.merge_flares(self.ns_flares, self.lm_flares)
@@ -34,6 +38,8 @@ class LC:
         self.bg_params = self.bg_fit(self.processed_lc, self.flares)
 
         self.flares = self.add_efp(self.flares, self.processed_lc, self.bg_params)
+
+        self.flares = self.add_char(self.flares)
 
         self.ml_data_list = self.add_ml_data(self.flares, self.processed_lc)
 
@@ -54,17 +60,29 @@ class LC:
         res = []
 
         for flare in self.flares:
+            # if flare['ns']['is_detected']:
+            #     ns = {
+            #         'is_detected': True,
+            #     }
+            # else:
+            ns = {
+                'is_detected': False
+            }
+
+            lm = {
+                'is_detected': False,
+            }
+
             res.append({
                 'peak_time': int(flare['peak_time']),
                 'peak_rate': round(flare['peak_rate']),
                 'bg_rate': round(flare['bg_rate']),
-                'ns': {
-                    'is_detected': False,
-                },
-                'lm': {
-                    'is_detected': False,
-                },
-                'char': 'A',
+                'class': flare['class'],
+                'peak_flux': float(flare['peak_flux']),
+                'peak_temp': float(flare['peak_temp']),
+                'peak_em': float(flare['peak_em']),
+                'ns': ns,
+                'lm': lm,
             })
         return res
 
@@ -93,17 +111,17 @@ class LC:
                 continue
         return box_time, box_count
 
-    def bin_edges_from_time(self, time, t_bin):
-        time = np.array(time)
-        bin_edges = (time[1:] + time[:-1]) / 2.0
-        bin_edges = np.insert(bin_edges, 0, bin_edges[0] - t_bin)
-        bin_edges = np.append(bin_edges, bin_edges[-1] + t_bin)
-        return bin_edges
-
     def rebin_lc(self, time, rates, t_bin, t_bin_new):
+        def bin_edges_from_time(time, t_bin):
+            time = np.array(time)
+            bin_edges = (time[1:] + time[:-1]) / 2.0
+            bin_edges = np.insert(bin_edges, 0, bin_edges[0] - t_bin)
+            bin_edges = np.append(bin_edges, bin_edges[-1] + t_bin)
+            return bin_edges
+
         new_time = np.arange(time[0] - t_bin / 2 + t_bin_new / 2,
                              time[-1] + t_bin / 2 + t_bin_new / 2, t_bin_new)
-        bin_edges = self.bin_edges_from_time(new_time, t_bin_new)
+        bin_edges = bin_edges_from_time(new_time, t_bin_new)
 
         bin_counts = np.histogram(time, bins=bin_edges, weights=rates)[0]
         bin_widths = np.histogram(time, bins=bin_edges, weights=np.ones_like(rates))[0]
@@ -122,13 +140,21 @@ class LC:
             flares.append([sampled[i], sampled[i + 1], peak_time])
         return flares
 
+    # def lm(self, time, rates):
+    #     np.random.seed(0)
+    #     flares = []
+    #     sampled = sorted(np.random.choice(range(len(time)), size=12, replace=False))
+    #     for i in range(0, len(sampled), 2):
+    #         peak_time = sampled[i] + np.nanargmax(rates[sampled[i]:sampled[i + 1]])
+    #         flares.append([sampled[i], sampled[i + 1], peak_time])
+    #     return flares
+
     def lm(self, time, rates):
-        np.random.seed(0)
         flares = []
-        sampled = sorted(np.random.choice(range(len(time)), size=12, replace=False))
-        for i in range(0, len(sampled), 2):
-            peak_time = sampled[i] + np.nanargmax(rates[sampled[i]:sampled[i + 1]])
-            flares.append([sampled[i], sampled[i + 1], peak_time])
+        start_ids, end_ids = local_maxima(time, rates)
+        for i in range(len(start_ids)):
+            peak_idx = start_ids[i] + np.nanargmax(rates[start_ids[i]:end_ids[i]])
+            flares.append([start_ids[i], end_ids[i], peak_idx])
         return flares
 
     def merge_flares(self, ns_flares, lm_flares):
@@ -199,18 +225,9 @@ class LC:
 
         return (slope, intercept)
 
-    def efp(self, time, rates):
-        res = {}
-        res['A'] = np.random.rand()
-        res['B'] = np.random.rand()
-        res['C'] = np.random.rand()
-        res['D'] = np.random.rand()
-        res['ChiSq'] = np.random.rand()
-        return res
-
     def fit_efp(self, params, time):
         A, B, C, D = params['A'], params['B'], params['C'], params['D']
-        return (A * np.exp(-B) + C * np.exp(-D)) * np.log(time)
+        return EFP(time, A, B, C, D)
 
     def add_efp(self, flares, data, bg_params):
         time = data[0]
@@ -235,7 +252,7 @@ class LC:
                 fl_time = time[flare['ns']['start_idx']: flare['ns']['end_idx']]
                 fl_rates = rates[flare['ns']['start_idx']: flare['ns']['end_idx']]
                 fl_duration = fl_time[-1] - fl_time[0]
-                fit_params = self.efp(fl_time, fl_rates)
+                fit_params = efp(fl_time, fl_rates, flare_prop['peak_time'])
                 fit_rates = self.fit_efp(fit_params, fl_time)
                 flare_prop['ns'] = {
                     'is_detected': True,
@@ -254,7 +271,7 @@ class LC:
                 fl_time = time[flare['lm']['start_idx']:flare['lm']['end_idx']]
                 fl_rates = rates[flare['lm']['start_idx']:flare['lm']['end_idx']]
                 fl_duration = fl_time[-1] - fl_time[0]
-                fit_params = self.efp(fl_time, fl_rates)
+                fit_params = efp(fl_time, fl_rates, flare_prop['peak_time'])
                 fit_rates = self.fit_efp(fit_params, fl_time)
                 flare_prop['lm'] = {
                     'is_detected': True,
@@ -272,6 +289,16 @@ class LC:
             flares_new.append(flare_prop)
 
         return flares_new
+
+    def add_char(self, flares):
+        for flare in flares:
+            flux = calc_flux(flare['peak_rate'])
+            flare['peak_flux'] = flux
+            flare['class'] = find_flare_class(flux)
+            flare['peak_temp'] = calc_temperature(flux)
+            flare['peak_em'] = calc_EM(flux)
+
+        return flares
 
     def add_ml_data(self, flares, data):
         ml_data_list = []
@@ -324,7 +351,11 @@ class LC:
 
 
 if __name__ == '__main__':
+<<<<<<< HEAD
     lc = LC('../../backend/input/ch2_xsm_20211013_v1_level2.lc', 20)
+=======
+    lc = LC('../../../ch2_xsm_20200914_v1_level2.lc', 70)
+>>>>>>> origin/master
 
     print(lc.raw_time.shape, lc.processed_lc.shape)
     # plt.plot(lc.sm_time, lc.sm_rates)
@@ -341,3 +372,6 @@ if __name__ == '__main__':
     print(lc.get_flares()[-1].keys())
     print(lc.processed_lc[0] - lc.processed_lc[0][0])
     print(lc.get_lc().keys())
+    print(len(lc.flares))
+    for flare in lc.flares:
+        print(flare['ns'])
