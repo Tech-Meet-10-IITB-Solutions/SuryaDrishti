@@ -1,3 +1,5 @@
+from cmath import isnan, nan
+from turtle import color
 from astropy.io import fits
 import matplotlib.pyplot as plt 
 from astropy.stats import sigma_clipped_stats as scs
@@ -6,6 +8,7 @@ from scipy.stats import linregress
 from scipy.optimize import curve_fit
 from scipy.special import erf
 import glob
+from scipy.stats import chisquare
 def load_lc(filename):
     '''filename : path to the .lc file
     Returns : time, rates'''
@@ -53,8 +56,10 @@ def rebin_lc(time, rates, t_bin, t_bin_new):
     new_time = np.arange(time[0]-t_bin/2 + t_bin_new/2, time[-1]+t_bin/2 + t_bin_new/2, t_bin_new)
     bin_edges = bin_edges_from_time(new_time, t_bin_new)
     bin_counts = np.histogram(time, bins = bin_edges, weights = rates)[0]
-    bin_widths = bin_edges[1:] - bin_edges[:-1]
-    bin_rates = bin_counts/bin_widths
+    bin_widths = np.histogram(time, bins=bin_edges, weights=np.ones_like(rates))[0]
+
+    bin_rates = np.nan * bin_widths
+    bin_rates[bin_widths != 0] = bin_counts[bin_widths != 0] / bin_widths[bin_widths != 0]
     return new_time, bin_rates
 
 def bin_edges_from_time(time, t_bin):
@@ -106,6 +111,37 @@ def plot_peak_countrates_hist(folder_path):
     plt.ylabel("Number of peaks")
     plt.savefig("peak_hist.png")
     return 0
+def distinct_orbits(arr, indices_array):
+    output_arr = []
+    for i in range(len(indices_array)):
+        if(i==0):
+            temp = arr[indices_array[0]:indices_array[1]]
+            output_arr.append(temp)
+        elif(i<len(indices_array)-1):
+            temp = arr[indices_array[i]:indices_array[i+1]]
+            output_arr.append(temp)
+        else:
+            temp = arr[indices_array[-1]:]
+            output_arr.append(temp)
+    return output_arr
+def start_end_of_flares(arr, indices_array):
+    flare_arr = []
+    for i in range(len(indices_array)):
+        if(i==0):
+            temp = arr[indices_array[0]:indices_array[1]]
+            t_start = arr[indices_array[0]]
+            t_end = arr[indices_array[1]-1]
+            flare_arr.append([t_start, t_end])
+        elif(i<len(indices_array)-1):
+            temp = arr[indices_array[i]:indices_array[i+1]]
+            t_start = arr[indices_array[i]]
+            t_end = arr[indices_array[i]-1]
+            flare_arr.append([t_start, t_end])
+        else:
+            t_start = arr[indices_array[-1]]
+            t_end = arr[-1]
+            flare_arr.append([t_start, t_end])
+    return flare_arr
 #plot_peak_countrates_hist('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/')
 '''
 peak_countrates = np.loadtxt("peak.csv")
@@ -119,14 +155,52 @@ plt.ylabel("Number of peaks")
 #plt.gca().set_xscale("log")
 plt.savefig("peak_hist_log_lin.png")
 '''
+def n_sigma_start_stop(time_new,rates_new, n):
+    t_arr = []
+    mean,_, sigma  = scs(rates_new)
+    t_start = time_new[0]
+    t_end = t_start
+    j = 0
+    for i in range(len(time_new)):
+        if(rates_new[i] < mean + n*sigma):
+            if(j!=0):
+                t_end = temp
+                if(j>3):
+                    t_arr.append([t_start, t_end])
+                #print([t_start, t_end])
+            j = 0
+        elif(j==0):
+            if(not np.isnan(rates_new[i])):
+                t_start = time_new[i]
+                temp = t_start
+                #print(time_new[i], rates_new[i], mean + n*sigma)
+                j+=1
+        else:
+            if(not np.isnan(rates_new[i])):
+                temp = time_new[i]
+                j+=1
+    return t_arr
 def n_sigma_main(filename, n, t_bin, t_bin_new):
     time, rates = load_lc(filename)
-    print(time)
+    #print(time)
     time_new, rates_new = rebin_lc(time, rates, t_bin, t_bin_new)
     flags, mean, sigma = n_sigma(time_new, rates_new, n)
-    plt.plot(time_new,rates_new, alpha = 0.7)
+    t_arr = n_sigma_start_stop(time_new, rates_new, n)
+    #idx_arr, _ = orbit_start_indices(time_new[flags], 2*t_bin_new)
+    #output_arr = distinct_orbits(time_new[flags], idx_arr)
+    #print(time_new[flags][idx_arr])
+    #flare_arr = start_end_of_flares(time_new[flags], idx_arr)
+    #print("Flares")
+    #print(flare_arr)
+    plt.plot(time,rates, alpha = 0.7)
     plt.scatter(time_new[flags], rates_new[flags], color = 'r')
+    plt.axhline(mean+n*sigma,linestyle='--', color='r')
+    plt.axhline(mean, linestyle = '--', color='g')
+    for i in range(len(t_arr)):
+        plt.axvline(t_arr[i][0], color = 'b', linestyle = '--')
+        plt.axvline(t_arr[i][1], color = 'k', linestyle = '--')
+    plt.savefig("n_sigma_start_stop.png")
     plt.show() 
-    print((time[-1] - time[0])/3600.0)
+    # need to return start time, end time for flares
     return 
-n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20211111_v1_level2.lc', 3, 1.0, 20.0)
+n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20211111_v1_level2.lc', 3, 1.0, 10.0)
