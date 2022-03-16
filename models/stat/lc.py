@@ -129,7 +129,7 @@ class LC:
                     'ChiSq': float(ChiSq),
                 }
 
-                ns['duration'] = round(flare['lm']['duration'])
+                lm['duration'] = round(flare['lm']['duration'])
 
                 if (flare['lm']['end_idx'] - flare['lm']['start_idx']) < 30:
                     id_range = range(flare['lm']['start_idx'], flare['lm']['end_idx'] + 1)
@@ -426,7 +426,7 @@ class LC:
 
 
 if __name__ == '__main__':
-    lc = LC('../../../ch2_xsm_20200914_v1_level2.lc', 70)
+    lc = LC('../../../ch2_xsm_20210225_v1_level2.lc', 140)
 
     print(lc.raw_time.shape, lc.processed_lc.shape)
     # plt.plot(lc.sm_time, lc.sm_rates)
