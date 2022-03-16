@@ -29,3 +29,23 @@ The final activation function, between layers 3 and the output is a sigmoid func
 The optimizer that we have utilized is Stochastic Gradient Descent (SGD). The reason we chose SGD over other, more advanced optimizers like Adam (Adaptive Momentum Estimation) and RMSProp, is simply that our online training needs to be faster, and also should not rely on large amounts of data. Adam and RMSProp work well when one is performing batch training on a huge dataset with multiple input parameters. In smaller datasets, like in our case, Adam can lead to overfitting. Also, we cannot control the learning rate in these algorithms. Using SGD, we can control the learning rate directly and therefore utilize the concept of *decay*.
 
 The word decay is used in its literal sense here - the learning rate of the optimizer decays or grows smaller as we train the model more and more. This ensures that the model is less and less senstive to data that we introduce over time and retains memory of what it has been taught before. If we did not make use of this, our model would try to *unlearn* what it has learn before and would want to fit the new data that it is being trained on perfectly. With hyperparameter tuning, we can make sure that the *learning* is at a decent pace - neither too fast, nor too slow. 
+
+The loss function is a binary cross entropy loss function. Since the problem is that of a binary classification (solar flare and not a solar flare), it makes sense to use the binary cross entropy function.
+
+### Model Parameters
+
+The model has certain internal parameters. They are listed down below: 
+- n = number of data points being sampled from every light curve.
+- sigma = controls the sensitivity of the porbability to the output of layer 3 of the neural network.
+- value = decides the starting probability of the light curve detection
+- alpha = decides the slope of the LeakyReLU activation function whenever x < 0
+- a, b, c = parameters controlling the learning rate of the ML model. 
+
+### Issues with the model and ways to improve it
+
+There are multiple ways we can improve the ML model to obtain better results.
+
+- The neural network hyperparameters can be tuned better using multiple algorithms available online. These hyperparameter tuning methods are somewhat complex and therefore have not been utilized here.
+- Rather than make use of supervised learning, like we have made here, we can also make use of unsupervised learning and let the machine learning model categorise available light curves into categories. This might result in us discovering new features and also improving the classification problem.
+- Our current model is not *adaptive* i.e. even if it detects changes in the trend of the data being fed into it, it will be unable to steer the parameters quickly towards this change in trend and therefore might take longer time to adapt to the new trend. In the case of solar flares and the obtained light curves, this should not be a problem since we do not expect the solar flare activity and its representation in the light curve to change drastically with time. - Semi-supervised learning
+
