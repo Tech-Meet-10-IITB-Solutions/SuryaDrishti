@@ -73,7 +73,6 @@
     <ng-container matColumnDef="meta">
         <th mat-header-cell *matHeaderCellDef>Metadata</th>
         <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element">
-<<<<<<< HEAD
                 <p>Peak Value: {{element.peak_rate}}</p>
                 <p>BG Rate: {{element.bg_rate}}</p>
                 <p>Confidence: {{element.ml_conf}}</p>
@@ -81,14 +80,6 @@
                 <p>Peak Temp: {{(element.peak_temp*(1e6)).toPrecision(3)}} K</p>
                 <p>Peak Flux: {{element.peak_flux.toPrecision(3)}} W/m2</p>
                 <p>Peak EM: {{element.peak_em.toPrecision(3)}} REAL UNITS</p>
-=======
-            <ul>
-                <p>Peak Value: {{element.peak_rate}}</p>
-                <p>bg_rate: {{element.bg_rate}}</p>
-                <p>ml_conf: {{element.ml_conf}}</p>
-                <p>Characteristic: {{element.class}}</p>
-            </ul>
->>>>>>> master
         </td>
     </ng-container>
     <tr mat-header-row  *matHeaderRowDef="displayedColumnsMain"></tr>

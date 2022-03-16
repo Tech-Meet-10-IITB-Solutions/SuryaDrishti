@@ -42,9 +42,8 @@ export interface totalData{
   chartSeries:ApexAxisChartSeries
 }
 export interface statModelData{
-  time:number[],
-  rates:number[],
-  fit:number[],
+  fit_data:point[],
+  true_data:point[],
   is_detected:boolean,
   fit_params:statModelParams,
   duration:number
@@ -155,9 +154,6 @@ export class ReportComponent implements OnInit {
       if(ns?.is_detected){
         obj.ns = {
           ...ns,
-          time:ns.time.filter((mom,j,[])=>(ns!.rates[j]!==null)).map(v=>Math.round(v)),
-          rates:ns.rates.filter((rate,j,[])=>(rate!==null)).map(v=>Math.round(v)),
-          fit:ns.fit.map(v=>Math.round(v)),
           fit_params:{
             A:Number.parseFloat(ns.fit_params.A.toPrecision(2)),
             B:Number.parseFloat(ns.fit_params.B.toPrecision(2)),
@@ -170,9 +166,6 @@ export class ReportComponent implements OnInit {
       if(lm?.is_detected){
         obj.lm = {
           ...lm,
-          time:lm.time.filter((mom,j,[])=>(lm!.rates[j]!==null)).map(v=>Math.round(v)),
-          rates:lm.rates.filter((rate,j,[])=>(rate!==null)).map(v=>Math.round(v)),
-          fit:lm.fit.map(v=>Math.round(v)),
           fit_params:{
             A:Number.parseFloat(lm.fit_params.A.toPrecision(2)),
             B:Number.parseFloat(lm.fit_params.B.toPrecision(2)),

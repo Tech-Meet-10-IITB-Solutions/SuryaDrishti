@@ -14,7 +14,7 @@ def EFP(x, A, B, C, D):
         * (erf(Z) - erf(Z - x / C))
 
 
-def efp2(time, rates, peak_time):
+def efp(time, rates, peak_time):
     non_nan_ids = ~np.isnan(rates)
 
     popt, pcov = curve_fit(EFP, np.float64(time[non_nan_ids]),
