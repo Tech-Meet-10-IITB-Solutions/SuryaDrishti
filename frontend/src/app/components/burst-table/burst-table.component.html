@@ -40,7 +40,7 @@
         <th mat-header-cell *matHeaderCellDef>Data - NS</th>
         <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element" #chartcell>
             <ul *ngIf="element.ns.is_detected===true">
-                <p>Chi Sq: {{element.ns.fit_params.ChiSq}}</p>
+                <p>Chi Sq: {{element.ns.fit_params.ChiSq>0?element.ns.fit_params.ChiSq:'infinity'}}</p>
                 <p>A: {{element.ns.fit_params.A}}</p>
                 <p>B: {{element.ns.fit_params.B}}</p>
                 <p>C: {{element.ns.fit_params.C}}</p>
@@ -62,7 +62,7 @@
         <th mat-header-cell *matHeaderCellDef>Data - LM</th>
         <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element" #chartcell>
             <ul *ngIf="element.lm.is_detected===true">
-                <p>Chi Sq: {{element.lm.fit_params.ChiSq}}</p>
+                <p>Chi Sq: {{element.lm.fit_params.ChiSq>0?element.lm.fit_params.ChiSq:'infinity'}}</p>
                 <p>A: {{element.lm.fit_params.A}}</p>
                 <p>B: {{element.lm.fit_params.B}}</p>
                 <p>C: {{element.lm.fit_params.C}}</p>
@@ -73,12 +73,13 @@
     <ng-container matColumnDef="meta">
         <th mat-header-cell *matHeaderCellDef>Metadata</th>
         <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element">
-            <ul>
                 <p>Peak Value: {{element.peak_rate}}</p>
-                <p>bg_rate: {{element.bg_rate}}</p>
-                <p>ml_conf: {{element.ml_conf}}</p>
+                <p>BG Rate: {{element.bg_rate}}</p>
+                <p>Confidence: {{element.ml_conf}}</p>
                 <p>Characteristic: {{element.class}}</p>
-            </ul>
+                <p>Peak Temp: {{(element.peak_temp*(1e6)).toPrecision(3)}} K</p>
+                <p>Peak Flux: {{element.peak_flux.toPrecision(3)}} W/m2</p>
+                <p>Peak EM: {{element.peak_em.toPrecision(3)}} REAL UNITS</p>
         </td>
     </ng-container>
     <tr mat-header-row  *matHeaderRowDef="displayedColumnsMain"></tr>

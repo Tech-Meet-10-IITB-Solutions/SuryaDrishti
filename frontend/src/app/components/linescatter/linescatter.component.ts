@@ -51,216 +51,79 @@ export class LinescatterComponent implements OnInit {
   @Input() chartHeight!:number;
   getScatterData(statData:statModelData){
     if(statData){
-      this.scatterData = [];
-      for(let i=0;i<statData.time.length;i++){
-        this.scatterData.push(
-          {x:statData.time[i]-0.01,y:null},
-          {x:statData.time[i],y:statData.rates[i]},
-          {x:statData.time[i]+0.01,y:null}
-          )
-      }
-      return this.scatterData
+      return statData.true_data;
     }
     return []
   }
   getLineData(statData:statModelData){
     if(statData){
-      return statData.time.map((mom,j,[])=>{
-        return {x:mom,y:statData.fit[j]}
-      })        
+      return statData.fit_data;
     }
     return []
   }
-  // public updateChartOptions(burst:burstRow){
-  //   this.chartOptions = {
-  //     series: [
-  //       {
-  //         name: "Pulse",
-  //         type: "line",
-  //         data:this.getLineData(burst)
-  //       },
-  //       {
-  //         name: "Revenue",
-  //         type: "line",
-  //         data: this.getScatterData(burst)
-  //       }
-  //     ],
-  //     chart: {
-  //       height: 350,
-  //       type:'line',
-  //       stacked: false
-  //     },
-  //     dataLabels: {
-  //       enabled: false
-  //     },
-  //     stroke: {
-  //       width: [20,20]
-  //     },
-  //     title: {
-  //       text: "XYZ - Stock Analysis (2009 - 2016)",
-  //       align: "left",
-  //       offsetX: 110
-  //     },
-  //     yaxis: [
-  //       {
-  //         axisTicks: {
-  //           show: true
-  //         },
-  //         axisBorder: {
-  //           show: true,
-  //           color: "#008FFB"
-  //         },
-  //         labels: {
-  //           style: {
-  //             colors: "#008FFB"
-  //           }
-  //         },
-  //         title: {
-  //           text: "Pulse",
-  //           style: {
-  //             color: "#000000"
-  //           }
-  //         },
-  //         tooltip: {
-  //           enabled: true
-  //         }
-  //       },
-  //       {
-  //         seriesName: "Revenue",
-  //         opposite: true,
-  //         axisTicks: {
-  //           show: true
-  //         },
-  //         axisBorder: {
-  //           show: true,
-  //           color: "#FEB019"
-  //         },
-  //         labels: {
-  //           style: {
-  //             colors: "#FEB019"
-  //           }
-  //         },
-  //         title: {
-  //           text: "Income (thousand crores)",
-  //           style: {
-  //             color: "#008FFB"
-  //           }
-  //         }
-  //       },
-  //     ],
-  //     markers: {
-  //       size: [30,30]
-  //     },
-  //     tooltip: {
-  //       fixed: {
-  //         enabled: true,
-  //         position: "topLeft", // topRight, topLeft, bottomRight, bottomLeft
-  //         offsetY: 30,
-  //         offsetX: 60
-  //       }
-  //     },
-  //     legend: {
-  //       horizontalAlign: "left",
-  //       offsetX: 40
-  //     }
-  //   };
-  // }
   constructor() {}  
-  ngOnInit(): void {
-    console.log(this.ptlineData)
-    this.chartOptions = {
-      series: [
-        {
-          name: "Data",
-          type: "line",
-          data:this.ptscatterData!==null?this.ptscatterData:this.getScatterData(this.statData)
-        },
-        {
-          name: "Fit",
-          type: "line",
-          data: this.ptlineData!==null?this.ptlineData:this.getLineData(this.statData)
-        }
-      ],
-      chart: {
-        width: this.innerWidth!==null?(0.95*this.innerWidth):400,
-        height:(this.chartHeight!==null)?this.chartHeight!:undefined,
-        type:'line',
-        stacked: false,
-        zoom:{
-          type:'x'
-        },
-        animations:{
-          enabled:false
-        }
-      },
-      
-      
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        width: [20,20],
+  ngOnInit() {
 
-      },
-      title: {
-        text: "XYZ - Stock Analysis (2009 - 2016)",
-        align: "left",
-        offsetX: 110
-      },
-      yaxis: [
-        {
-          axisTicks: {
-            show: false,
-          },
-          axisBorder: {
+    console.log(this.statData)
+    
+  this.chartOptions = {series: [
+    {
+        name: "True Data",
+        type: "scatter",
+        data: this.getScatterData(this.statData)
+    },
+    {
+        name: "Fit",
+        type: "line",
+        data: this.getLineData(this.statData)
+    }
+],
+chart: {
+    width: 450,
+    type: "line",
+    stacked: false,
+    animations:{
+      enabled:false
+    }
+},
+dataLabels: {
+    enabled: false
+},
+stroke: {
+    width: [0, 5]
+},
+yaxis: [
+    {
+        axisTicks: {
+            show: true
+        },
+        axisBorder: {
             show: true,
             color: "#008FFB"
-          },
-          labels: {
-            style: {
-              colors: "#008FFB"
-            }
-          },
-          title: {
-            text: "Photon CPS",
-            style: {
-              color: "#000000"
-            }
-          },
-          tooltip: {
-            enabled: true
-          }
         },
-
-      ],
-      markers: {
-        size: [30,30],
-        radius:20,
-        shape:'circle'
-      },
-      tooltip: {
-        fixed: {
-          enabled: true,
-          position: "topLeft", // topRight, topLeft, bottomRight, bottomLeft
-          offsetY: 30,
-          offsetX: 60
+        labels: {
+            style: {
+                colors: "#008FFB"
+            }
+        },
+        title: {
+            text: "Photon FPS",
+            style: {
+                color: "#000000"
+            }
+        },
+        tooltip: {
+            enabled: true
         }
-      },
-      legend: {
-        horizontalAlign: "left",
-        offsetX: 40
-      },
-      xaxis:{
-        tickAmount:this.tickAmt,
-        // labels:{
-        //   formatter:(value:string,timestamp:number)=>{
-        //     console.log(value)
-        //     console.log(timestamp)
-        //     return timestamp.toExponential()
-        //   }
-        // }
-      }
-  };
+    },
+
+],
+xaxis:{
+  tickAmount:10
+},
+markers: {
+    size: [10, 1]
+}}
 }
 
 

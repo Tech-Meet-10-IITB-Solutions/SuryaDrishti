@@ -9,10 +9,13 @@ import { UploadComponent } from './upload/upload.component';
 })
 export class AppComponent {
   title = 'frontend';
-  constructor(private route:ActivatedRoute){}
-  onBurstsReady(elementRef:any){
+  constructor(private route: ActivatedRoute) { }
+  toUpload() {
+    window.location.href = '/upload'
+  }
+  onBurstsReady(elementRef: any) {
     console.log('hi')
-    elementRef.onBurstsReady.subscribe((ev:any)=>{
+    elementRef.onBurstsReady.subscribe((ev: any) => {
       console.log(ev);
     })
     window.location.href = "/report"
