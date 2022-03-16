@@ -21,12 +21,13 @@ def efp(time, rates, peak_time):
                            np.float128(rates[non_nan_ids]),
                            p0=([np.nanmax(rates), peak_time, 1, 0.2]))
 
-    print(popt, peak_time)
-    print(rates)
-    plt.scatter(time[non_nan_ids], rates[non_nan_ids])
-    plt.plot(time[non_nan_ids], EFP(time[non_nan_ids], *popt))
-    plt.show()
-    exit(0)
+    # print(popt, peak_time)
+    # print(rates)
+    # plt.scatter(time[non_nan_ids], rates[non_nan_ids])
+    # plt.plot(time[non_nan_ids], EFP(time[non_nan_ids], *popt))
+    # plt.show()
+    # exit(0)
+
     # try:
     #     chisq, p = chisquare(EFP(np.float64(time[non_nan_ids]), *popt),
     #                      np.float64(rates[non_nan_ids]))

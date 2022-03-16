@@ -1,7 +1,7 @@
 from astropy.stats import sigma_clipped_stats as scs
 
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 def local_maxima(time, rates):

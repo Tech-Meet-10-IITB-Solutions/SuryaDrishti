@@ -60,6 +60,19 @@ class LC:
         res = []
 
         for flare in self.flares:
+            # if flare['ns']['is_detected']:
+            #     ns = {
+            #         'is_detected': True,
+            #     }
+            # else:
+            ns = {
+                'is_detected': False
+            }
+
+            lm = {
+                'is_detected': False,
+            }
+
             res.append({
                 'peak_time': int(flare['peak_time']),
                 'peak_rate': round(flare['peak_rate']),
@@ -68,12 +81,8 @@ class LC:
                 'peak_flux': float(flare['peak_flux']),
                 'peak_temp': float(flare['peak_temp']),
                 'peak_em': float(flare['peak_em']),
-                'ns': {
-                    'is_detected': False,
-                },
-                'lm': {
-                    'is_detected': False,
-                },
+                'ns': ns,
+                'lm': lm,
             })
         return res
 
@@ -361,4 +370,4 @@ if __name__ == '__main__':
     print(lc.get_lc().keys())
     print(len(lc.flares))
     for flare in lc.flares:
-        print(flare['ns']['fit_params'])
+        print(flare['ns'])
