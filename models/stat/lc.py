@@ -1,75 +1,13 @@
 from astropy.io import fits
 from astropy.convolution import convolve, Box1DKernel
-from astropy.stats import sigma_clipped_stats as scs
 
 import numpy as np
 
 from scipy.stats import linregress
-from scipy.optimize import curve_fit
-from scipy.special import erf
-from scipy.stats import chisquare
 
 # import matplotlib.pyplot as plt
 
-
-def local_maxima(time, rates):
-    length = 200
-    st_nr = rates[4:] - rates[:-4]
-    st_dr = time[4:] - time[:-4]
-    st_cutoff = np.average(np.sort(np.divide(st_nr, st_dr))[-1 * length:])
-    print(st_cutoff)
-    st_flags = np.array(np.where(np.divide(st_nr, st_dr) > st_cutoff))
-    print('cutoff : ', np.average(np.sort(np.divide(st_nr, st_dr))[-1 * length:]))
-
-    new_st_flags = [st_flags[0][0]]
-    for i in range(len(st_flags[0]) - 1):
-        if st_flags[0][i + 1] - st_flags[0][i] > 20:
-            new_st_flags.append(st_flags[0][i + 1])
-
-    peak_flags = []
-
-    for i in range(len(new_st_flags)):
-        peak = rates[new_st_flags[i]:]
-        pk_nr = peak[4:]
-        pk_dr = peak[:-4]
-        peak_flags.append(new_st_flags[i] + np.where(np.divide(pk_nr, pk_dr) < 1)[0][5])
-
-    def bk_avg():
-        iter_counts = np.copy(rates)
-        iter = 5
-        n = 0.8
-        for i in range(iter):
-            mean, med, sig = scs(iter_counts)
-            iter_counts[iter_counts > mean + n * sig] = mean + n * sig
-        mean, med, sig = scs(iter_counts)
-        return mean + 3 * sig
-
-    cut = bk_avg()
-
-    def find_end(rates, mean):
-        if len(np.where(rates < mean)[0]) != 0:
-            end_time = np.where(rates < mean)[0][0]
-        else:
-            end_time = np.argmin(rates)
-        return end_time
-
-    end_flags = []
-
-    for i in range(len(peak_flags)):
-        if i != len(peak_flags) - 1:
-            end_flags.append(
-                peak_flags[i] + find_end(rates[peak_flags[i]:new_st_flags[i + 1]], cut))
-        else:
-            end_flags.append(peak_flags[i] + find_end(rates[peak_flags[i]:], cut))
-
-    return new_st_flags, end_flags
-
-
-def EFP(x, A, B, C, D):
-    Z = (2 * B + C**2 * D) / (2 * C)
-    return 1 / 2 * np.sqrt(np.pi) * A * C \
-        * np.exp(D * (B - x) + C**2 * D**2 / 4) \
-        * (erf(Z) - erf(Z - x / C))
+from efp import EFP, efp
 
 
 class LC:
@@ -271,24 +209,6 @@ class LC:
 
         return (slope, intercept)
 
-    def efp(self, time, rates, peak_time):
-        non_nan_ids = ~np.isnan(rates)
-
-        popt, pcov = curve_fit(EFP, np.float128(time[non_nan_ids]),
-                               np.float128(rates[non_nan_ids]),
-                               p0=([25, peak_time, 17, 0.1]))
-        chisq, p = chisquare(EFP(np.float128(time[non_nan_ids]), *popt),
-                             np.float128(rates[non_nan_ids]))
-
-        res = {
-            'A': popt[0],
-            'B': popt[1],
-            'C': popt[2],
-            'D': popt[3],
-            'ChiSq': chisq,
-        }
-        return res
-
     def fit_efp(self, params, time):
         A, B, C, D = params['A'], params['B'], params['C'], params['D']
         return EFP(time, A, B, C, D)
@@ -316,7 +236,7 @@ class LC:
                 fl_time = time[flare['ns']['start_idx']: flare['ns']['end_idx']]
                 fl_rates = rates[flare['ns']['start_idx']: flare['ns']['end_idx']]
                 fl_duration = fl_time[-1] - fl_time[0]
-                fit_params = self.efp(fl_time, fl_rates, flare_prop['peak_time'])
+                fit_params = efp(fl_time, fl_rates, flare_prop['peak_time'])
                 fit_rates = self.fit_efp(fit_params, fl_time)
                 flare_prop['ns'] = {
                     'is_detected': True,
@@ -335,7 +255,7 @@ class LC:
                 fl_time = time[flare['lm']['start_idx']:flare['lm']['end_idx']]
                 fl_rates = rates[flare['lm']['start_idx']:flare['lm']['end_idx']]
                 fl_duration = fl_time[-1] - fl_time[0]
-                fit_params = self.efp(fl_time, fl_rates, flare_prop['peak_time'])
+                fit_params = efp(fl_time, fl_rates, flare_prop['peak_time'])
                 fit_rates = self.fit_efp(fit_params, fl_time)
                 flare_prop['lm'] = {
                     'is_detected': True,
