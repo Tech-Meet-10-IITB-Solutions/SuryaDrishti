@@ -14,7 +14,7 @@ def n_sigma(time, rates, n=3):
         if rates[i] < mean + n * sigma:
             if j != 0:
                 t_end_idx = temp
-                if j > 3:
+                if j > 4:
                     t_arr.append([t_start_idx, t_end_idx])
             j = 0
         elif j == 0:

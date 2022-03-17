@@ -5,7 +5,9 @@ import numpy as np
 
 from scipy.stats import linregress
 
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+import io
+import base64
 
 from .efp import EFP, efp
 from .prop import calc_flux, find_flare_class, calc_temperature, calc_EM
@@ -85,26 +87,25 @@ class LC:
 
                 ns['duration'] = round(flare['ns']['duration'])
 
-                if (flare['ns']['end_idx'] - flare['ns']['start_idx']) < 30:
-                    id_range = range(flare['ns']['start_idx'], flare['ns']['end_idx'] + 1)
-                else:
-                    id_range = np.linspace(flare['ns']['start_idx'],
-                                           flare['ns']['end_idx'],
-                                           num=30).astype(int)
+                id_range = range(flare['ns']['start_idx'], flare['ns']['end_idx'] + 1)
 
                 time_range = time[id_range]
                 true = rates[id_range]
-                no_nan_ids = ~np.isnan(true)
 
                 fit = EFP(time_range, A, B, C, D)
-                ns['true_data'] = [
-                    {'x': round(x), 'y': round(y)}
-                    for x, y in zip(time_range[no_nan_ids], true[no_nan_ids])
-                ]
-                ns['fit_data'] = [
-                    {'x': round(x), 'y': round(y)}
-                    for x, y in zip(time_range, fit)
-                ]
+
+                plt.plot(time_range, fit, c='r')
+                plt.scatter(time_range, true, c='b')
+                plt.xlabel('Time (s)')
+                plt.ylabel('Counts (photons/s)')
+                plt.title('Flare with peak at {}s detected by N Sigma algorithm'.format(
+                    flare['peak_time']))
+
+                bytestream = io.BytesIO()
+                plt.savefig(bytestream, format='jpg')
+                bytestream.seek(0)
+
+                ns['plot_base64'] = base64.b64encode(bytestream.read())
             else:
                 ns = {
                     'is_detected': False
@@ -141,17 +142,21 @@ class LC:
 
                 time_range = time[id_range]
                 true = rates[id_range]
-                no_nan_ids = ~np.isnan(true)
 
                 fit = EFP(time_range, A, B, C, D)
-                lm['true_data'] = [
-                    {'x': round(x), 'y': round(y)}
-                    for x, y in zip(time_range[no_nan_ids], true[no_nan_ids])
-                ]
-                lm['fit_data'] = [
-                    {'x': round(x), 'y': round(y)}
-                    for x, y in zip(time_range, fit)
-                ]
+
+                plt.plot(time_range, fit, c='r')
+                plt.scatter(time_range, true, c='b')
+                plt.xlabel('Time (s)')
+                plt.ylabel('Counts (photons/s)')
+                plt.title('Flare with peak at {}s detected by Local Maxima algorithm'.format(
+                    flare['peak_time']))
+
+                bytestream = io.BytesIO()
+                plt.savefig(bytestream, format='jpg')
+                bytestream.seek(0)
+
+                lm['plot_base64'] = base64.b64encode(bytestream.read())
             else:
                 lm = {
                     'is_detected': False
