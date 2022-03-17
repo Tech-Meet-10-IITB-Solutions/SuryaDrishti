@@ -19,16 +19,29 @@ In the case of solar flare data, we have a small dataset available. And even the
 ### Model Architecture
 
 The model utilizes a 3-layered neural network architecture. The architecture can be understood using the following graph: 
-*image*
 
-The activation function between layers 1 and 2, and layers 2 and 3 is the *Leaky Rectified Linear Unit function* or LeakyReLU. 
+![Image of Neural Network](/home/mehul/Desktop/InterIIT_ISRO/nn.png "Representation of neural network").
+
+The last layer of the neural network is initialized with all weights $= 0$ and the bias $= \lambda$, which we set manually to a high value (of the order of 100). This is done so that when no training has been performed, our model returns that every light curve being input into it is detected as a true light curve and not a false positive.
+
+The activation function between layers 1 and 2, and layers 2 and 3 is the *Leaky Rectified Linear Unit function* or LeakyReLU. LeakyReLU is defined by the following function $f(x)$:
+
+$$
+f(x) = \begin{cases}
+x & x \ge 0\\
+\alpha x & x < 0
+\end{cases}
+$$
+
+$\alpha$ is taken to be less than 1.
 
 It brings about non-linearity to our neural network and allows it to better approximate complicated relationships between the inputs and the output. 
 
-The final activation function, between layers 3 and the output is a **sigmoid** function, which converts the numerical value obtained as the output of layer 3 into a probability - the probability of the input being a solar flare in our case.
+The final activation function, between layers 3 and the output is a **Sigmoid** function, which converts the numerical value obtained as the output of layer 3 into a probability - the probability of the input being a solar flare in our case. The sigmoid function $S(x)$ is defined as follows:
 
-The input to the model is a an array of size N x 3n + 3, where N is the total number of light curves we are feeding in at once and n is the number of data points we are sampling. For ease of explaination, let N = 1. Then, we can represent the input array in the following manner: 
-*image*
+$$
+S(x) = \frac{1}{1+{e}^{-\sigma x}}
+$$
 
 The optimizer that we have utilized is **Stochastic Gradient Descent (SGD)**. There are multiple reasons why we choose SGD over other, more advanced optimizers like Adam (Adaptive Momentum Estimation) and RMSProp (Root Mean Square Propagation):
 
@@ -37,16 +50,28 @@ The optimizer that we have utilized is **Stochastic Gradient Descent (SGD)**. Th
 
 The word decay is used in its literal sense here - the learning rate of the optimizer grows smaller as we train the model. This ensures that the model is less and less senstive to data that we introduce in the future and retains memory of what it has been taught before. If we did not make use of this, our model would *unlearn* whatever it has learnt before and would want to ensure that it fits the newer data that it is being trained on perfectly. With hyperparameter tuning, we can make sure that the *learning* is at a decent pace - neither too fast, nor too slow. 
 
-The loss function is a *binary cross entropy* loss function since the problem is that of a binary classification (solar flare and not a solar flare).
+The learning rate $r$ of the model has been manually set by us:
+
+$$
+r[i] = a + be^{-ci}
+$$
+
+$i$ is the number of training has been performed since the model has been deployed. It can be reset to $i = 0$ as and when needed.
+
+The loss function is a *binary cross entropy* loss function since the problem is that of a binary classification (solar flare and not a solar flare). The binary cross entropy function can be represented in the following manner:
+
+$$
+H_{p}(q) = -\frac{1}{N}\sum_{i = 1}^{N}y_{i}\cdot\log(p(y_{i}))+(1 - y_{i})\cdot \log(1 - p(y_{i}))
+$$
 
 ### Model Parameters
 
 The model has certain internal parameters. They are listed down below: 
-- n = number of data points being sampled from every light curve as input to the model.
-- sigma = controls the sensitivity of the final output to the output of layer 3 of the neural network.
-- value = decides the starting probability of the light curve detection.
-- alpha = decides the slope of the LeakyReLU activation function.
-- a, b, c = parameters controlling the learning rate of the model. 
+- $n$ = number of data points being sampled from every light curve as input to the model.
+- $\sigma$ = controls the sensitivity of the final output to the output of layer 3 of the neural network.
+- $\lambda$ = decides the starting probability of the light curve detection.
+- $\alpha$ = decides the slope of the LeakyReLU activation function.
+- $a, b, c$ = parameters controlling the learning rate of the model. 
 
 ### Future Work
 
