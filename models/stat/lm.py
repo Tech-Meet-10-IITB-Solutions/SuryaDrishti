@@ -3,8 +3,6 @@ from astropy.stats import sigma_clipped_stats as scs
 import numpy as np
 from scipy.stats import linregress
 
-# import matplotlib.pyplot as plt
-
 
 def local_maxima(time, rates):
     length = 150
@@ -84,15 +82,4 @@ def local_maxima(time, rates):
         if end_flags[i] - new_st_flags[i] > 4:
             t_arr.append([new_st_flags[i], end_flags[i]])
 
-    # plt.figure(figsize=(15, 5))
-    # plt.plot(time, rates, marker='.')
-
-    # for i in range(len(new_st_flags)):
-    #     plt.axvline(time[new_st_flags[i]], color='black', ls='--')
-    #     # plt.axvline(time[peak_flags[i]], color = 'red', ls='--')
-    #     plt.axvline(time[end_flags[i]], color='blue', ls='--')
-
-    # plt.show()
-    # print(new_st_flags, end_flags)
-    # exit(0)
     return t_arr

@@ -44,6 +44,6 @@ def calc_temperature(flux):
             / (np.log10(1e-7) - np.log10(7e-8))
 
 
-# in cm^3
+# In cm^3
 def calc_EM(flux):
     return 10**53 * flux**0.86
