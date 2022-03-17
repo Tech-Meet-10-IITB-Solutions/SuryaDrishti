@@ -1,3 +1,6 @@
+import os
+import sys
+
 from astropy.io import fits
 from astropy.convolution import convolve, Box1DKernel
 from astropy.stats import sigma_clipped_stats as scs
@@ -8,12 +11,12 @@ from scipy.stats import linregress
 
 import matplotlib.pyplot as plt
 
-from efp import EFP, fit_efp
-from prop import calc_flux, find_flare_class, calc_temperature, calc_EM
-from lm import local_maxima
-from ns import n_sigma
+sys.path.append("../../")
+from models.stat.efp import EFP, fit_efp
+from models.stat.prop import calc_flux, find_flare_class, calc_temperature, calc_EM
+from models.stat.lm import local_maxima
+from models.stat.ns import n_sigma
 
-import os
 stat_dir = os.path.dirname((os.path.realpath(__file__)))
 
 
@@ -390,6 +393,7 @@ class LC:
                     'start_time': data[0][flare['ns']['start_idx']],
                     'end_time': data[0][flare['ns']['end_idx']],
                     'fit_params': flare['ns']['fit_params'],
+                    'bg_rate': flare['bg_rate'],
                 }
             else:
                 params_ns = {
@@ -406,6 +410,7 @@ class LC:
                     'start_time': data[0][flare['lm']['start_idx']],
                     'end_time': data[0][flare['lm']['end_idx']],
                     'fit_params': flare['lm']['fit_params'],
+                    'bg_rate': flare['bg_rate'],
                 }
             else:
                 params_lm = {
@@ -416,13 +421,13 @@ class LC:
                     }
                 }
 
-            snr = flare['peak_rate'] / sigma
+            psnr = flare['peak_rate'] / sigma
 
             ml_data_list.append({
                 'processed_lc': processed_lc,
                 'params_ns': params_ns,
                 'params_lm': params_lm,
-                'snr': snr,
+                'psnr': psnr,
             })
 
         return ml_data_list

@@ -39,7 +39,8 @@ def fit_efp(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
 
     if np.argmin(chisq_arr) == np.inf:
         return {
-            'is_fit': False
+            'is_fit': False,
+            'ChiSq': np.inf
         }
 
     (i_opt, j_opt) = np.unravel_index(np.argmin(chisq_arr), (c_num, d_num))

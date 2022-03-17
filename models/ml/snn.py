@@ -26,6 +26,8 @@ ml_dir = os.path.dirname((os.path.realpath(__file__)))
 
 class SNN():
     def __init__(self):
+        tf.random.set_seed(0)
+        np.random.seed(0)
 
         self.index = 0
 
@@ -68,26 +70,30 @@ class SNN():
             self.index = int(output.read(-1))
 
     def interpolate(self, processed_lc):
-        spline = CubicSpline(processed_lc[0], processed_lc[1], extrapolate=True)
+        time, rates = processed_lc[:, ~np.isnan(processed_lc[0])]
+        spline = CubicSpline(time, rates, extrapolate=True)
 
-        start_time, end_time = processed_lc[0][0], processed_lc[0][-1]
+        start_time, end_time = time[0], time[-1]
         x = np.linspace(start_time, end_time, num=self.n, endpoint=True)
 
         return spline(x)
 
     def EFP(self, params):
         if params['is_detected']:
-            x = np.linspace(params['start_time'], params['end_time'], num=self.n, endpoint=True)
-            A = params['fit_params']['A']
-            B = params['fit_params']['B']
-            C = params['fit_params']['C']
-            D = params['fit_params']['D']
+            if params['fit_params']['is_fit']:
+                x = np.linspace(params['start_time'], params['end_time'], num=self.n, endpoint=True)
+                A = params['fit_params']['A']
+                B = params['fit_params']['B']
+                C = params['fit_params']['C']
+                D = params['fit_params']['D']
 
-            Z = (2 * B + C**2 * D) / (2 * C)
-            EFP_fit = (0.5 * np.sqrt(np.pi) * A * C) \
-                * np.exp(D * (B - x) + C**2 * D**2 / 4) \
-                * (erf(Z) - erf(Z - x / C))
-            return EFP_fit
+                Z = (2 * B + C**2 * D) / (2 * C)
+                EFP_fit = (0.5 * np.sqrt(np.pi) * A * C) \
+                    * np.exp(D * (B - x) + C**2 * D**2 / 4) \
+                    * (erf(Z) - erf(Z - x / C))
+                return EFP_fit
+            else:
+                return np.ones((self.n,)) * params['bg_rate']
         else:
             return np.ones((self.n,)) * params['bg_rate']
 
@@ -97,14 +103,16 @@ class SNN():
             processed_fit = self.interpolate(data['processed_lc'])
             ns_fit = self.EFP(data['params_ns'])
             lm_fit = self.EFP(data['params_lm'])
-            snr = data['snr']
+            psnr = data['psnr']
             ns_chisq = data['params_ns']['fit_params']['ChiSq']
             lm_chisq = data['params_lm']['fit_params']['ChiSq']
 
             input_data = np.concatenate((processed_fit,
                                          ns_fit,
                                          lm_fit,
-                                         np.array([1 / ns_chisq, 1 / lm_chisq, snr])
+                                         np.array([np.log(1 + 1 / ns_chisq),
+                                                  np.log(1 + 1 / lm_chisq),
+                                                  psnr])
                                          ))
             input_data = np.expand_dims(input_data, axis=0)
             training_data = np.concatenate((training_data, input_data), axis=0)
@@ -123,14 +131,16 @@ class SNN():
             processed_fit = self.interpolate(data['processed_lc'])
             ns_fit = self.EFP(data['params_ns'])
             lm_fit = self.EFP(data['params_lm'])
-            snr = data['snr']
+            psnr = data['psnr']
             ns_chisq = data['params_ns']['fit_params']['ChiSq']
             lm_chisq = data['params_lm']['fit_params']['ChiSq']
 
             input_data = np.concatenate((processed_fit,
                                          ns_fit,
                                          lm_fit,
-                                         np.array([1 / ns_chisq, 1 / lm_chisq, snr])
+                                         np.array([np.log(1 + 1 / ns_chisq),
+                                                  np.log(1 + 1 / lm_chisq),
+                                                  psnr])
                                          ))
             input_data = np.expand_dims(input_data, axis=0)
             conf_data = np.concatenate((conf_data, input_data), axis=0)
