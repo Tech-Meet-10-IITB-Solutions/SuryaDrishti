@@ -5,11 +5,14 @@ import numpy as np
 
 from scipy.stats import linregress
 
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+import io
+import base64
 
 from .efp import EFP, efp
 from .prop import calc_flux, find_flare_class, calc_temperature, calc_EM
 from .lm import local_maxima
+from .ns import n_sigma
 
 
 class LC:
@@ -30,7 +33,7 @@ class LC:
         self.day_start = self.bin_time[0]
         self.processed_lc = np.array([self.bin_time - self.day_start, self.bin_rates])
 
-        self.ns_flares = self.lm(self.processed_lc[0], self.processed_lc[1])
+        self.ns_flares = self.ns(self.processed_lc[0], self.processed_lc[1])
         self.lm_flares = self.lm(self.processed_lc[0], self.processed_lc[1])
 
         self.flares = self.merge_flares(self.ns_flares, self.lm_flares)
@@ -84,26 +87,25 @@ class LC:
 
                 ns['duration'] = round(flare['ns']['duration'])
 
-                if (flare['ns']['end_idx'] - flare['ns']['start_idx']) < 30:
-                    id_range = range(flare['ns']['start_idx'], flare['ns']['end_idx'] + 1)
-                else:
-                    id_range = np.linspace(flare['ns']['start_idx'],
-                                           flare['ns']['end_idx'],
-                                           num=30).astype(int)
+                id_range = range(flare['ns']['start_idx'], flare['ns']['end_idx'] + 1)
 
                 time_range = time[id_range]
                 true = rates[id_range]
-                no_nan_ids = ~np.isnan(true)
 
                 fit = EFP(time_range, A, B, C, D)
-                ns['true_data'] = [
-                    {'x': round(x), 'y': round(y)}
-                    for x, y in zip(time_range[no_nan_ids], true[no_nan_ids])
-                ]
-                ns['fit_data'] = [
-                    {'x': round(x), 'y': round(y)}
-                    for x, y in zip(time_range, fit)
-                ]
+
+                plt.plot(time_range, fit, c='r')
+                plt.scatter(time_range, true, c='b')
+                plt.xlabel('Time (s)')
+                plt.ylabel('Counts (photons/s)')
+                plt.title('Flare with peak at {}s detected by N Sigma algorithm'.format(
+                    flare['peak_time']))
+
+                bytestream = io.BytesIO()
+                plt.savefig(bytestream, format='jpg')
+                bytestream.seek(0)
+
+                ns['plot_base64'] = base64.b64encode(bytestream.read())
             else:
                 ns = {
                     'is_detected': False
@@ -129,7 +131,7 @@ class LC:
                     'ChiSq': float(ChiSq),
                 }
 
-                ns['duration'] = round(flare['lm']['duration'])
+                lm['duration'] = round(flare['lm']['duration'])
 
                 if (flare['lm']['end_idx'] - flare['lm']['start_idx']) < 30:
                     id_range = range(flare['lm']['start_idx'], flare['lm']['end_idx'] + 1)
@@ -140,17 +142,21 @@ class LC:
 
                 time_range = time[id_range]
                 true = rates[id_range]
-                no_nan_ids = ~np.isnan(true)
 
                 fit = EFP(time_range, A, B, C, D)
-                lm['true_data'] = [
-                    {'x': round(x), 'y': round(y)}
-                    for x, y in zip(time_range[no_nan_ids], true[no_nan_ids])
-                ]
-                lm['fit_data'] = [
-                    {'x': round(x), 'y': round(y)}
-                    for x, y in zip(time_range, fit)
-                ]
+
+                plt.plot(time_range, fit, c='r')
+                plt.scatter(time_range, true, c='b')
+                plt.xlabel('Time (s)')
+                plt.ylabel('Counts (photons/s)')
+                plt.title('Flare with peak at {}s detected by Local Maxima algorithm'.format(
+                    flare['peak_time']))
+
+                bytestream = io.BytesIO()
+                plt.savefig(bytestream, format='jpg')
+                bytestream.seek(0)
+
+                lm['plot_base64'] = base64.b64encode(bytestream.read())
             else:
                 lm = {
                     'is_detected': False
@@ -215,22 +221,12 @@ class LC:
         return new_time, bin_rates
 
     def ns(self, time, rates):
-        np.random.seed(0)
         flares = []
-        sampled = sorted(np.random.choice(range(len(time)), size=10, replace=False))
-        for i in range(0, len(sampled), 2):
-            peak_time = sampled[i] + np.nanargmax(rates[sampled[i]:sampled[i + 1]])
-            flares.append([sampled[i], sampled[i + 1], peak_time])
+        interval_ids = n_sigma(time, rates)
+        for interval in interval_ids:
+            peak_idx = interval[0] + np.nanargmax(rates[interval[0]:interval[1]])
+            flares.append([interval[0], interval[1], peak_idx])
         return flares
-
-    # def lm(self, time, rates):
-    #     np.random.seed(0)
-    #     flares = []
-    #     sampled = sorted(np.random.choice(range(len(time)), size=12, replace=False))
-    #     for i in range(0, len(sampled), 2):
-    #         peak_time = sampled[i] + np.nanargmax(rates[sampled[i]:sampled[i + 1]])
-    #         flares.append([sampled[i], sampled[i + 1], peak_time])
-    #     return flares
 
     def lm(self, time, rates):
         flares = []
@@ -426,7 +422,7 @@ class LC:
 
 
 if __name__ == '__main__':
-    lc = LC('../../../ch2_xsm_20200914_v1_level2.lc', 70)
+    lc = LC('../../../ch2_xsm_20211013_v1_level2.lc', 70)
 
     print(lc.raw_time.shape, lc.processed_lc.shape)
     # plt.plot(lc.sm_time, lc.sm_rates)

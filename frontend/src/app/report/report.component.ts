@@ -42,9 +42,8 @@ export interface totalData{
   chartSeries:ApexAxisChartSeries
 }
 export interface statModelData{
-  time:number[],
-  rates:number[],
-  fit:number[],
+  fit_data:point[],
+  true_data:point[],
   is_detected:boolean,
   fit_params:statModelParams,
   duration:number
@@ -52,6 +51,9 @@ export interface statModelData{
 export interface burstRow{
   bg_rate:number,
   peak_time:number,
+  peak_temp:number,
+  peak_flux:number,
+  peak_em:number,
   peak_rate:number,
   ml_conf:number,
   lm:statModelData,
@@ -155,9 +157,6 @@ export class ReportComponent implements OnInit {
       if(ns?.is_detected){
         obj.ns = {
           ...ns,
-          time:ns.time.filter((mom,j,[])=>(ns!.rates[j]!==null)).map(v=>Math.round(v)),
-          rates:ns.rates.filter((rate,j,[])=>(rate!==null)).map(v=>Math.round(v)),
-          fit:ns.fit.map(v=>Math.round(v)),
           fit_params:{
             A:Number.parseFloat(ns.fit_params.A.toPrecision(2)),
             B:Number.parseFloat(ns.fit_params.B.toPrecision(2)),
@@ -170,9 +169,6 @@ export class ReportComponent implements OnInit {
       if(lm?.is_detected){
         obj.lm = {
           ...lm,
-          time:lm.time.filter((mom,j,[])=>(lm!.rates[j]!==null)).map(v=>Math.round(v)),
-          rates:lm.rates.filter((rate,j,[])=>(rate!==null)).map(v=>Math.round(v)),
-          fit:lm.fit.map(v=>Math.round(v)),
           fit_params:{
             A:Number.parseFloat(lm.fit_params.A.toPrecision(2)),
             B:Number.parseFloat(lm.fit_params.B.toPrecision(2)),
@@ -196,6 +192,7 @@ export class ReportComponent implements OnInit {
     private router:Router,
     private route:ActivatedRoute) {
   }
+  sortableIndex:number = 0
   scatterData!:any[]
   lineData!:any[]
   bursts:Partial<burstRow>[] = []
@@ -203,7 +200,9 @@ export class ReportComponent implements OnInit {
   sortables = [
     {viewValue:'Peak Value',value:'peak_rate'},
     {viewValue:'Peak Time',value:'peak_time'},
-    {viewValue:'Characteristic',value:'class'},
+    {viewValue:'Peak Flux',value:'peak_flux'},
+    {viewValue:'Peak Temp',value:'peak_temp'},
+    {viewValue:'Peak EM', value:'peak_em'},
     {viewValue:'Confidence',value:'ml_conf'},
     {viewValue:'Chi Sq (ns)',value:'chisq-ns'},
     {viewValue:'Chi Sq (lm)',value:'chisq-lm'}
@@ -436,6 +435,9 @@ stringMap(burst1:Partial<burstRow>):Map<string,number>{
   let map = new Map<string,number>();
   map.set('peak_time',burst1.peak_time!)
   map.set('peak_rate',burst1.peak_rate!)
+  map.set('peak_temp',burst1.peak_temp!)
+  map.set('peak_flux',burst1.peak_flux!)
+  map.set('peak_em',burst1.peak_em!)
   map.set('ml_conf',burst1.ml_conf!)
   map.set('class',-burst1.class?.charCodeAt(0)!)
   map.set('chisq-ns',burst1.ns?burst1.ns?.fit_params.ChiSq:Infinity)
@@ -478,11 +480,10 @@ revertToUploadPage(){
         ...data.total,
          start:Math.round(data.total.start),
           ptlineData:this.bursts.filter(burst=>
-            //TODO:Change boolean conditions
             [
-               !burst.ns!.is_detected,
-               !burst.lm!.is_detected,
-               !(burst.lm!.is_detected||burst.ns!.is_detected)
+               burst.ns!.is_detected,
+               burst.lm!.is_detected,
+               (burst.lm!.is_detected||burst.ns!.is_detected)
             ][this.totalChartMode]
         ).map(burst=>{
             return {
