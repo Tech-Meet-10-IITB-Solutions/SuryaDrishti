@@ -6,13 +6,14 @@ import numpy as np
 from scipy.stats import linregress
 
 import matplotlib.pyplot as plt
-import io
-import base64
 
 from .efp import EFP, efp
 from .prop import calc_flux, find_flare_class, calc_temperature, calc_EM
 from .lm import local_maxima
 from .ns import n_sigma
+
+import os
+stat_dir = os.path.dirname((os.path.realpath(__file__)))
 
 
 class LC:
@@ -99,13 +100,10 @@ class LC:
                 plt.xlabel('Time (s)')
                 plt.ylabel('Counts (photons/s)')
                 plt.title('Flare with peak at {}s detected by N Sigma algorithm'.format(
-                    flare['peak_time']))
+                    int(flare['peak_time'])))
+                plt.savefig('{}/../../frontend/src/assets/ns_{}.jpg'.format(
+                    stat_dir, int(flare['peak_time'])))
 
-                bytestream = io.BytesIO()
-                plt.savefig(bytestream, format='jpg')
-                bytestream.seek(0)
-
-                ns['plot_base64'] = base64.b64encode(bytestream.read())
             else:
                 ns = {
                     'is_detected': False
@@ -150,13 +148,9 @@ class LC:
                 plt.xlabel('Time (s)')
                 plt.ylabel('Counts (photons/s)')
                 plt.title('Flare with peak at {}s detected by Local Maxima algorithm'.format(
-                    flare['peak_time']))
-
-                bytestream = io.BytesIO()
-                plt.savefig(bytestream, format='jpg')
-                bytestream.seek(0)
-
-                lm['plot_base64'] = base64.b64encode(bytestream.read())
+                    int(flare['peak_time'])))
+                plt.savefig('{}/../../frontend/src/assets/lm_{}.jpg'.format(
+                    stat_dir, int(flare['peak_time'])))
             else:
                 lm = {
                     'is_detected': False
