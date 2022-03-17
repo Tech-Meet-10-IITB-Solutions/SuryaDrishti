@@ -25,6 +25,7 @@ class LC:
         self.sm_kernel_size = 8
 
         self.raw_time, self.raw_rates = self.load_lc(self.lc_path)
+        self.raw_len = len(self.raw_time)
 
         self.sm_time, self.sm_rates = self.smoothen(
             self.raw_time, self.raw_rates, self.sm_batch_size, self.sm_kernel_size)
@@ -36,7 +37,7 @@ class LC:
         self.processed_lc = np.array([self.bin_time - self.day_start, self.bin_rates])
 
         self.ns_flares = self.ns(self.processed_lc[0], self.processed_lc[1])
-        self.lm_flares = self.lm(self.processed_lc[0], self.processed_lc[1])
+        self.lm_flares = self.lm(self.processed_lc[0], self.processed_lc[1], self.raw_len)
 
         self.flares = self.merge_flares(self.ns_flares, self.lm_flares)
 
@@ -49,13 +50,15 @@ class LC:
         self.ml_data_list = self.add_ml_data(self.flares, self.processed_lc, self.sigma)
 
     def get_lc(self):
-        time, rates = self.processed_lc[:, ~np.isnan(self.processed_lc[1])]
+        time, rates = self.processed_lc
 
         res = {
             'start': float(self.day_start),
             'flare_count': len(self.flares),
             'lc_data': [
-                {'x': round(x), 'y': round(y)}
+                {'x': int(x), 'y': round(y)}
+                if not np.isnan(y)
+                else {'x': int(x), 'y': 'null'}
                 for x, y in zip(time, rates)
             ]
         }
@@ -234,9 +237,9 @@ class LC:
             flares.append([interval[0], interval[1], peak_idx])
         return flares
 
-    def lm(self, time, rates):
+    def lm(self, time, rates, raw_len):
         flares = []
-        interval_ids = local_maxima(time, rates)
+        interval_ids = local_maxima(time, rates, raw_len)
         for interval in interval_ids:
             peak_idx = interval[0] + np.nanargmax(rates[interval[0]:interval[1]])
             flares.append([interval[0], interval[1], peak_idx])
@@ -426,7 +429,7 @@ class LC:
 
 
 if __name__ == '__main__':
-    lc = LC('../../../ch2_xsm_20211013_v1_level2.lc', 150)
+    lc = LC('../../../ch2_xsm_20211013_v1_level2.lc', 200)
 
     print(lc.raw_time.shape, lc.processed_lc.shape)
     # plt.plot(lc.sm_time, lc.sm_rates)
