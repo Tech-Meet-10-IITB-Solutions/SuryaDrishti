@@ -1,7 +1,7 @@
 <mat-card *ngIf="(totalData!==null)&&burstsDecoded">
     <div class="totalCard">
         <p>File Name: {{totalData.file_name}}</p> 
-        <p>Start Time: {{totalData.start}}</p>
+        <p>Start Time: {{totalData.start.toString()+ ' ('+(getDate(totalData.start)).toISOString().split('T').join(' ') +')'}}</p>
         <p>Flare Count: {{totalData.flare_count}}</p>
         <p style="width:100%">
             Bin Size: ({{binSzValue}})

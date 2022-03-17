@@ -492,6 +492,9 @@ sortBursts(value:string){
   this.bursts = this.sortBurstArray(key,tieBreakerKey)
   this.rejectedBursts = RBursts.map(v=>this.bursts.indexOf(v));
 }
+getDate(moment:number){
+  return new Date(moment)
+}
 revertToUploadPage(){
   this.allowUnload = true;
   window.location.href = '/upload'
@@ -507,7 +510,7 @@ revertToUploadPage(){
       
       this.totalData = {
         ...data.total,
-         start:Math.round(data.total.start),
+         start:Math.round(data.total.start*100)/100,
           ptlineData:this.bursts.filter(burst=>
             [
                burst.ns!.is_detected,

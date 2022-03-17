@@ -21,6 +21,9 @@ export class AppComponent implements OnInit {
     if(force){
       localStorage.setItem('allowUnload','true');
     }
+    else{
+      localStorage.setItem('allowUnload','false');
+    }
     console.log(this.route.component?.toString())
 
     window.location.href= '/upload'
