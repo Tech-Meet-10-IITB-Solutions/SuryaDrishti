@@ -36,6 +36,12 @@ def fit_efp(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
                 chisq_arr[i, j] = chisq_val
             except Exception:
                 chisq_arr[i, j] = np.inf
+
+    if np.argmin(chisq_arr) == np.inf:
+        return {
+            'is_fit': False
+        }
+
     (i_opt, j_opt) = np.unravel_index(np.argmin(chisq_arr), (c_num, d_num))
 
     popt, _ = curve_fit(EFP, time_burst, rates_burst, p0=[A0, B0, c_arr[i_opt], d_arr[j_opt]])
@@ -53,6 +59,7 @@ def fit_efp(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
         duration = t_arr[-1] - t_arr[0]
 
     return {
+        'is_fit': True,
         'A': popt[0],
         'B': popt[1],
         'C': popt[2],
