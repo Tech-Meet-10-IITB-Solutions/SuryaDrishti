@@ -4,21 +4,28 @@ import numpy as np
 from scipy.stats import linregress
 
 
-def local_maxima(time, rates):
-    length = 150
+def local_maxima(time, rates, raw_len):
+    def find_start(time, rates, frac=0.3):
+        length = int(frac * raw_len * 0.01)
+        st_nr = rates[4:] - rates[:-4]
+        st_dr = time[4:] - time[:-4]
+        st_slope = np.divide(st_nr, st_dr)
+        st_slope_nonan = st_slope[~np.isnan(st_slope)]
+        st_cutoff = np.average(np.sort(st_slope_nonan)[-1 * length:])
 
-    st_nr = rates[4:] - rates[:-4]
-    st_dr = time[4:] - time[:-4]
-    st_slope = np.divide(st_nr, st_dr)
-    st_slope_nonan = st_slope[~np.isnan(st_slope)]
-    st_cutoff = np.average(np.sort(st_slope_nonan)[-1 * length:])
+        st_flags = np.array(np.where(st_slope > st_cutoff))
 
-    st_flags = np.array(np.where(st_slope > st_cutoff))
+        new_st_flags = [st_flags[0][0]]
+        for i in range(len(st_flags[0]) - 1):
+            if st_flags[0][i + 1] - st_flags[0][i] > 20:
+                new_st_flags.append(st_flags[0][i + 1])
+        return new_st_flags
 
-    new_st_flags = [st_flags[0][0]]
-    for i in range(len(st_flags[0]) - 1):
-        if st_flags[0][i + 1] - st_flags[0][i] > 20:
-            new_st_flags.append(st_flags[0][i + 1])
+    new_st_flags = find_start(time, rates)
+    new_st_flags_alt = find_start(time, rates, 0.1)
+
+    if len(new_st_flags) / len(new_st_flags_alt) > 1.3:
+        new_st_flags = new_st_flags_alt
 
     peak_flags = []
 
