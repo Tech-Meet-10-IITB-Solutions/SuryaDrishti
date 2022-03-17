@@ -93,17 +93,18 @@ class LC:
                         'is_fit': False
                     }
 
-                id_range = range(flare['ns']['start_idx'], flare['ns']['end_idx'] + 1)
+                true_time = time[flare['ns']['start_idx']:flare['ns']['end_idx'] + 1]
+                true = rates[flare['ns']['start_idx']:flare['ns']['end_idx'] + 1]
 
-                time_range = time[id_range]
-                true = rates[id_range]
-
-                fit = EFP(time_range, A, B, C, D)
+                fit_time = np.linspace(time[flare['ns']['start_idx']],
+                                       time[flare['ns']['end_idx']],
+                                       len(true_time) * 100)
+                fit = EFP(fit_time, A, B, C, D)
 
                 plt.clf()
                 if flare['ns']['fit_params']['is_fit']:
-                    plt.plot(time_range, fit, label='EFP Fit', c='r')
-                plt.scatter(time_range, true, label='Processed data', c='b')
+                    plt.plot(fit_time, fit, label='EFP Fit', c='r')
+                plt.scatter(true_time, true, label='Processed data', c='b')
                 plt.xlabel('Time (s)')
                 plt.ylabel('Counts (photons/s)')
                 plt.title('Flare with peak at {}s detected by N Sigma algorithm'.format(
@@ -143,17 +144,17 @@ class LC:
                         'is_fit': False
                     }
 
-                id_range = range(flare['lm']['start_idx'], flare['lm']['end_idx'] + 1)
+                true_time = time[flare['lm']['start_idx']:flare['lm']['end_idx'] + 1]
+                true = rates[flare['lm']['start_idx']:flare['lm']['end_idx'] + 1]
 
-                time_range = time[id_range]
-                true = rates[id_range]
-
-                fit = EFP(time_range, A, B, C, D)
+                fit_time = np.linspace(time[flare['lm']['start_idx']],
+                                       time[flare['lm']['end_idx']], len(true_time) * 100)
+                fit = EFP(fit_time, A, B, C, D)
 
                 plt.clf()
                 if flare['lm']['fit_params']['is_fit']:
-                    plt.plot(time_range, fit, label='EFP Fit', c='r')
-                plt.scatter(time_range, true, label='Processed data', c='b')
+                    plt.plot(fit_time, fit, label='EFP Fit', c='r')
+                plt.scatter(true_time, true, label='Processed data', c='b')
                 plt.xlabel('Time (s)')
                 plt.ylabel('Counts (photons/s)')
                 plt.title('Flare with peak at {}s detected by N Sigma algorithm'.format(
