@@ -8,7 +8,7 @@ from scipy.stats import linregress
 from scipy.optimize import curve_fit
 from scipy.special import erf
 import glob
-from scipy.stats import chisquare
+import scipy.stats
 def load_lc(filename):
     '''filename : path to the .lc file
     Returns : time, rates'''
@@ -101,15 +101,16 @@ def plot_peak_countrates_hist(folder_path):
     i = 0
     for lc_file in filenames:
         time, rates = load_lc(lc_file)
-        peak_arr.append(max(rates))
+        peak_arr.append(str(lc_file)+","+str(max(rates)))
         i+=1
         print("{}/{}".format(i, num_files), end='\r')
-    np.savetxt("peak.csv", peak_arr)
-    plt.figure(0)
-    plt.hist(peak_arr, 50)
-    plt.xlabel("counts/s")
-    plt.ylabel("Number of peaks")
-    plt.savefig("peak_hist.png")
+    print(peak_arr)
+    np.savetxt("peak.csv", peak_arr, fmt='%s')
+    #plt.figure(0)
+    #plt.hist(peak_arr, 50)
+    #plt.xlabel("counts/s")
+    #plt.ylabel("Number of peaks")
+    #plt.savefig("peak_hist.png")
     return 0
 def distinct_orbits(arr, indices_array):
     output_arr = []
@@ -143,6 +144,7 @@ def start_end_of_flares(arr, indices_array):
             flare_arr.append([t_start, t_end])
     return flare_arr
 #plot_peak_countrates_hist('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/')
+#np.genfromtxt("peak.csv", dtype='str', delimiter=',')
 '''
 peak_countrates = np.loadtxt("peak.csv")
 print(peak_countrates)
@@ -192,15 +194,55 @@ def n_sigma_main(filename, n, t_bin, t_bin_new):
     #flare_arr = start_end_of_flares(time_new[flags], idx_arr)
     #print("Flares")
     #print(flare_arr)
+    plt.figure(0)
     plt.plot(time,rates, alpha = 0.7)
     plt.scatter(time_new[flags], rates_new[flags], color = 'r')
     plt.axhline(mean+n*sigma,linestyle='--', color='r')
     plt.axhline(mean, linestyle = '--', color='g')
     for i in range(len(t_arr)):
+        plt.figure(0)
         plt.axvline(t_arr[i][0], color = 'b', linestyle = '--')
         plt.axvline(t_arr[i][1], color = 'k', linestyle = '--')
+        plt.figure(i+1)
+        time_burst = time_new[(time_new >= t_arr[i][0]) & (time_new <= t_arr[i][1])]
+        rates_burst = rates_new[(time_new >= t_arr[i][0]) & (time_new <= t_arr[i][1])]
+        t2, fit2, time_burst_norm, rates_burst_norm = fit_efp_norm(time_burst, rates_burst)
+        plt.plot(t2, fit2)
+        #plt.scatter(time_burst_norm, rates_burst_norm)
+        plt.scatter(time_burst_norm, rates_burst_norm)
+    plt.figure(0)
     plt.savefig("n_sigma_start_stop.png")
     plt.show() 
     # need to return start time, end time for flares
     return 
-n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20211111_v1_level2.lc', 3, 1.0, 10.0)
+def fit_efp_norm(time, rates, A0=1, B0=1, C0=1, D0=0.1):
+    #time_burst = (time - time[0])/(time[-1] - time[0])    
+    #rates_burst = rates/(max(rates))
+    valid = ~(np.isnan(time) | np.isnan(rates))
+    time_burst = time[valid]
+    rates_burst = rates[valid]
+    t2 = np.linspace(time_burst[0], time_burst[-1], len(time_burst)*100)
+    A0 *= np.sqrt(max(rates_burst))
+    B0 *= time_burst[np.argmax(rates_burst)]
+    C0 *= 1
+    D0 *= (time_burst[-1] - B0)/(time_burst[-1] - time_burst[0])
+    c_num = 20
+    d_num = 20
+    c_arr = np.linspace(C0/100, C0, c_num)
+    d_arr = np.linspace(D0/100, D0, d_num)
+    chisq_arr = np.zeros((c_num, d_num))
+    for i in range(c_num):
+        for j in range(d_num):
+            popt, pcov = curve_fit(EFP, time_burst, rates_burst, p0 = [A0, B0 \
+                                                                , c_arr[i], d_arr[j]])
+            fit2 = EFP(t2, *popt)
+            chisq_val = scipy.stats.chisquare(EFP(time_burst, *popt), rates_burst)
+            chisq_arr[i,j] = chisq_val[0]
+    (i_opt, j_opt) = np.unravel_index(np.argmin(chisq_arr), (c_num, d_num))
+    print(c_arr[i_opt], d_arr[j_opt])
+    print(np.min(chisq_arr))
+    popt, pcov = curve_fit(EFP, time_burst, rates_burst, p0 = [A0, B0 \
+                                                               , c_arr[i_opt], d_arr[j_opt]])
+    fit2 = EFP(t2, *popt)
+    return t2, fit2, time_burst, rates_burst
+n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20211109_v1_level2.lc', 3, 1.0, 500.0)
