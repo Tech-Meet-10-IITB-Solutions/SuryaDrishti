@@ -61,12 +61,12 @@ class SNN():
     def save_chkpt(self):
         self.model.save(os.path.join(ml_dir, 'checkpoint.h5'), overwrite=True,
                         include_optimizer=True, save_format='h5')
-        with open('index.txt', 'w') as output:
-            output.write(self.index)
+        with open(os.path.join(ml_dir, 'index.txt'), 'w') as output:
+            output.write(str(self.index))
 
     def load_chkpt(self):
         self.model = load_model(os.path.join(ml_dir, 'checkpoint.h5'))
-        with open('index.txt', 'r') as output:
+        with open(os.path.join(ml_dir, 'index.txt'), 'r') as output:
             self.index = int(output.read(-1))
 
     def interpolate(self, processed_lc):
