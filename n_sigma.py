@@ -231,7 +231,7 @@ def fit_efp_norm(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
     rates_burst = rates[valid]
     t2 = np.linspace(time_burst[0], time_burst[-1], len(time_burst)*100)
     dur = time_burst[-1] - time_burst[0]
-    t_long = np.linspace(time_burst[0]-dur, time_burst[-1]+dur, len(time_burst)*300)
+    t_long = np.linspace(time_burst[0]-5*dur, time_burst[-1]+5*dur, len(time_burst)*1100)
     A0 *= (max(rates_burst))**(1/2)
     B0 *= time_burst[np.argmax(rates_burst)]
     C0 *= (max(rates_burst))**(1/2)
@@ -261,4 +261,4 @@ def fit_efp_norm(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
     t_end = t_arr[-1]
     t_max = t_long[np.argmax(EFP(t_long, *popt))]
     return t_long, fit_long, time_burst, rates_burst, t_start, t_end, t_max
-n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20210923_v1_level2.lc', 3, 1.0, 100.0)
+n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20211111_v1_level2.lc', 3, 1.0, 100.0)
