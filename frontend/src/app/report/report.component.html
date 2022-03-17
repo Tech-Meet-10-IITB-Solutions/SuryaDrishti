@@ -55,7 +55,7 @@
 <!-- <app-linescatter *ngIf="bursts[0]!==null" [statData]="bursts[0].ns!"></app-linescatter> -->
 <div *ngIf="burstsDecoded">
     <div style="display:flex;justify-content: space-around;width: 400px;margin: auto;margin-bottom: 0px;padding: 30px;">        
-        <button *ngIf="(!burstListEditable)" mat-raised-button color="accent" (click)="proceedToML()">
+        <button *ngIf="(!burstListEditable)" mat-raised-button color="accent" (click)="trainModel()">
             Proceed to ML Model
         </button>
 </div>

@@ -107,11 +107,11 @@ def bursts(bin_size: int = 100):
 
 
 @ app.post('/train')
-def train(content: dict = Form(...)):
+def train(content: str = Form(...)):
     global snn, lc
+    print(content)
+    content = json.loads(content)
+    labels = np.array(content['labels'])
 
-    labels = content['labels']
-    print(labels)
     snn.train(lc.get_ml_data(), labels, epochs=10)
-
     return {'status': 200}

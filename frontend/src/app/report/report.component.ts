@@ -98,7 +98,17 @@ export class ReportComponent implements OnInit {
     return ''
   }
   totalData!: totalData;
-  proceedToML(){}
+  trainModel(){
+    let ptbursts = this.sortBurstArray(this.sortables[1].value,this.sortables[1].value)
+    let boolArray = ptbursts.map((v,j,[])=>{
+      if(this.rejectedBursts.includes(this.bursts.indexOf(v))){return 0}
+      else{return 1}
+    })
+    console.log(boolArray)
+    this.server.trainModel(boolArray).subscribe(v=>{
+      console.log(v)
+    })
+  }
   resubmit(){
     this.allowUnload = true;
     window.location.href = `report/${this.binSzValue}`
@@ -444,23 +454,24 @@ stringMap(burst1:Partial<burstRow>):Map<string,number>{
   map.set('chisq-lm',burst1.lm?burst1.lm.fit_params.ChiSq:Infinity)
   return map;
 }
+sortBurstArray(key:string, tbk:string){
+  return this.bursts.sort((burst1:Partial<burstRow>, burst2:Partial<burstRow>)=>{
+    let map1 = this.stringMap(burst1)
+    let map2 = this.stringMap(burst2)
+    let compval = (map1.get(key)! - map2.get(key)!)
+    if(compval===0){
+      compval = (map1.get(tbk)! - map2.get(tbk)!)
+    }
+    return compval;
+  })
+}
 sortBursts(value:string){
 
   let RBursts = this.filterRejected(this.bursts)
   let key = value
   let tieBreakerKey = 'peak_time';
   this.rejectedBursts = []
-  // console.log(value.source.value)
-  this.bursts = this.bursts.sort((burst1:Partial<burstRow>, burst2:Partial<burstRow>)=>{
-    let map1 = this.stringMap(burst1)
-    let map2 = this.stringMap(burst2)
-    let compval = (map1.get(key)! - map2.get(key)!)
-    if(compval===0){
-      compval = (map1.get(tieBreakerKey)! - map2.get(tieBreakerKey)!)
-    }
-    return compval;
-  })
-
+  this.bursts = this.sortBurstArray(key,tieBreakerKey)
   this.rejectedBursts = RBursts.map(v=>this.bursts.indexOf(v));
 }
 revertToUploadPage(){
