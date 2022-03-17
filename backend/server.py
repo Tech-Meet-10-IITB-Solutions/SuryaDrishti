@@ -1,6 +1,6 @@
-import shutil
 import sys
 import os
+
 import zipfile
 from threading import Thread
 
@@ -64,8 +64,7 @@ async def upload(file: UploadFile = File(...)):
     lc = None
     os.system('rm -rf input*')
     os.system('rm -rf ../frontend/src/assets/*.jpg')
-    # shutil.rmtree('input/', ignore_errors=True)
-    # os.remove('input.zip')
+
     content = await file.read()
 
     thread = Thread(target=process_zip, args=(content,))
