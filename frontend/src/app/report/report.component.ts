@@ -521,10 +521,14 @@ sortBursts(value:string){
   this.rejectedBursts = RBursts.map(v=>this.bursts.indexOf(v));
 }
 getDate(moment:number){
+  // getDate(totalData.start+1483228800)).join(' ')
   console.log(moment)
   let date = new Date();
   date.setTime(moment*1000)
-  return date
+  let parts = date.toISOString().split('T')
+  parts[1] = parts[1].slice(0,-5)
+  console.log(parts)
+  return parts.join(' ')
 }
 totalChartReady:boolean = false;
 updateTotalData(){
