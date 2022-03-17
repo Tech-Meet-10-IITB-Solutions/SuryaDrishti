@@ -24,11 +24,20 @@ def local_maxima(time, rates):
 
     peak_flags = []
 
+    def find_peaks(st_flag, pk_nr, pk_dr):
+        if len(np.where(np.divide(pk_nr, pk_dr) < 1)[0]) >= 6:
+            return st_flag + np.where(np.divide(pk_nr, pk_dr) < 1)[0][5]
+        elif len(np.where(np.divide(pk_nr, pk_dr) < 1)[0]) > 0:
+            return st_flag + np.where(np.divide(pk_nr, pk_dr) < 1)[0][
+                len(np.where(np.divide(pk_nr, pk_dr) < 1)[0]) - 1]
+        else:
+            return st_flag
+
     for i in range(len(new_st_flags)):
         peak = rates[new_st_flags[i]:]
         pk_nr = peak[4:]
         pk_dr = peak[:-4]
-        peak_flags.append(new_st_flags[i] + np.where(np.divide(pk_nr, pk_dr) < 1)[0][5])
+        peak_flags.append(find_peaks(new_st_flags[i], pk_nr, pk_dr))
 
     def bk_sub(time, rates):
         # Background subtraction
@@ -48,14 +57,14 @@ def local_maxima(time, rates):
 
         slope, intercept, r, p, se = linregress(time[~np.isnan(rates)], iter_counts)
 
-        return mean, slope * time + intercept
+        return mean, slope * time + intercept, sig
 
     cts = bk_sub(time, rates)
-    cut, fit = bk_avg(time, cts)
+    cut, fit, sig = bk_avg(time, cts)
 
     def find_end(rates, mean):
-        if len(np.where(rates < mean)[0]) != 0:
-            end_time = np.where(rates < mean)[0][0]
+        if len(np.where(rates < mean + 0.25 * sig)[0]) != 0:
+            end_time = np.where(rates < mean + 0.25 * sig)[0][0]
         else:
             end_time = np.argmin(rates)
         return end_time
@@ -70,6 +79,11 @@ def local_maxima(time, rates):
             end_flags.append(peak_flags[i] + find_end(rates[peak_flags[i]:],
                                                       fit[peak_flags[i]:]))
 
+    t_arr = []
+    for i in range(len(end_flags)):
+        if end_flags[i] - new_st_flags[i] > 4:
+            t_arr.append([new_st_flags[i], end_flags[i]])
+
     # plt.figure(figsize=(15, 5))
     # plt.plot(time, rates, marker='.')
 
@@ -81,4 +95,4 @@ def local_maxima(time, rates):
     # plt.show()
     # print(new_st_flags, end_flags)
     # exit(0)
-    return new_st_flags, end_flags
+    return t_arr
