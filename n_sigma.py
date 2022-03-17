@@ -211,22 +211,27 @@ def n_sigma_main(filename, n, t_bin, t_bin_new):
         plt.figure(i+1)
         time_burst = time_new[(time_new >= t_arr[i][0]) & (time_new <= t_arr[i][1])]
         rates_burst = rates_new[(time_new >= t_arr[i][0]) & (time_new <= t_arr[i][1])]
-        t2, fit2, time_burst_norm, rates_burst_norm = fit_efp_norm(time_burst, rates_burst)
+        t2, fit2, time_burst_norm, rates_burst_norm, t_start, t_end, t_max = fit_efp_norm(time_burst, rates_burst, sigma)
         plt.plot(t2, fit2)
         #plt.scatter(time_burst_norm, rates_burst_norm)
         plt.scatter(time_burst_norm, rates_burst_norm)
+        plt.axvline(t_start, linestyle='--', color='b')
+        plt.axvline(t_end, linestyle='--', color='k')
+        plt.axvline(t_max, linestyle='--', color='r')
     plt.figure(0)
     plt.savefig("n_sigma_start_stop.png")
     plt.show() 
     # need to return start time, end time for flares
     return 
-def fit_efp_norm(time, rates, A0=1, B0=1, C0=1, D0=0.1):
+def fit_efp_norm(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
     #time_burst = (time - time[0])/(time[-1] - time[0])    
     #rates_burst = rates/(max(rates))
     valid = ~(np.isnan(time) | np.isnan(rates))
     time_burst = time[valid]
     rates_burst = rates[valid]
     t2 = np.linspace(time_burst[0], time_burst[-1], len(time_burst)*100)
+    dur = time_burst[-1] - time_burst[0]
+    t_long = np.linspace(time_burst[0]-dur, time_burst[-1]+dur, len(time_burst)*300)
     A0 *= (max(rates_burst))**(1/2)
     B0 *= time_burst[np.argmax(rates_burst)]
     C0 *= (max(rates_burst))**(1/2)
@@ -249,5 +254,11 @@ def fit_efp_norm(time, rates, A0=1, B0=1, C0=1, D0=0.1):
     popt, pcov = curve_fit(EFP, time_burst, rates_burst, p0 = [A0, B0 \
                                                                , c_arr[i_opt], d_arr[j_opt]])
     fit2 = EFP(t2, *popt)
-    return t2, fit2, time_burst, rates_burst
-n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20210307_v1_level2.lc', 3, 1.0, 100.0)
+    fit_long = EFP(t_long, *popt)
+
+    t_arr = t_long[np.argwhere(np.diff(np.sign(EFP(t_long, *popt) - sigma))).flatten()]
+    t_start = t_arr[0]
+    t_end = t_arr[-1]
+    t_max = t_long[np.argmax(EFP(t_long, *popt))]
+    return t_long, fit_long, time_burst, rates_burst, t_start, t_end, t_max
+n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20210923_v1_level2.lc', 3, 1.0, 100.0)
