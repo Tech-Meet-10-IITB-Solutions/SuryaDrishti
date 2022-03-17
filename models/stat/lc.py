@@ -7,10 +7,10 @@ from scipy.stats import linregress
 
 import matplotlib.pyplot as plt
 
-from .efp import EFP, efp
-from .prop import calc_flux, find_flare_class, calc_temperature, calc_EM
-from .lm import local_maxima
-from .ns import n_sigma
+from efp import EFP, fit_efp
+from prop import calc_flux, find_flare_class, calc_temperature, calc_EM
+from lm import local_maxima
+from ns import n_sigma
 
 import os
 stat_dir = os.path.dirname((os.path.realpath(__file__)))
@@ -95,6 +95,7 @@ class LC:
 
                 fit = EFP(time_range, A, B, C, D)
 
+                plt.clf()
                 plt.plot(time_range, fit, c='r')
                 plt.scatter(time_range, true, c='b')
                 plt.xlabel('Time (s)')
@@ -144,6 +145,7 @@ class LC:
 
                 fit = EFP(time_range, A, B, C, D)
 
+                plt.clf()
                 plt.plot(time_range, fit, c='r')
                 plt.scatter(time_range, true, c='b')
                 plt.xlabel('Time (s)')
@@ -226,10 +228,10 @@ class LC:
 
     def lm(self, time, rates):
         flares = []
-        start_ids, end_ids = local_maxima(time, rates)
-        for i in range(len(start_ids)):
-            peak_idx = start_ids[i] + np.nanargmax(rates[start_ids[i]:end_ids[i]])
-            flares.append([start_ids[i], end_ids[i], peak_idx])
+        interval_ids = local_maxima(time, rates)
+        for interval in interval_ids:
+            peak_idx = interval[0] + np.nanargmax(rates[interval[0]:interval[1]])
+            flares.append([interval[0], interval[1], peak_idx])
         return flares
 
     def merge_flares(self, ns_flares, lm_flares):
@@ -323,7 +325,7 @@ class LC:
                 fl_time = time[flare['ns']['start_idx']: flare['ns']['end_idx']]
                 fl_rates = rates[flare['ns']['start_idx']: flare['ns']['end_idx']]
                 fl_duration = fl_time[-1] - fl_time[0]
-                fit_params = efp(fl_time, fl_rates, flare_prop['peak_time'])
+                fit_params = fit_efp(fl_time, fl_rates)
                 flare_prop['ns'] = {
                     'is_detected': True,
                     'start_idx': flare['ns']['start_idx'],
@@ -340,7 +342,7 @@ class LC:
                 fl_time = time[flare['lm']['start_idx']:flare['lm']['end_idx']]
                 fl_rates = rates[flare['lm']['start_idx']:flare['lm']['end_idx']]
                 fl_duration = fl_time[-1] - fl_time[0]
-                fit_params = efp(fl_time, fl_rates, flare_prop['peak_time'])
+                fit_params = fit_efp(fl_time, fl_rates)
                 flare_prop['lm'] = {
                     'is_detected': True,
                     'start_idx': flare['lm']['start_idx'],
@@ -418,22 +420,21 @@ class LC:
 
 
 if __name__ == '__main__':
-    lc = LC('../../../ch2_xsm_20211013_v1_level2.lc', 70)
+    lc = LC('../../../ch2_xsm_20211013_v1_level2.lc', 150)
 
     print(lc.raw_time.shape, lc.processed_lc.shape)
     # plt.plot(lc.sm_time, lc.sm_rates)
     # plt.scatter(lc.sm_time, lc.sm_rates, s=0.01)
     # plt.plot(lc.bin_time, lc.bin_rates)
-    # plt.scatter(lc.bin_time, lc.bin_rates, s=0.2)
+    # plt.scatter(lc.processed_lc[0], lc.processed_lc[1], s=0.2)
 
     # slope, intercept = lc.bg_params
-    # plt.plot(lc.sm_time, slope * lc.sm_time + intercept)
+    # plt.plot(lc.processed_lc[0], slope * lc.processed_lc[0] + intercept)
 
     # plt.show()
 
     # print(lc.flares[-1])
     print(lc.get_flares()[-1].keys())
-    print(lc.processed_lc[0] - lc.processed_lc[0][0])
     print(lc.get_lc().keys())
     print(len(lc.flares))
     for flare in lc.flares:
