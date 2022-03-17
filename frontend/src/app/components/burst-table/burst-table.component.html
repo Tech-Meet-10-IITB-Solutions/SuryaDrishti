@@ -64,7 +64,7 @@
         <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element" #chartcell>
             <div *ngIf="element.lm.is_detected===true">
                 <p *ngIf="element.lm.duration!==undefined&&element.lm.duration!==null">Duration: {{element.lm.duration}}</p>
-                <p>Chi Sq: {{element.lm.fit_params.ChiSq>0?element.lm.fit_params.ChiSq:'infinity'}}</p>
+                <p>Chi Sq: {{element.lm.fit_params.ChiSq>0?element.lm.fit_params.ChiSq:'&infin;'}}</p>
                 <p>A: {{element.lm.fit_params.A}}</p>
                 <p>B: {{element.lm.fit_params.B}}</p>
                 <p>C: {{element.lm.fit_params.C}}</p>

@@ -38,7 +38,7 @@
         </mat-form-field>
         <div class="editbtns">
                 <button mat-raised-button color="primary" (click)="invertEditable()">
-                    {{burstListEditable?'Save List':'Edit List'}}
+                    {{burstListEditable?'Save Changes':'Edit List'}}
                 </button>
                 <button *ngIf="rejectedBursts.length>0" mat-raised-button color="accent" (click)="rejectedBursts = []">
                     Reset Selection
