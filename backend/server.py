@@ -1,8 +1,11 @@
-import shutil
 import sys
 import os
-import zipfile
+
+import numpy as np
+import json
 from threading import Thread
+import zipfile
+
 
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,15 +24,13 @@ app.add_middleware(
     allow_headers=['*']
 )
 
-import numpy as np
-import json
-
 complete = 0.0
 error = None
 file_path = ''
 userFileName = ''
 lc = None
 snn = SNN()
+
 
 def process_zip(content):
     global complete, error, file_path
@@ -59,17 +60,15 @@ def process_zip(content):
 
 @ app.post('/upload')
 async def upload(file: UploadFile = File(...)):
-    global complete, file_path, error, lc,userFileName
+    global complete, file_path, error, lc, userFileName
 
     complete = 0.0
     file_path = ''
     error = None
     lc = None
-    # os.system('rm -rf input*')
-    shutil.rmtree('input/',ignore_errors=True)
-    if(os.path.isfile('input.zip')):
-        os.remove('input.zip')
-    userFileName = file.filename
+    os.system('rm -rf input*')
+    os.system('rm -rf ../frontend/src/assets/*.jpg')
+
     content = await file.read()
 
     thread = Thread(target=process_zip, args=(content,))
@@ -103,7 +102,7 @@ def bursts(bin_size: int = 100):
     for i in range(len(flares)):
         flares[i]['ml_conf'] = round(100.0 * conf_list[i])
 
-    return {'status': 200, 'flares': flares, 'total': {**lc.get_lc(), 'file_name':userFileName}}
+    return {'status': 200, 'flares': flares, 'total': lc.get_lc()}
 
 
 @ app.post('/train')
@@ -115,4 +114,6 @@ def train(content: str = Form(...)):
     print(labels)
 
     snn.train(lc.get_ml_data(), labels, epochs=10)
+    snn.save_chkpt()
+
     return {'status': 200}
