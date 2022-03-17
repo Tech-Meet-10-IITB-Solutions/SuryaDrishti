@@ -63,6 +63,7 @@ async def upload(file: UploadFile = File(...)):
     error = None
     lc = None
     os.system('rm -rf input*')
+    os.system('rm -rf ../frontend/src/assets/*.jpg')
     # shutil.rmtree('input/', ignore_errors=True)
     # os.remove('input.zip')
     content = await file.read()
