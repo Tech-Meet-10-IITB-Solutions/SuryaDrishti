@@ -2,7 +2,7 @@ import numpy as np
 
 from scipy.optimize import curve_fit
 from scipy.special import erf
-# from scipy.stats import chisquare
+from scipy.stats import chisquare
 
 # import matplotlib.pyplot as plt
 
@@ -14,38 +14,38 @@ def EFP(x, A, B, C, D):
         * (erf(Z) - erf(Z - x / C))
 
 
-def efp(time, rates, peak_time):
-    non_nan_ids = ~np.isnan(rates)
+def fit_efp(time, rates, A0=1, B0=1, C0=1, D0=0.1):
+    valid = ~np.isnan(rates)
+    time_burst = time[valid]
+    rates_burst = rates[valid]
 
-    popt, pcov = curve_fit(EFP, np.float128(time[non_nan_ids]),
-                           np.float128(rates[non_nan_ids]),
-                           p0=([np.nanmax(rates), peak_time, 0.1, 0.01]))
+    A0 *= (max(rates_burst))**(1 / 2)
+    B0 *= time_burst[np.argmax(rates_burst)]
+    C0 *= (max(rates_burst))**(1 / 2)
+    D0 *= (time_burst[-1] - B0) / (time_burst[-1] - time_burst[0])
 
-    # print(popt, peak_time)
-    # print(rates)
-    # plt.scatter(time[non_nan_ids], rates[non_nan_ids])
-    # plt.plot(time[non_nan_ids], EFP(time[non_nan_ids], *popt))
-    # plt.show()
-    # exit(0)
+    c_num = 10
+    d_num = 10
+    c_arr = np.linspace(C0 / 100, C0, c_num)
+    d_arr = np.linspace(D0 / 100, D0, d_num)
 
-    # try:
-    #     chisq, p = chisquare(EFP(np.float64(time[non_nan_ids]), *popt),
-    #                      np.float64(rates[non_nan_ids]))
-    # except Exception:
-    #     chisq = np.nan
+    chisq_arr = np.zeros((c_num, d_num))
+    for i in range(c_num):
+        for j in range(d_num):
+            try:
+                popt, _ = curve_fit(EFP, time_burst, rates_burst, p0=[A0, B0, c_arr[i], d_arr[j]])
+                chisq_val, _ = chisquare(EFP(time_burst, *popt), rates_burst)
+                chisq_arr[i, j] = chisq_val
+            except Exception:
+                chisq_arr[i, j] = np.inf
+    (i_opt, j_opt) = np.unravel_index(np.argmin(chisq_arr), (c_num, d_num))
 
-    res = {
+    popt, _ = curve_fit(EFP, time_burst, rates_burst, p0=[A0, B0, c_arr[i_opt], d_arr[j_opt]])
+
+    return {
         'A': popt[0],
         'B': popt[1],
         'C': popt[2],
         'D': popt[3],
-        'ChiSq': np.inf,
+        'ChiSq': chisq_arr[i_opt, j_opt],
     }
-    # res = {
-    #     'A': np.random.rand(),
-    #     'B': np.random.rand(),
-    #     'C': np.random.rand(),
-    #     'D': np.random.rand(),
-    #     'ChiSq': np.inf,
-    # }
-    return res
