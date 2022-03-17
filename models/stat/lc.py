@@ -1,5 +1,6 @@
 from astropy.io import fits
 from astropy.convolution import convolve, Box1DKernel
+from astropy.stats import sigma_clipped_stats as scs
 
 import numpy as np
 
@@ -39,13 +40,13 @@ class LC:
 
         self.flares = self.merge_flares(self.ns_flares, self.lm_flares)
 
-        self.bg_params = self.bg_fit(self.processed_lc, self.flares)
+        self.bg_params, self.sigma = self.bg_fit(self.processed_lc, self.flares)
 
-        self.flares = self.add_efp(self.flares, self.processed_lc, self.bg_params)
+        self.flares = self.add_efp(self.flares, self.processed_lc, self.bg_params, self.sigma)
 
         self.flares = self.add_char(self.flares)
 
-        self.ml_data_list = self.add_ml_data(self.flares, self.processed_lc)
+        self.ml_data_list = self.add_ml_data(self.flares, self.processed_lc, self.sigma)
 
     def get_lc(self):
         time, rates = self.processed_lc[:, ~np.isnan(self.processed_lc[1])]
@@ -71,22 +72,26 @@ class LC:
                     'is_detected': True,
                 }
 
-                A = flare['ns']['fit_params']['A']
-                B = flare['ns']['fit_params']['B']
-                C = flare['ns']['fit_params']['C']
-                D = flare['ns']['fit_params']['D']
-                ChiSq = flare['ns']['fit_params']['ChiSq']
-                if ChiSq == np.inf:
-                    ChiSq = -1
-                ns['fit_params'] = {
-                    'A': float(A),
-                    'B': float(B),
-                    'C': float(C),
-                    'D': float(D),
-                    'ChiSq': float(ChiSq),
-                }
-
-                ns['duration'] = round(flare['ns']['duration'])
+                if flare['ns']['fit_params']['is_fit']:
+                    A = flare['ns']['fit_params']['A']
+                    B = flare['ns']['fit_params']['B']
+                    C = flare['ns']['fit_params']['C']
+                    D = flare['ns']['fit_params']['D']
+                    ChiSq = flare['ns']['fit_params']['ChiSq']
+                    dur = flare['ns']['fit_params']['Duration']
+                    ns['fit_params'] = {
+                        'is_fit': True,
+                        'A': float(A),
+                        'B': float(B),
+                        'C': float(C),
+                        'D': float(D),
+                        'ChiSq': float(ChiSq),
+                        'Duration': float(dur)
+                    }
+                else:
+                    ns['fit_params'] = {
+                        'is_fit': False
+                    }
 
                 id_range = range(flare['ns']['start_idx'], flare['ns']['end_idx'] + 1)
 
@@ -96,16 +101,17 @@ class LC:
                 fit = EFP(time_range, A, B, C, D)
 
                 plt.clf()
-                plt.plot(time_range, fit, c='r')
-                plt.scatter(time_range, true, c='b')
+                if flare['ns']['fit_params']['is_fit']:
+                    plt.plot(time_range, fit, label='EFP Fit', c='r')
+                plt.scatter(time_range, true, label='Processed data', c='b')
                 plt.xlabel('Time (s)')
                 plt.ylabel('Counts (photons/s)')
                 plt.title('Flare with peak at {}s detected by N Sigma algorithm'.format(
                     int(flare['peak_time'])))
+                plt.legend()
                 plt.savefig('{}/../../frontend/src/assets/ns_{}.jpg'.format(
                     stat_dir, int(flare['peak_time'])))
                 ns['plot_loc'] = 'ns_{}.jpg'.format(int(flare['peak_time']))
-
             else:
                 ns = {
                     'is_detected': False
@@ -116,29 +122,28 @@ class LC:
                     'is_detected': True,
                 }
 
-                A = flare['lm']['fit_params']['A']
-                B = flare['lm']['fit_params']['B']
-                C = flare['lm']['fit_params']['C']
-                D = flare['lm']['fit_params']['D']
-                ChiSq = flare['lm']['fit_params']['ChiSq']
-                if ChiSq == np.inf:
-                    ChiSq = -1
-                lm['fit_params'] = {
-                    'A': float(A),
-                    'B': float(B),
-                    'C': float(C),
-                    'D': float(D),
-                    'ChiSq': float(ChiSq),
-                }
-
-                lm['duration'] = round(flare['lm']['duration'])
-
-                if (flare['lm']['end_idx'] - flare['lm']['start_idx']) < 30:
-                    id_range = range(flare['lm']['start_idx'], flare['lm']['end_idx'] + 1)
+                if flare['lm']['fit_params']['is_fit']:
+                    A = flare['lm']['fit_params']['A']
+                    B = flare['lm']['fit_params']['B']
+                    C = flare['lm']['fit_params']['C']
+                    D = flare['lm']['fit_params']['D']
+                    ChiSq = flare['lm']['fit_params']['ChiSq']
+                    dur = flare['lm']['fit_params']['Duration']
+                    lm['fit_params'] = {
+                        'is_fit': True,
+                        'A': float(A),
+                        'B': float(B),
+                        'C': float(C),
+                        'D': float(D),
+                        'ChiSq': float(ChiSq),
+                        'Duration': float(dur)
+                    }
                 else:
-                    id_range = np.linspace(flare['lm']['start_idx'],
-                                           flare['lm']['end_idx'],
-                                           num=30).astype(int)
+                    lm['fit_params'] = {
+                        'is_fit': False
+                    }
+
+                id_range = range(flare['lm']['start_idx'], flare['lm']['end_idx'] + 1)
 
                 time_range = time[id_range]
                 true = rates[id_range]
@@ -146,12 +151,14 @@ class LC:
                 fit = EFP(time_range, A, B, C, D)
 
                 plt.clf()
-                plt.plot(time_range, fit, c='r')
-                plt.scatter(time_range, true, c='b')
+                if flare['lm']['fit_params']['is_fit']:
+                    plt.plot(time_range, fit, label='EFP Fit', c='r')
+                plt.scatter(time_range, true, label='Processed data', c='b')
                 plt.xlabel('Time (s)')
                 plt.ylabel('Counts (photons/s)')
-                plt.title('Flare with peak at {}s detected by Local Maxima algorithm'.format(
+                plt.title('Flare with peak at {}s detected by N Sigma algorithm'.format(
                     int(flare['peak_time'])))
+                plt.legend()
                 plt.savefig('{}/../../frontend/src/assets/lm_{}.jpg'.format(
                     stat_dir, int(flare['peak_time'])))
                 lm['plot_loc'] = 'lm_{}.jpg'.format(int(flare['peak_time']))
@@ -297,12 +304,14 @@ class LC:
 
         if np.sum(not_nan_ids):
             slope, intercept, _, _, _ = linregress(time[not_nan_ids], rates[not_nan_ids])
+            _, _, sigma = scs(rates[not_nan_ids])
         else:
             slope, intercept, _, _, _ = linregress(time, rates)
+            _, _, sigma = scs(rates)
 
-        return (slope, intercept)
+        return (slope, intercept), sigma
 
-    def add_efp(self, flares, data, bg_params):
+    def add_efp(self, flares, data, bg_params, sigma):
         time = data[0]
         rates = data[1]
         slope, intercept = bg_params
@@ -324,13 +333,11 @@ class LC:
             if flare['ns']['is_detected']:
                 fl_time = time[flare['ns']['start_idx']: flare['ns']['end_idx']]
                 fl_rates = rates[flare['ns']['start_idx']: flare['ns']['end_idx']]
-                fl_duration = fl_time[-1] - fl_time[0]
-                fit_params = fit_efp(fl_time, fl_rates)
+                fit_params = fit_efp(fl_time, fl_rates, sigma)
                 flare_prop['ns'] = {
                     'is_detected': True,
                     'start_idx': flare['ns']['start_idx'],
                     'end_idx': flare['ns']['end_idx'],
-                    'duration': fl_duration,
                     'fit_params': fit_params
                 }
             else:
@@ -341,13 +348,11 @@ class LC:
             if flare['lm']['is_detected']:
                 fl_time = time[flare['lm']['start_idx']:flare['lm']['end_idx']]
                 fl_rates = rates[flare['lm']['start_idx']:flare['lm']['end_idx']]
-                fl_duration = fl_time[-1] - fl_time[0]
-                fit_params = fit_efp(fl_time, fl_rates)
+                fit_params = fit_efp(fl_time, fl_rates, sigma)
                 flare_prop['lm'] = {
                     'is_detected': True,
                     'start_idx': flare['lm']['start_idx'],
                     'end_idx': flare['lm']['end_idx'],
-                    'duration': fl_duration,
                     'fit_params': fit_params
                 }
             else:
@@ -369,7 +374,7 @@ class LC:
 
         return flares
 
-    def add_ml_data(self, flares, data):
+    def add_ml_data(self, flares, data, sigma):
         ml_data_list = []
         for flare in flares:
             processed_lc = data[:, flare['start_idx']:flare['end_idx']]
@@ -407,7 +412,7 @@ class LC:
                     }
                 }
 
-            snr = flare['peak_rate'] / np.std(processed_lc[1])
+            snr = flare['peak_rate'] / sigma
 
             ml_data_list.append({
                 'processed_lc': processed_lc,
