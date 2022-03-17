@@ -28,6 +28,7 @@ def n_sigma(time, rates, n=3):
                 j += 1
             if i == len(time) - 1:
                 t_end_idx = i
-                t_arr.append([t_start_idx, t_end_idx])
+                if j > 4:
+                    t_arr.append([t_start_idx, t_end_idx])
 
     return t_arr
