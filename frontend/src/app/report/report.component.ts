@@ -87,7 +87,7 @@ export class ReportComponent implements OnInit {
   metaData:any[] = [];
   tableData:any[] = [];
   binSzMin:number = 50;
-  binSzMax:number=  500;
+  binSzMax:number=  250;
   binSzValue:number = 200;
   varSzMin:number = 5;
   varSzMax:number=  50;
@@ -115,22 +115,24 @@ export class ReportComponent implements OnInit {
   totalData!: totalData;
   saveData(){
     let btns = document.querySelectorAll('button')
+    let tempmode = this.totalChartMode;
     this.printing = true;
-    // let tb = document.querySelectorAll('mat-toolbar')
-    // let sel = document.querySelectorAll('mat-select')
     for(let i=0;i<btns.length;i++){
       btns.item(i).style.display = 'none';
     }
-
+    this.totalChartMode = 3
+    this.updateTotalData()
     
     setTimeout(()=>{
       window.print()
       for(let i=0;i<btns.length;i++){
         btns.item(i).style.display = '';
       }
+      this.totalChartMode = tempmode;
+      this.updateTotalData()
       this.printing = false
   
-    },1000)
+    },2000)
     const doc = new jsPDF()
     autoTable(doc, { html: '#mainTable' })
     // doc.save(this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+'.pdf')
@@ -260,8 +262,8 @@ export class ReportComponent implements OnInit {
     {viewValue:'Peak Temp',value:'peak_temp'},
     {viewValue:'Peak EM', value:'peak_em'},
     {viewValue:'Confidence',value:'ml_conf'},
-    {viewValue:'Chi Sq (ns)',value:'chisq-ns'},
-    {viewValue:'Chi Sq (lm)',value:'chisq-lm'}
+    // {viewValue:'Chi Sq (ns)',value:'chisq-ns'},
+    // {viewValue:'Chi Sq (lm)',value:'chisq-lm'}
   ]
   // templateBursts:burstRow[] = [
   //   {
@@ -496,8 +498,8 @@ stringMap(burst1:Partial<burstRow>):Map<string,number>{
   map.set('peak_em',burst1.peak_em!)
   map.set('ml_conf',burst1.ml_conf!)
   map.set('class',-burst1.class?.charCodeAt(0)!)
-  map.set('chisq-ns',burst1.ns?burst1.ns?.fit_params.ChiSq:Infinity)
-  map.set('chisq-lm',burst1.lm?burst1.lm.fit_params.ChiSq:Infinity)
+  // map.set('chisq-ns',burst1.ns?.fit_params?burst1.ns?.fit_params.ChiSq:Infinity)
+  // map.set('chisq-lm',burst1.lm?burst1.lm.fit_params.ChiSq:Infinity)
   return map;
 }
 sortBurstArray(key:string, tbk:string){
@@ -522,12 +524,12 @@ sortBursts(value:string){
 }
 getDate(moment:number){
   // getDate(totalData.start+1483228800)).join(' ')
-  console.log(moment)
+  // console.log(moment)
   let date = new Date();
   date.setTime(moment*1000)
   let parts = date.toISOString().split('T')
   parts[1] = parts[1].slice(0,-5)
-  console.log(parts)
+  // console.log(parts)
   return parts.join(' ')
 }
 totalChartReady:boolean = false;
@@ -551,14 +553,14 @@ updateTotalData(){
     },
     {
       name:'All points',
-      data:this.totalData.lc_data.map(obj=>[obj.x,obj.y]).filter((pt,j,[])=>(j%5===0)),
+      data:this.totalData.lc_data.map(obj=>[obj.x,obj.y]),
       type:'line'
     }
     ] as ApexAxisChartSeries
     // console.log(this.totalData)
     setTimeout(()=>{
       this.totalChartReady = true;
-    },1000)
+    },500)
 }
 revertToUploadPage(){
   this.allowUnload = true;
@@ -572,7 +574,6 @@ revertToUploadPage(){
       console.log(data)
       // console.log(JSON.parse(data.flares))
       this.bursts = this.cleanedData(data.flares)
-      
       this.totalData = {
         ...data.total,
          start:Math.round(data.total.start*100)/100,
@@ -580,6 +581,7 @@ revertToUploadPage(){
             [
                burst.ns!.is_detected,
                burst.lm!.is_detected,
+               (burst.lm!.is_detected&&burst.ns!.is_detected),
                (burst.lm!.is_detected||burst.ns!.is_detected)
             ][this.totalChartMode]
         ).map(burst=>{
@@ -588,12 +590,7 @@ revertToUploadPage(){
                 'y':burst.peak_rate
             }
         })};
-        let tempptdata = this.totalData.ptlineData
-        this.totalData.ptlineData = []
-        for(let i = 0;i<tempptdata.length;i++){
-          this.totalData.ptlineData.push(tempptdata[i]);
-          // this.totalData.ptlineData.push({x:tempptdata[i].x+0.01,y:null})
-        }
+        this.totalData.lc_data = this.totalData.lc_data.filter((pt,j,[])=>(j%5===0))
         this.totalData.chartSeries = [
           {
             name:'Peaks',
@@ -602,7 +599,7 @@ revertToUploadPage(){
           },
           {
             name:'All points',
-            data:this.totalData.lc_data.map(obj=>[obj.x,obj.y]).filter((pt,j,[])=>(j%5===0)),
+            data:this.totalData.lc_data.map(obj=>[obj.x,obj.y]),
             type:'line'
           }
         ] as ApexAxisChartSeries
@@ -617,7 +614,7 @@ revertToUploadPage(){
   onResize(event:any) {
     this.totalChartReady = false
     this.innerWidth = window.innerWidth;
-    setTimeout(()=>this.totalChartReady=true,1000)
+    setTimeout(()=>this.totalChartReady=true,500)
     console.log(this.innerWidth)
   }
 }

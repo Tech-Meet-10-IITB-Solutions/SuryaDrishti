@@ -2,7 +2,6 @@
     <div class="totalCard">
         <p>File Name: {{totalData.file_name}}</p> 
         <p>Start Time: {{getDate(totalData.start+1483228800)+ ' ('+totalData.start.toString() +'s)'}}</p>
-        <p>Flare Count: {{totalData.chartSeries[0].data.length}}</p>
         <p style="width:100%">
             Bin Size: ({{binSzValue}})
             <mat-slider [(ngModel)]="binSzValue" [max]="binSzMax" [min]="binSzMin" [step]="50" thumbLabel>
@@ -10,7 +9,7 @@
             <button mat-raised-button style="float: inline-end;" color="primary" (click)="resubmit()">Re-Submit</button>
         </p>
         <div style="display: flex;flex-direction: row;align-items: center;">
-        <p>Flare Selection: </p>
+        <p *ngIf="!printing">Flare Selection: </p>
         <mat-button-toggle-group style="margin-left: 10px;"  [(ngModel)]="totalChartMode" (change)="updateTotalData()">
             <mat-button-toggle [value]="0">NS</mat-button-toggle>
             <mat-button-toggle [value]="1">LM</mat-button-toggle>
@@ -18,6 +17,8 @@
             <mat-button-toggle [value]="3">Either</mat-button-toggle>
           </mat-button-toggle-group>
         </div>
+        <p>Flare Count: {{totalData.chartSeries[0].data.length}}</p>
+        
         <!-- <app-linechart *ngIf="totalChartReady"[series]="totalData.chartSeries" [innerWidth]="innerWidth">
         </app-linechart> -->
         <app-linescatter *ngIf="totalChartReady"  [series]="totalData.chartSeries" [innerWidth]="innerWidth"></app-linescatter>        
@@ -66,7 +67,7 @@
 <!-- <app-linescatter *ngIf="bursts[0]!==null" [statData]="bursts[0].ns!"></app-linescatter> -->
 <div *ngIf="burstsDecoded">
     <div style="display:flex;justify-content: space-around;width: 400px;margin: auto;margin-bottom: 0px;padding: 30px;">        
-        <button mat-raised-button color="primary" (click)="saveData()">
+        <button *ngIf="(!burstListEditable)" mat-raised-button color="primary" (click)="saveData()">
             Download Data
         </button>
         <button *ngIf="(!burstListEditable)" mat-raised-button color="accent" (click)="trainModel()">

@@ -52,7 +52,17 @@ apx-chart.disabled{
 .mat-cell{
     border-right: #e0e0e0 1px solid;
 }
-.mat-cell>img{
+.mat-cell>div{
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    justify-items: center;
+    align-content: center;
+    align-items: center;
+
+}
+.mat-cell>div>img{
     width: 300px;
     
 }

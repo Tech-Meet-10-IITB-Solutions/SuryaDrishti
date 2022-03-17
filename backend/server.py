@@ -112,6 +112,7 @@ def train(content: str = Form(...)):
     print(content)
     content = json.loads(content)
     labels = np.array(content['labels'])
+    print(labels)
 
     snn.train(lc.get_ml_data(), labels, epochs=10)
     return {'status': 200}
