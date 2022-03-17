@@ -20,15 +20,15 @@ def find_flare_class(flux):
     if(flare_class_val < 0):
         flare_class = 'sub-A'
     elif(flare_class_val < 1):
-        flare_class = 'A' + str(np.int32(np.round(flare_class_val, 1) * 10))
+        flare_class = 'A' + str(np.int32(flux / 1e-8))
     elif(flare_class_val < 2):
-        flare_class = 'B' + str(np.int32(np.round(flare_class_val - 1, 1) * 10))
+        flare_class = 'B' + str(np.int32(flux / 1e-7))
     elif(flare_class_val < 3):
-        flare_class = 'C' + str(np.int32(np.round(flare_class_val - 2, 1) * 10))
+        flare_class = 'C' + str(np.int32(flux / 1e-6))
     elif(flare_class_val < 4):
-        flare_class = 'M' + str(np.int32(np.round(flare_class_val - 3, 1) * 10))
+        flare_class = 'M' + str(np.int32(flux / 1e-5))
     else:
-        flare_class = 'X' + str(np.int32(np.round(flare_class_val - 4, 1) * 10))
+        flare_class = 'X' + str(np.int32(flux / 1e-4))
     return flare_class
 
 
