@@ -103,6 +103,7 @@ class LC:
                     int(flare['peak_time'])))
                 plt.savefig('{}/../../frontend/src/assets/ns_{}.jpg'.format(
                     stat_dir, int(flare['peak_time'])))
+                ns['plot_loc'] = 'ns_{}.jpg'.format(int(flare['peak_time']))
 
             else:
                 ns = {
@@ -151,6 +152,7 @@ class LC:
                     int(flare['peak_time'])))
                 plt.savefig('{}/../../frontend/src/assets/lm_{}.jpg'.format(
                     stat_dir, int(flare['peak_time'])))
+                lm['plot_loc'] = 'lm_{}.jpg'.format(int(flare['peak_time']))
             else:
                 lm = {
                     'is_detected': False
