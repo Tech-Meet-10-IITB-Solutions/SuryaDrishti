@@ -1,8 +1,9 @@
 import { Component, ElementRef, HostListener, Inject, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatOptionSelectionChange } from '@angular/material/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatExpansionPanel } from '@angular/material/expansion';
+import beautify from 'json-beautify';
 import { ActivatedRoute, Router } from '@angular/router';
+import * as FileSaver from 'file-saver';
 import {
   ChartComponent,
   ApexAxisChartSeries,
@@ -99,6 +100,17 @@ export class ReportComponent implements OnInit {
   }
   totalData!: totalData;
   saveData(){
+    // let obj = { str: "Hello World", num: 42, smallarray: [ 1, 2, 3, "foo", {} ], smallobject: { foo: "bar", bar: 42 }, bigarray: [ 1, 2, 3, "foo", { foo: "bar", bar: 42, arr: [ 1, 2, 3, "foo", {} ] } ], bigobject: { foo: [ 1, 2, 3, "foo", {} ], bar: 42, a: {b: { c: 42 }}, foobar: "FooBar" } };
+
+    // console.log();
+    // return
+    let data = this.bursts
+    //NOTE: 4th param in beautify determines min. length before
+    //formatting. Increase it if necessary.
+    let textdata = beautify(this.bursts, null, 2, 5);
+    textdata = textdata.split('},{').join('},\n{')
+    let blob = new Blob([textdata]);
+    FileSaver.saveAs(blob, this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+".txt")
 
   }
   trainModel(){
@@ -442,7 +454,7 @@ export class ReportComponent implements OnInit {
   @HostListener('window:beforeunload', ['$event'])
   unloadHandler(event: Event) {
     // event.preventDefault()
-    if(!this.allowUnload){
+    if(!this.allowUnload&&(!(localStorage.getItem('allowUnload')! === 'true'))){
       window.opener.location.reload();
     }
 

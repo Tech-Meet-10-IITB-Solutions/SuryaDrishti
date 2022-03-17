@@ -36,9 +36,12 @@
                 </mat-option>
             </mat-select>
         </mat-form-field>
-        <div style="margin-left: 10px;">
+        <div class="editbtns">
                 <button mat-raised-button color="primary" (click)="invertEditable()">
                     {{burstListEditable?'Save List':'Edit List'}}
+                </button>
+                <button *ngIf="rejectedBursts.length>0" mat-raised-button color="accent" (click)="rejectedBursts = []">
+                    Reset Selection
                 </button>
         </div>
         
