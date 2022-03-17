@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { UploadComponent } from './upload/upload.component';
 
@@ -7,18 +7,26 @@ import { UploadComponent } from './upload/upload.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'frontend';
-  constructor(private route: ActivatedRoute) { }
-  toUpload() {
-    window.location.href = '/upload'
+  url = '';
+  constructor(public route:ActivatedRoute){
+
   }
-  onBurstsReady(elementRef: any) {
-    console.log('hi')
-    elementRef.onBurstsReady.subscribe((ev: any) => {
-      console.log(ev);
-    })
-    window.location.href = "/report"
+  ngOnInit(): void {
+    this.url = window.location.href;
+    console.log(this.url)
+  }
+  toUpload(force:boolean){
+    if(force){
+      localStorage.setItem('allowUnload','true');
+    }
+    else{
+      localStorage.setItem('allowUnload','false');
+    }
+    console.log(this.route.component?.toString())
+
+    window.location.href= '/upload'
   }
 
 }

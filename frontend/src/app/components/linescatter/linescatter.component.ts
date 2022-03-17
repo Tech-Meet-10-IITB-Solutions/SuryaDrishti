@@ -14,7 +14,7 @@ import {
   ApexMarkers,
   ApexStroke
 } from "ng-apexcharts";
-import { burstRow, point, statModelData } from "src/app/report/report.component";
+import { burstRow, point, statModelData, totalData } from "src/app/report/report.component";
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -38,92 +38,97 @@ export type ChartOptions = {
 export class LinescatterComponent implements OnInit {
   title = "CodeSandbox";
   // @Input('scatterData') scatterData!:any[]
-  scatterData!:any[]
+  // pscatterData!:any[]
   // @Input('lineData') lineData!:any[]
-  @Input('burst') burst!:burstRow;
+  @Input() bursts!:Partial<burstRow>[];
   @Input('innerWidth') innerWidth!:number;
   @Input('statData') statData!:statModelData;
+  @Input() totalData!:totalData;
+  @Input() mode!:number;
+  @Input() series!:ApexAxisChartSeries
   @Input('ptscatterData') ptscatterData!:point[];
   @ViewChild("chart") chart!: ChartComponent;
   @Input() tickAmt:number|undefined = 20;
   public chartOptions!: Partial<ChartOptions>;
   @Input('ptlineData') ptlineData!:point[]
   @Input() chartHeight!:number;
-  getScatterData(statData:statModelData){
-    if(statData){
-      return statData.true_data;
+  lineData(totalData:totalData){
+    if(totalData){
+      return totalData.lc_data;
     }
     return []
   }
-  getLineData(statData:statModelData){
-    if(statData){
-      return statData.fit_data;
+  scatterData(bursts:Partial<burstRow>[]){
+    if(bursts){
+      return this.bursts.filter(burst=>[
+        burst.ns?.is_detected,
+        burst.lm?.is_detected,
+        burst.ns?.is_detected&&burst.lm?.is_detected,
+        burst.ns?.is_detected||burst.lm?.is_detected,
+      ][this.mode]).map(burst=>{
+        return {
+          x:burst.peak_time,
+          y:burst.peak_rate
+        }
+      }
+      )
+      // return bursts.map();
     }
     return []
   }
   constructor() {}  
   ngOnInit() {
 
-    console.log(this.statData)
-    
-  this.chartOptions = {series: [
-    {
-        name: "True Data",
-        type: "scatter",
-        data: this.getScatterData(this.statData)
-    },
-    {
-        name: "Fit",
-        type: "line",
-        data: this.getLineData(this.statData)
-    }
-],
-chart: {
-    width: 450,
-    type: "line",
-    stacked: false,
-    animations:{
-      enabled:false
-    }
-},
-dataLabels: {
-    enabled: false
-},
-stroke: {
-    width: [0, 5]
-},
-yaxis: [
-    {
-        axisTicks: {
-            show: true
-        },
-        axisBorder: {
-            show: true,
-            color: "#008FFB"
-        },
-        labels: {
-            style: {
-                colors: "#008FFB"
-            }
-        },
-        title: {
-            text: "Photon FPS",
-            style: {
-                color: "#000000"
-            }
-        },
-        tooltip: {
-            enabled: true
-        }
-    },
 
-],
-xaxis:{
-  tickAmount:10
-},
-markers: {
-    size: [10, 1]
-}}
+    
+  this.chartOptions = {
+    series: this.series,
+    chart: {
+        height: 350,
+        type: "line",
+        stacked: false
+    },
+    dataLabels: {
+        enabled: false
+    },
+    stroke: {
+        width: [5, 5]
+    },
+    title: {
+        text: "Flare Analysis",
+        align: "left",
+        offsetX: 110
+    },
+    yaxis: [
+        {
+            axisTicks: {
+                show: true
+            },
+            axisBorder: {
+                show: true,
+                color: "#008FFB"
+            },
+            labels: {
+                style: {
+                    colors: "#008FFB"
+                }
+            },
+            title: {
+                text: "Photon CPS",
+                style: {
+                    color: "#000000"
+                }
+            },
+            tooltip: {
+                enabled: true
+            }
+        }
+    ],
+    markers: {
+        size: [10, 1]
+    }
+};
+console.log(this.chartOptions)
 }
 
 

@@ -1,8 +1,12 @@
 import { Component, ElementRef, HostListener, Inject, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatOptionSelectionChange } from '@angular/material/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatExpansionPanel } from '@angular/material/expansion';
+import beautify from 'json-beautify';
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+
 import { ActivatedRoute, Router } from '@angular/router';
+import * as FileSaver from 'file-saver';
 import {
   ChartComponent,
   ApexAxisChartSeries,
@@ -16,7 +20,7 @@ import {
 import { ServerService } from 'src/app/server.service';
 import { __values } from 'tslib';
 import { BurstTableComponent } from '../components/burst-table/burst-table.component';
-import { LinescatterComponent } from '../components/linescatter/linescatter.component';
+// import { LinescatterComponent } from '../components/linescatter/linescatter.component';
 export type ChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
@@ -42,8 +46,9 @@ export interface totalData{
   chartSeries:ApexAxisChartSeries
 }
 export interface statModelData{
-  fit_data:point[],
-  true_data:point[],
+  // fit_data:point[],
+  // true_data:point[],
+  plot_base64:string,
   is_detected:boolean,
   fit_params:statModelParams,
   duration:number
@@ -75,21 +80,31 @@ export class ReportComponent implements OnInit {
   @ViewChildren('burstTable') burstTable!:QueryList<BurstTableComponent>
   rejectedBursts:number[] = []
   burstListEditable:boolean = false;
-  totalChartMode:number = 0;
+  totalChartMode:number = 3;
   burstsDecoded:boolean = false;
   public chartOptions:Partial<ChartOptions>[] = []
   public tableChartOptions:Partial<ChartOptions>[] = []
   metaData:any[] = [];
   tableData:any[] = [];
-  binSzMin:number = 20;
-  binSzMax:number=  500;
-  binSzValue:number = 100;
+  binSzMin:number = 50;
+  binSzMax:number=  250;
+  binSzValue:number = 200;
   varSzMin:number = 5;
   varSzMax:number=  50;
   varSzValue:number = 10;
+  printing: boolean = false;
   @HostListener('window:resize', ['$event'])
   OnResize(event:any){
       this.innerWidth = window.innerWidth;
+  }
+  formatSeconds(totalSeconds:number){
+    let days = Math.floor(totalSeconds/(3600*24))
+    totalSeconds %=(24*3600)
+    let hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    let minutes = Math.floor(totalSeconds / 60);
+    let seconds = Math.round(totalSeconds % 60);
+    return `${days}:${hours}:${minutes}:${seconds}`
   }
   mapClass:Function = (burst:number[][])=>{
     if(this.rejectedBursts.includes(this.data.indexOf(burst))){
@@ -98,7 +113,50 @@ export class ReportComponent implements OnInit {
     return ''
   }
   totalData!: totalData;
-  proceedToML(){}
+  saveData(){
+    let btns = document.querySelectorAll('button')
+    let tempmode = this.totalChartMode;
+    this.printing = true;
+    for(let i=0;i<btns.length;i++){
+      btns.item(i).style.display = 'none';
+    }
+    this.totalChartMode = 3
+    this.updateTotalData()
+    
+    setTimeout(()=>{
+      window.print()
+      for(let i=0;i<btns.length;i++){
+        btns.item(i).style.display = '';
+      }
+      this.totalChartMode = tempmode;
+      this.updateTotalData()
+      this.printing = false
+  
+    },2000)
+    const doc = new jsPDF()
+    autoTable(doc, { html: '#mainTable' })
+    // doc.save(this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+'.pdf')
+    let data = this.bursts
+    let textdata = beautify(this.bursts, null, 2, 5);
+    textdata = textdata.split('},{').join('},\n{')
+    // let blob = new Blob([textdata]);
+    // FileSaver.saveAs(blob, this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+".txt")
+
+  }
+  trainModel(){
+    let ptbursts = this.sortBurstArray(this.sortables[1].value,this.sortables[1].value)
+    let boolArray = ptbursts.map((v,j,[])=>{
+      if(this.rejectedBursts.includes(this.bursts.indexOf(v))){return 0}
+      else{return 1}
+    })
+    console.log(boolArray)
+    this.server.trainModel(boolArray).subscribe(v=>{
+      console.log(v)
+    })
+  }
+  formatLabel(value: number) {
+      return Math.round(value);
+  }
   resubmit(){
     this.allowUnload = true;
     window.location.href = `report/${this.binSzValue}`
@@ -204,8 +262,8 @@ export class ReportComponent implements OnInit {
     {viewValue:'Peak Temp',value:'peak_temp'},
     {viewValue:'Peak EM', value:'peak_em'},
     {viewValue:'Confidence',value:'ml_conf'},
-    {viewValue:'Chi Sq (ns)',value:'chisq-ns'},
-    {viewValue:'Chi Sq (lm)',value:'chisq-lm'}
+    // {viewValue:'Chi Sq (ns)',value:'chisq-ns'},
+    // {viewValue:'Chi Sq (lm)',value:'chisq-lm'}
   ]
   // templateBursts:burstRow[] = [
   //   {
@@ -426,7 +484,7 @@ export class ReportComponent implements OnInit {
   @HostListener('window:beforeunload', ['$event'])
   unloadHandler(event: Event) {
     // event.preventDefault()
-    if(!this.allowUnload){
+    if(!this.allowUnload&&(!(localStorage.getItem('allowUnload')! === 'true'))){
       window.opener.location.reload();
     }
 
@@ -440,9 +498,20 @@ stringMap(burst1:Partial<burstRow>):Map<string,number>{
   map.set('peak_em',burst1.peak_em!)
   map.set('ml_conf',burst1.ml_conf!)
   map.set('class',-burst1.class?.charCodeAt(0)!)
-  map.set('chisq-ns',burst1.ns?burst1.ns?.fit_params.ChiSq:Infinity)
-  map.set('chisq-lm',burst1.lm?burst1.lm.fit_params.ChiSq:Infinity)
+  // map.set('chisq-ns',burst1.ns?.fit_params?burst1.ns?.fit_params.ChiSq:Infinity)
+  // map.set('chisq-lm',burst1.lm?burst1.lm.fit_params.ChiSq:Infinity)
   return map;
+}
+sortBurstArray(key:string, tbk:string){
+  return this.bursts.sort((burst1:Partial<burstRow>, burst2:Partial<burstRow>)=>{
+    let map1 = this.stringMap(burst1)
+    let map2 = this.stringMap(burst2)
+    let compval = (map1.get(key)! - map2.get(key)!)
+    if(compval===0){
+      compval = (map1.get(tbk)! - map2.get(tbk)!)
+    }
+    return compval;
+  })
 }
 sortBursts(value:string){
 
@@ -450,18 +519,48 @@ sortBursts(value:string){
   let key = value
   let tieBreakerKey = 'peak_time';
   this.rejectedBursts = []
-  // console.log(value.source.value)
-  this.bursts = this.bursts.sort((burst1:Partial<burstRow>, burst2:Partial<burstRow>)=>{
-    let map1 = this.stringMap(burst1)
-    let map2 = this.stringMap(burst2)
-    let compval = (map1.get(key)! - map2.get(key)!)
-    if(compval===0){
-      compval = (map1.get(tieBreakerKey)! - map2.get(tieBreakerKey)!)
-    }
-    return compval;
-  })
-
+  this.bursts = this.sortBurstArray(key,tieBreakerKey)
   this.rejectedBursts = RBursts.map(v=>this.bursts.indexOf(v));
+}
+getDate(moment:number){
+  // getDate(totalData.start+1483228800)).join(' ')
+  // console.log(moment)
+  let date = new Date();
+  date.setTime(moment*1000)
+  let parts = date.toISOString().split('T')
+  parts[1] = parts[1].slice(0,-5)
+  // console.log(parts)
+  return parts.join(' ')
+}
+totalChartReady:boolean = false;
+updateTotalData(){
+  this.totalChartReady = false;
+  this.totalData = {
+    ...this.totalData,
+     start:Math.round(this.totalData.start*100)/100,
+     ptlineData:this.bursts.filter(burst=>[
+       burst.ns?.is_detected,
+       burst.lm?.is_detected,
+       burst.ns?.is_detected&&burst.lm?.is_detected,
+       burst.ns?.is_detected||burst.lm?.is_detected,
+     ][this.totalChartMode]).map(burst=>{return{x:burst.peak_time,y:burst.peak_rate} as point;})
+   };
+   this.totalData.chartSeries = [
+    {
+      name:'Peaks',
+      data:this.totalData.ptlineData.map(obj=>[obj.x,obj.y]),
+      type:'scatter'
+    },
+    {
+      name:'All points',
+      data:this.totalData.lc_data.map(obj=>[obj.x,obj.y]),
+      type:'line'
+    }
+    ] as ApexAxisChartSeries
+    // console.log(this.totalData)
+    setTimeout(()=>{
+      this.totalChartReady = true;
+    },500)
 }
 revertToUploadPage(){
   this.allowUnload = true;
@@ -475,14 +574,14 @@ revertToUploadPage(){
       console.log(data)
       // console.log(JSON.parse(data.flares))
       this.bursts = this.cleanedData(data.flares)
-      
       this.totalData = {
         ...data.total,
-         start:Math.round(data.total.start),
+         start:Math.round(data.total.start*100)/100,
           ptlineData:this.bursts.filter(burst=>
             [
                burst.ns!.is_detected,
                burst.lm!.is_detected,
+               (burst.lm!.is_detected&&burst.ns!.is_detected),
                (burst.lm!.is_detected||burst.ns!.is_detected)
             ][this.totalChartMode]
         ).map(burst=>{
@@ -491,12 +590,7 @@ revertToUploadPage(){
                 'y':burst.peak_rate
             }
         })};
-        let tempptdata = this.totalData.ptlineData
-        this.totalData.ptlineData = []
-        for(let i = 0;i<tempptdata.length;i++){
-          this.totalData.ptlineData.push(tempptdata[i]);
-          // this.totalData.ptlineData.push({x:tempptdata[i].x+0.01,y:null})
-        }
+        this.totalData.lc_data = this.totalData.lc_data.filter((pt,j,[])=>(j%5===0))
         this.totalData.chartSeries = [
           {
             name:'Peaks',
@@ -504,20 +598,23 @@ revertToUploadPage(){
             type:'scatter'
           },
           {
-            name:'Rates',
-            data:this.totalData.lc_data.map(obj=>[obj.x,obj.y]).filter((pt,j,[])=>(j%5===0)),
-            type:'scatter'
+            name:'All points',
+            data:this.totalData.lc_data.map(obj=>[obj.x,obj.y]),
+            type:'line'
           }
         ] as ApexAxisChartSeries
         console.log(this.totalData)
       this.burstsDecoded = true;
+      this.totalChartReady = true;
     })
     this.innerWidth = window.innerWidth;
     // this.displayedColumns = ['max','maxAt','avg']
   }
   @HostListener('window:resize', ['$event'])
   onResize(event:any) {
+    this.totalChartReady = false
     this.innerWidth = window.innerWidth;
+    setTimeout(()=>this.totalChartReady=true,500)
     console.log(this.innerWidth)
   }
 }

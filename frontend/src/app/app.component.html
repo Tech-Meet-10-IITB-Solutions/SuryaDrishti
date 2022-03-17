@@ -1,4 +1,5 @@
-<mat-toolbar color="primary">
-  <span (click)="toUpload()">FlareAnalysis</span>
+<mat-toolbar color="primary" style="display: flex;align-content: space-between;justify-content: space-between;">
+    <span>FlareAnalysisCopilot</span>
+    <button *ngIf="url.includes('report')" style="float: inline-end;color: white;background-color: red;" mat-raised-button (click)="toUpload(true)">Exit Session</button>
 </mat-toolbar>
-<router-outlet (onBurstsReady)="onBurstsReady($event)"></router-outlet>
+<router-outlet></router-outlet>

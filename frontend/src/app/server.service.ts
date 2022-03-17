@@ -32,6 +32,11 @@ export class ServerService {
   toggleVars(b:number,v:number){
     return this.http.get('')
   }
+  trainModel(boolArray:number[]){
+    let fd = new FormData()
+    fd.append('content',JSON.stringify({labels:boolArray}))
+    return this.http.post(baseUrl+'train',fd)
+  }
   getBursts(binSize?:number){
     if(binSize){
       return this.http.get(baseUrl+'flares?bin_size='+binSize.toString(),httpop)
