@@ -45,7 +45,7 @@ class SNN():
         self.model = Sequential()
         self.model.add(Dense(128, input_dim=self.input_dim, name='layer1'))
         self.model.add(LeakyReLU(alpha=0.1))
-        self.model.add(Dense(128, name='layer2'))
+        self.model.add(Dense(32, name='layer2'))
         self.model.add(LeakyReLU(alpha=0.1))
         self.model.add(Dense(1, name='layer3', kernel_initializer = zeros_initializer, bias_initializer = ones_initializer))
         self.model.add(Activation(custom_activation, name = 'SpecialActivation'))
