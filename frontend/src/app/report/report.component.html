@@ -1,11 +1,11 @@
 <mat-card *ngIf="(totalData!==null)&&burstsDecoded">
     <div class="totalCard">
         <p>File Name: {{totalData.file_name}}</p> 
-        <p>Start Time: {{totalData.start.toString()+ ' ('+(getDate(totalData.start)).toISOString().split('T').join(' ') +')'}}</p>
-        <p>Flare Count: {{totalData.flare_count}}</p>
+        <p>Start Time: {{totalData.start.toString()+ ' ('+(getDate(totalData.start+1483228800)).toISOString().split('T').join(' ') +')'}}</p>
+        <p>Flare Count: {{totalData.chartSeries[0].data.length}}</p>
         <p style="width:100%">
             Bin Size: ({{binSzValue}})
-            <mat-slider [(ngModel)]="binSzValue" [max]="binSzMax" [min]="binSzMin" [step]="20" thumbLabel>
+            <mat-slider [(ngModel)]="binSzValue" [max]="binSzMax" [min]="binSzMin" [step]="50" thumbLabel>
             </mat-slider>
             <button mat-raised-button style="float: inline-end;" color="primary" (click)="resubmit()">Re-Submit</button>
         </p>
@@ -15,11 +15,12 @@
             <mat-button-toggle [value]="0">NS</mat-button-toggle>
             <mat-button-toggle [value]="1">LM</mat-button-toggle>
             <mat-button-toggle [value]="2">Both</mat-button-toggle>
-            <mat-button-toggle [value]="3">Any</mat-button-toggle>
+            <mat-button-toggle [value]="3">Either</mat-button-toggle>
           </mat-button-toggle-group>
         </div>
-        <app-linechart *ngIf="totalChartReady"[series]="totalData.chartSeries" [innerWidth]="innerWidth">
-        </app-linechart>
+        <!-- <app-linechart *ngIf="totalChartReady"[series]="totalData.chartSeries" [innerWidth]="innerWidth">
+        </app-linechart> -->
+        <app-linescatter *ngIf="totalChartReady"  [series]="totalData.chartSeries" [innerWidth]="innerWidth"></app-linescatter>        
         <div class="reloadWithParams">
         <mat-spinner *ngIf="!totalChartReady"></mat-spinner>
         </div>
@@ -29,7 +30,7 @@
     <h1>
         {{rejectedBursts.length>0?'Selected Bursts':'Bursts Detected'}}
     </h1>
-    <div style="display: flex;flex-direction: row;">
+    <div *ngIf="!printing" style="display: flex;flex-direction: row;">
         <mat-form-field>
             <mat-label>
                 Sort By:

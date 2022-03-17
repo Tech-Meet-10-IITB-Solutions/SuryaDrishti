@@ -2,6 +2,9 @@ import { Component, ElementRef, HostListener, Inject, Input, OnInit, QueryList, 
 import { MatOptionSelectionChange } from '@angular/material/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import beautify from 'json-beautify';
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+
 import { ActivatedRoute, Router } from '@angular/router';
 import * as FileSaver from 'file-saver';
 import {
@@ -77,21 +80,31 @@ export class ReportComponent implements OnInit {
   @ViewChildren('burstTable') burstTable!:QueryList<BurstTableComponent>
   rejectedBursts:number[] = []
   burstListEditable:boolean = false;
-  totalChartMode:number = 0;
+  totalChartMode:number = 3;
   burstsDecoded:boolean = false;
   public chartOptions:Partial<ChartOptions>[] = []
   public tableChartOptions:Partial<ChartOptions>[] = []
   metaData:any[] = [];
   tableData:any[] = [];
-  binSzMin:number = 20;
+  binSzMin:number = 50;
   binSzMax:number=  500;
-  binSzValue:number = 100;
+  binSzValue:number = 200;
   varSzMin:number = 5;
   varSzMax:number=  50;
   varSzValue:number = 10;
+  printing: boolean = false;
   @HostListener('window:resize', ['$event'])
   OnResize(event:any){
       this.innerWidth = window.innerWidth;
+  }
+  formatSeconds(totalSeconds:number){
+    let days = Math.floor(totalSeconds/(3600*24))
+    totalSeconds %=(24*3600)
+    let hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    let minutes = Math.floor(totalSeconds / 60);
+    let seconds = Math.round(totalSeconds % 60);
+    return `${days}:${hours}:${minutes}:${seconds}`
   }
   mapClass:Function = (burst:number[][])=>{
     if(this.rejectedBursts.includes(this.data.indexOf(burst))){
@@ -101,17 +114,31 @@ export class ReportComponent implements OnInit {
   }
   totalData!: totalData;
   saveData(){
-    // let obj = { str: "Hello World", num: 42, smallarray: [ 1, 2, 3, "foo", {} ], smallobject: { foo: "bar", bar: 42 }, bigarray: [ 1, 2, 3, "foo", { foo: "bar", bar: 42, arr: [ 1, 2, 3, "foo", {} ] } ], bigobject: { foo: [ 1, 2, 3, "foo", {} ], bar: 42, a: {b: { c: 42 }}, foobar: "FooBar" } };
+    let btns = document.querySelectorAll('button')
+    this.printing = true;
+    // let tb = document.querySelectorAll('mat-toolbar')
+    // let sel = document.querySelectorAll('mat-select')
+    for(let i=0;i<btns.length;i++){
+      btns.item(i).style.display = 'none';
+    }
 
-    // console.log();
-    // return
+    
+    setTimeout(()=>{
+      window.print()
+      for(let i=0;i<btns.length;i++){
+        btns.item(i).style.display = '';
+      }
+      this.printing = false
+  
+    },1000)
+    const doc = new jsPDF()
+    autoTable(doc, { html: '#mainTable' })
+    // doc.save(this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+'.pdf')
     let data = this.bursts
-    //NOTE: 4th param in beautify determines min. length before
-    //formatting. Increase it if necessary.
     let textdata = beautify(this.bursts, null, 2, 5);
     textdata = textdata.split('},{').join('},\n{')
-    let blob = new Blob([textdata]);
-    FileSaver.saveAs(blob, this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+".txt")
+    // let blob = new Blob([textdata]);
+    // FileSaver.saveAs(blob, this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+".txt")
 
   }
   trainModel(){
@@ -494,7 +521,10 @@ sortBursts(value:string){
   this.rejectedBursts = RBursts.map(v=>this.bursts.indexOf(v));
 }
 getDate(moment:number){
-  return new Date(moment)
+  console.log(moment)
+  let date = new Date();
+  date.setTime(moment*1000)
+  return date
 }
 totalChartReady:boolean = false;
 updateTotalData(){
@@ -509,17 +539,17 @@ updateTotalData(){
        burst.ns?.is_detected||burst.lm?.is_detected,
      ][this.totalChartMode]).map(burst=>{return{x:burst.peak_time,y:burst.peak_rate} as point;})
    };
-    this.totalData.chartSeries = [
-      {
-        name:'Peaks',
-        data:this.totalData.ptlineData.map(obj=>[obj.x,obj.y]),
-        type:'scatter'
-      },
-      {
-        name:'Rates',
-        data:this.totalData.lc_data.map(obj=>[obj.x,obj.y]).filter((pt,j,[])=>(j%5===0)),
-        type:'scatter'
-      }
+   this.totalData.chartSeries = [
+    {
+      name:'Peaks',
+      data:this.totalData.ptlineData.map(obj=>[obj.x,obj.y]),
+      type:'scatter'
+    },
+    {
+      name:'All points',
+      data:this.totalData.lc_data.map(obj=>[obj.x,obj.y]).filter((pt,j,[])=>(j%5===0)),
+      type:'line'
+    }
     ] as ApexAxisChartSeries
     // console.log(this.totalData)
     setTimeout(()=>{
@@ -567,9 +597,9 @@ revertToUploadPage(){
             type:'scatter'
           },
           {
-            name:'Rates',
+            name:'All points',
             data:this.totalData.lc_data.map(obj=>[obj.x,obj.y]).filter((pt,j,[])=>(j%5===0)),
-            type:'scatter'
+            type:'line'
           }
         ] as ApexAxisChartSeries
         console.log(this.totalData)
@@ -581,7 +611,9 @@ revertToUploadPage(){
   }
   @HostListener('window:resize', ['$event'])
   onResize(event:any) {
+    this.totalChartReady = false
     this.innerWidth = window.innerWidth;
+    setTimeout(()=>this.totalChartReady=true,1000)
     console.log(this.innerWidth)
   }
 }

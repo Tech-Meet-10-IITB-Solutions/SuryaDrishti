@@ -23,6 +23,7 @@
     "apexcharts": "^3.33.2",
     "file-saver": "^2.0.5",
     "json-beautify": "^1.1.1",
+    "jspdf-autotable": "^3.5.23",
     "ng-apexcharts": "^1.7.0",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",

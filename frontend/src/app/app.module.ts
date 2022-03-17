@@ -27,7 +27,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
 // Addons
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatDialogModule } from '@angular/material/dialog';
-// import { LinescatterComponent } from './components/linescatter/linescatter.component';
+import { LinescatterComponent } from './components/linescatter/linescatter.component';
 import { BurstTableComponent } from './components/burst-table/burst-table.component';
 import { MatSelectModule } from '@angular/material/select';
 import { LinechartComponent } from './components/linechart/linechart.component';
@@ -40,7 +40,7 @@ import { TestComponent } from './components/test/test.component';
     UploadComponent,
     ReportComponent,
     DialogOptionsDialog,
-    // LinescatterComponent,
+    LinescatterComponent,
     BurstTableComponent,
     LinechartComponent,
     TestComponent
