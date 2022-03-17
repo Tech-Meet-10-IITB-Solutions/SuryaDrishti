@@ -122,7 +122,7 @@ xaxis:{
   tickAmount:10
 },
 markers: {
-    size: [10, 1]
+    size: [5, 1]
 }}
 }
 

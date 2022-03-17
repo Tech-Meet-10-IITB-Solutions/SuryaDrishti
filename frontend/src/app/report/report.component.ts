@@ -98,6 +98,9 @@ export class ReportComponent implements OnInit {
     return ''
   }
   totalData!: totalData;
+  saveData(){
+
+  }
   trainModel(){
     let ptbursts = this.sortBurstArray(this.sortables[1].value,this.sortables[1].value)
     let boolArray = ptbursts.map((v,j,[])=>{
@@ -108,6 +111,9 @@ export class ReportComponent implements OnInit {
     this.server.trainModel(boolArray).subscribe(v=>{
       console.log(v)
     })
+  }
+  formatLabel(value: number) {
+      return Math.round(value);
   }
   resubmit(){
     this.allowUnload = true;

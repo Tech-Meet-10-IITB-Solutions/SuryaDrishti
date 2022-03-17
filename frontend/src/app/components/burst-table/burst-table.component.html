@@ -39,14 +39,14 @@
     <ng-container matColumnDef="dataNS" #charts>
         <th mat-header-cell *matHeaderCellDef>Data - NS</th>
         <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element" #chartcell>
-            <ul *ngIf="element.ns.is_detected===true">
+            <div *ngIf="element.ns.is_detected===true">
                 <p *ngIf="element.ns.duration!==null">Duration: {{element.ns.duration}}</p>
-                <p>Chi Sq: {{element.ns.fit_params.ChiSq>0?element.ns.fit_params.ChiSq:'infinity'}}</p>
+                <p>Chi Sq: {{element.ns.fit_params.ChiSq>0?element.ns.fit_params.ChiSq:'&infin;'}}</p>
                 <p>A: {{element.ns.fit_params.A}}</p>
                 <p>B: {{element.ns.fit_params.B}}</p>
                 <p>C: {{element.ns.fit_params.C}}</p>
                 <p>D: {{element.ns.fit_params.D}}</p>
-            </ul>
+            </div>
         </td>
     </ng-container>
 
@@ -62,14 +62,14 @@
     <ng-container matColumnDef="dataLM" #charts>
         <th mat-header-cell *matHeaderCellDef>Data - LM</th>
         <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element" #chartcell>
-            <ul *ngIf="element.lm.is_detected===true">
+            <div *ngIf="element.lm.is_detected===true">
                 <p *ngIf="element.lm.duration!==undefined&&element.lm.duration!==null">Duration: {{element.lm.duration}}</p>
                 <p>Chi Sq: {{element.lm.fit_params.ChiSq>0?element.lm.fit_params.ChiSq:'infinity'}}</p>
                 <p>A: {{element.lm.fit_params.A}}</p>
                 <p>B: {{element.lm.fit_params.B}}</p>
                 <p>C: {{element.lm.fit_params.C}}</p>
                 <p>D: {{element.lm.fit_params.D}}</p>
-            </ul>
+            </div>
         </td>
     </ng-container>
     <ng-container matColumnDef="meta">
