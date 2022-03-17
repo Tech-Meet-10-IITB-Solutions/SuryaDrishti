@@ -18,12 +18,17 @@ def n_sigma(time, rates, n=3):
                     t_arr.append([t_start_idx, t_end_idx])
             j = 0
         elif j == 0:
-            if(not np.isnan(rates[i])):
+            if not np.isnan(rates[i]):
                 t_start_idx = i
                 temp = t_start_idx
                 j += 1
         else:
-            if(not np.isnan(rates[i])):
+            if not np.isnan(rates[i]):
                 temp = i
                 j += 1
+            if i == len(time) - 1:
+                t_end_idx = i
+                if j > 4:
+                    t_arr.append([t_start_idx, t_end_idx])
+
     return t_arr
