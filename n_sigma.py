@@ -1,4 +1,5 @@
 from cmath import isnan, nan
+import time
 from turtle import color
 from astropy.io import fits
 import matplotlib.pyplot as plt 
@@ -175,12 +176,15 @@ def n_sigma_start_stop(time_new,rates_new, n):
             if(not np.isnan(rates_new[i])):
                 t_start = time_new[i]
                 temp = t_start
-                #print(time_new[i], rates_new[i], mean + n*sigma)
+                print(time_new[i], rates_new[i], mean + n*sigma)
                 j+=1
         else:
             if(not np.isnan(rates_new[i])):
                 temp = time_new[i]
                 j+=1
+            if(i == len(time_new)-1):
+                t_end = time_new[i]
+                t_arr.append([t_start, t_end])
     return t_arr
 def n_sigma_main(filename, n, t_bin, t_bin_new):
     time, rates = load_lc(filename)
@@ -222,12 +226,12 @@ def fit_efp_norm(time, rates, A0=1, B0=1, C0=1, D0=0.1):
     time_burst = time[valid]
     rates_burst = rates[valid]
     t2 = np.linspace(time_burst[0], time_burst[-1], len(time_burst)*100)
-    A0 *= np.sqrt(max(rates_burst))
+    A0 *= (max(rates_burst))**(1/2)
     B0 *= time_burst[np.argmax(rates_burst)]
-    C0 *= 1
+    C0 *= (max(rates_burst))**(1/2)
     D0 *= (time_burst[-1] - B0)/(time_burst[-1] - time_burst[0])
-    c_num = 20
-    d_num = 20
+    c_num = 10
+    d_num = 10
     c_arr = np.linspace(C0/100, C0, c_num)
     d_arr = np.linspace(D0/100, D0, d_num)
     chisq_arr = np.zeros((c_num, d_num))
@@ -245,4 +249,4 @@ def fit_efp_norm(time, rates, A0=1, B0=1, C0=1, D0=0.1):
                                                                , c_arr[i_opt], d_arr[j_opt]])
     fit2 = EFP(t2, *popt)
     return t2, fit2, time_burst, rates_burst
-n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20211109_v1_level2.lc', 3, 1.0, 500.0)
+n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20210419_v1_level2.lc', 3, 1.0, 50.0)
