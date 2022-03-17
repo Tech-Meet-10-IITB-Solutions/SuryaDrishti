@@ -113,7 +113,7 @@ class LC:
                 plt.scatter(true_time, true, label='Processed data', c='b')
                 plt.xlabel('Time (s)')
                 plt.ylabel('Counts (photons/s)')
-                plt.title('Flare with peak at {}s detected by N Sigma algorithm'.format(
+                plt.title('Flare detected at {}s by N Sigma algorithm'.format(
                     int(flare['peak_time'])))
                 plt.legend()
                 plt.savefig('{}/../../frontend/src/assets/ns_{}.jpg'.format(
@@ -163,7 +163,7 @@ class LC:
                 plt.scatter(true_time, true, label='Processed data', c='b')
                 plt.xlabel('Time (s)')
                 plt.ylabel('Counts (photons/s)')
-                plt.title('Flare with peak at {}s detected by N Sigma algorithm'.format(
+                plt.title('Flare detected at {}s by Local Maxima algorithm'.format(
                     int(flare['peak_time'])))
                 plt.legend()
                 plt.savefig('{}/../../frontend/src/assets/lm_{}.jpg'.format(
