@@ -1,6 +1,7 @@
 .vscode
 
 input*
+frontend/src/assets/*.jpg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
