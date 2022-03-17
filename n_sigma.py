@@ -16,6 +16,7 @@ def load_lc(filename):
     lc = fits.open(filename)
     rates = lc[1].data['RATE']
     time = lc[1].data['TIME']
+    print("Duration : {} s".format(time[-1]-time[0]))
     return time, rates
 
 def orbit_start_indices(time, step=1):
@@ -249,4 +250,4 @@ def fit_efp_norm(time, rates, A0=1, B0=1, C0=1, D0=0.1):
                                                                , c_arr[i_opt], d_arr[j_opt]])
     fit2 = EFP(t2, *popt)
     return t2, fit2, time_burst, rates_burst
-n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20210419_v1_level2.lc', 3, 1.0, 50.0)
+n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20200921_v1_level2.lc', 3, 1.0, 100.0)
