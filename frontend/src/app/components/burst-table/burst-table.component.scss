@@ -52,6 +52,10 @@ apx-chart.disabled{
 .mat-cell{
     border-right: #e0e0e0 1px solid;
 }
+.mat-cell>img{
+    width: 300px;
+    
+}
 .mat-panel-title{
     height: 400px;
 }

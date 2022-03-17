@@ -32,7 +32,8 @@
     <ng-container matColumnDef="chartNS" #charts>
         <th mat-header-cell *matHeaderCellDef>Chart - NS</th>
         <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element" #chartcell>
-            <app-linescatter *ngIf="element.ns.is_detected===true" [statData]="element.ns"></app-linescatter>
+            <img *ngIf="element.ns.is_detected" src="data:image/jpg;base64,{{element.ns.plot_base64}}"/>
+            <!-- <app-linescatter *ngIf="element.ns.is_detected===true" [statData]="element.ns"></app-linescatter> -->
             <h1 *ngIf="element.ns.is_detected===false">Not detected by NS</h1>
         </td>
     </ng-container>
@@ -53,8 +54,8 @@
     <ng-container matColumnDef="chartLM" #charts>
         <th mat-header-cell *matHeaderCellDef>Chart - LM</th>
         <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element" #chartcell>
-            <app-linescatter *ngIf="element.lm.is_detected===true"[statData]="element.lm"></app-linescatter>
-            <h1 *ngIf="element.lm.is_detected===false">
+            <img *ngIf="element.lm.is_detected" src="data:image/jpg;base64,{{element.lm.plot_base64}}"/>
+            <h1 *ngIf="!element.lm.is_detected">
                 Not detected by LM
             </h1>
         </td>
@@ -62,8 +63,8 @@
     <ng-container matColumnDef="dataLM" #charts>
         <th mat-header-cell *matHeaderCellDef>Data - LM</th>
         <td [style]="areDeleted?'opacity: 0.4;':''" mat-cell *matCellDef="let element" #chartcell>
-            <div *ngIf="element.lm.is_detected===true">
-                <p *ngIf="element.lm.duration!==undefined&&element.lm.duration!==null">Duration: {{element.lm.duration}}</p>
+            <div *ngIf="element.lm.is_detected">
+                <p *ngIf="element.lm.duration">Duration: {{element.lm.duration}}</p>
                 <p>Chi Sq: {{element.lm.fit_params.ChiSq>0?element.lm.fit_params.ChiSq:'&infin;'}}</p>
                 <p>A: {{element.lm.fit_params.A}}</p>
                 <p>B: {{element.lm.fit_params.B}}</p>

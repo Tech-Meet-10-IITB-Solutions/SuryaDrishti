@@ -17,7 +17,7 @@ import {
 import { ServerService } from 'src/app/server.service';
 import { __values } from 'tslib';
 import { BurstTableComponent } from '../components/burst-table/burst-table.component';
-import { LinescatterComponent } from '../components/linescatter/linescatter.component';
+// import { LinescatterComponent } from '../components/linescatter/linescatter.component';
 export type ChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
@@ -43,8 +43,9 @@ export interface totalData{
   chartSeries:ApexAxisChartSeries
 }
 export interface statModelData{
-  fit_data:point[],
-  true_data:point[],
+  // fit_data:point[],
+  // true_data:point[],
+  plot_base64:string,
   is_detected:boolean,
   fit_params:statModelParams,
   duration:number
@@ -495,6 +496,36 @@ sortBursts(value:string){
 getDate(moment:number){
   return new Date(moment)
 }
+totalChartReady:boolean = false;
+updateTotalData(){
+  this.totalChartReady = false;
+  this.totalData = {
+    ...this.totalData,
+     start:Math.round(this.totalData.start*100)/100,
+     ptlineData:this.bursts.filter(burst=>[
+       burst.ns?.is_detected,
+       burst.lm?.is_detected,
+       burst.ns?.is_detected&&burst.lm?.is_detected,
+       burst.ns?.is_detected||burst.lm?.is_detected,
+     ][this.totalChartMode]).map(burst=>{return{x:burst.peak_time,y:burst.peak_rate} as point;})
+   };
+    this.totalData.chartSeries = [
+      {
+        name:'Peaks',
+        data:this.totalData.ptlineData.map(obj=>[obj.x,obj.y]),
+        type:'scatter'
+      },
+      {
+        name:'Rates',
+        data:this.totalData.lc_data.map(obj=>[obj.x,obj.y]).filter((pt,j,[])=>(j%5===0)),
+        type:'scatter'
+      }
+    ] as ApexAxisChartSeries
+    // console.log(this.totalData)
+    setTimeout(()=>{
+      this.totalChartReady = true;
+    },1000)
+}
 revertToUploadPage(){
   this.allowUnload = true;
   window.location.href = '/upload'
@@ -543,6 +574,7 @@ revertToUploadPage(){
         ] as ApexAxisChartSeries
         console.log(this.totalData)
       this.burstsDecoded = true;
+      this.totalChartReady = true;
     })
     this.innerWidth = window.innerWidth;
     // this.displayedColumns = ['max','maxAt','avg']

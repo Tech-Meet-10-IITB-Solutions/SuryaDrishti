@@ -1,11 +1,13 @@
 from astropy.stats import sigma_clipped_stats as scs
 
 import numpy as np
+from scipy.stats import linregress
+
 # import matplotlib.pyplot as plt
 
 
 def local_maxima(time, rates):
-    length = 200
+    length = 150
 
     st_nr = rates[4:] - rates[:-4]
     st_dr = time[4:] - time[:-4]
@@ -28,17 +30,28 @@ def local_maxima(time, rates):
         pk_dr = peak[:-4]
         peak_flags.append(new_st_flags[i] + np.where(np.divide(pk_nr, pk_dr) < 1)[0][5])
 
-    def bk_avg():
+    def bk_sub(time, rates):
+        # Background subtraction
+        slope, intercept, r, p, se = linregress(time[~np.isnan(rates)], rates[~np.isnan(rates)])
+        bksub_counts = rates - np.array(slope * time + intercept)
+
+        return bksub_counts
+
+    def bk_avg(time, rates):
         iter_counts = rates[~np.isnan(rates)]
         iter = 5
         n = 0.8
         for i in range(iter):
             mean, med, sig = scs(iter_counts)
             iter_counts[iter_counts > mean + n * sig] = mean + n * sig
-        mean, med, sig = scs(iter_counts)
-        return mean + 3 * sig
+        mean = np.mean(iter_counts)
 
-    cut = bk_avg()
+        slope, intercept, r, p, se = linregress(time[~np.isnan(rates)], iter_counts)
+
+        return mean, slope * time + intercept
+
+    cts = bk_sub(time, rates)
+    cut, fit = bk_avg(time, cts)
 
     def find_end(rates, mean):
         if len(np.where(rates < mean)[0]) != 0:
@@ -51,10 +64,11 @@ def local_maxima(time, rates):
 
     for i in range(len(peak_flags)):
         if i != len(peak_flags) - 1:
-            end_flags.append(
-                peak_flags[i] + find_end(rates[peak_flags[i]:new_st_flags[i + 1]], cut))
+            end_flags.append(peak_flags[i] + find_end(rates[peak_flags[i]:new_st_flags[i + 1]],
+                                                      fit[peak_flags[i]:new_st_flags[i + 1]]))
         else:
-            end_flags.append(peak_flags[i] + find_end(rates[peak_flags[i]:], cut))
+            end_flags.append(peak_flags[i] + find_end(rates[peak_flags[i]:],
+                                                      fit[peak_flags[i]:]))
 
     # plt.figure(figsize=(15, 5))
     # plt.plot(time, rates, marker='.')

@@ -39,6 +39,9 @@ export class LinechartComponent implements OnInit {
         zoom: {
           enabled: true,
           type: 'xy'
+        },
+        animations:{
+          enabled:false
         }
       },
       xaxis:{

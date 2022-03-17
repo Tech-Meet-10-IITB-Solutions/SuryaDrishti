@@ -11,14 +11,18 @@
         </p>
         <div style="display: flex;flex-direction: row;align-items: center;">
         <p>Flare Selection: </p>
-        <mat-button-toggle-group style="margin-left: 10px;"  [(ngModel)]="totalChartMode">
+        <mat-button-toggle-group style="margin-left: 10px;"  [(ngModel)]="totalChartMode" (change)="updateTotalData()">
             <mat-button-toggle [value]="0">NS</mat-button-toggle>
             <mat-button-toggle [value]="1">LM</mat-button-toggle>
             <mat-button-toggle [value]="2">Both</mat-button-toggle>
+            <mat-button-toggle [value]="3">Any</mat-button-toggle>
           </mat-button-toggle-group>
         </div>
-        <app-linechart [series]="totalData.chartSeries" [innerWidth]="innerWidth">
+        <app-linechart *ngIf="totalChartReady"[series]="totalData.chartSeries" [innerWidth]="innerWidth">
         </app-linechart>
+        <div class="reloadWithParams">
+        <mat-spinner *ngIf="!totalChartReady"></mat-spinner>
+        </div>
     </div>
 </mat-card>
 <div *ngIf="burstsDecoded" style="display: flex; flex-direction: column;align-items: center;">
@@ -47,8 +51,8 @@
         
     </div>
 </div>
-<div class="reloadWithParams">
-    <mat-spinner *ngIf="!burstsDecoded"></mat-spinner>
+<div *ngIf="!burstsDecoded" class="reloadWithParams">
+    <mat-spinner></mat-spinner>
 </div>
 
 <app-burst-table *ngIf="burstsDecoded" [(rejectedBursts)] = "rejectedBursts" [burstListEditable]="burstListEditable"  [bursts]="bursts" [areDeleted]="false"  #burstTable></app-burst-table>

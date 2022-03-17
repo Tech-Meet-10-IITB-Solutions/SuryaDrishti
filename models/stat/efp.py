@@ -2,7 +2,7 @@ import numpy as np
 
 from scipy.optimize import curve_fit
 from scipy.special import erf
-from scipy.stats import chisquare
+# from scipy.stats import chisquare
 
 # import matplotlib.pyplot as plt
 
