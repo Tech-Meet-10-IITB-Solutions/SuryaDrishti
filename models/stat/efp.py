@@ -4,8 +4,6 @@ from scipy.optimize import curve_fit
 from scipy.special import erf
 from scipy.stats import chisquare
 
-# import matplotlib.pyplot as plt
-
 
 def EFP(x, A, B, C, D):
     Z = (2 * B + C**2 * D) / (2 * C)
@@ -14,7 +12,7 @@ def EFP(x, A, B, C, D):
         * (erf(Z) - erf(Z - x / C))
 
 
-def fit_efp(time, rates, A0=1, B0=1, C0=1, D0=0.1):
+def fit_efp(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
     valid = ~np.isnan(rates)
     time_burst = time[valid]
     rates_burst = rates[valid]
@@ -42,10 +40,23 @@ def fit_efp(time, rates, A0=1, B0=1, C0=1, D0=0.1):
 
     popt, _ = curve_fit(EFP, time_burst, rates_burst, p0=[A0, B0, c_arr[i_opt], d_arr[j_opt]])
 
+    base_dur = time_burst[-1] - time_burst[0]
+    t_long = np.linspace(time_burst[0] - 5 * base_dur,
+                         time_burst[-1] + 5 * base_dur,
+                         len(time_burst) * 100)
+
+    t_arr = t_long[np.argwhere(np.diff(np.sign(EFP(t_long, *popt) - sigma))).flatten()]
+
+    if len(t_arr) < 2:
+        duration = 3 * base_dur
+    else:
+        duration = t_arr[-1] - t_arr[0]
+
     return {
         'A': popt[0],
         'B': popt[1],
         'C': popt[2],
         'D': popt[3],
         'ChiSq': chisq_arr[i_opt, j_opt],
+        'Duration': duration
     }
