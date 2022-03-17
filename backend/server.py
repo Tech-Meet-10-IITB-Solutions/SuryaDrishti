@@ -108,5 +108,6 @@ def train(content: dict = Form(...)):
     labels = content['labels']
     print(labels)
     snn.train(lc.get_ml_data(), labels, epochs=10)
+    snn.save_chkpt()
 
     return {'status': 200}
