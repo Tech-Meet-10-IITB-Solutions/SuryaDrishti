@@ -25,7 +25,7 @@ $ uvicorn server:app;
 ```
 $ cd frontend/;
 $ npm i;
-$ ng serve;
+$ npm start;
 ```
 
 ### Accessing the interface
