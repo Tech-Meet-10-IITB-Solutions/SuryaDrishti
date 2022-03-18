@@ -61,7 +61,7 @@ class LC:
             'lc_data': [
                 {'x': int(x), 'y': round(y)}
                 if not np.isnan(y)
-                else {'x': int(x), 'y': 'null'}
+                else {'x': int(x), 'y': None}
                 for x, y in zip(time, rates)
             ]
         }
