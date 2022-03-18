@@ -39,3 +39,7 @@ The end time is defined similarly as the time when the EFP fit to the data falls
 The peak time is the time when the EFP fit to the data attains its maximum. 
 
 The decay constant $D$ gives the rate of decay (rate of the heat dissipating exponential).
+
+## Data resampling 
+The rebinned lightcurve has the average counts in each bin (i.e, the count rate in counts/s), and not the total counts. Rebinning is done to eliminate noisy data points and to improve the EFP fit. 
+
