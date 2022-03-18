@@ -10,12 +10,15 @@
       <button mat-raised-button style="float: inline-end;" color="primary" (click)="resubmit()">Re-Submit</button>
     </h2>
     <div style="display: flex;flex-direction: row;align-items: center;">
-      <h2 *ngIf="!printing">Flare Selection: </h2>
-      <mat-select *ngIf="!printing" (valueChange)="updateTotalData($event)" [(value)]="totalChartMode" style="margin-left: 10px;width:200px;background-color: white;padding: 3px;border-radius: 5px;">
+      <h2 *ngIf="!printing">Flare Selection: 
+      <mat-select *ngIf="!printing" (valueChange)="updateTotalData($event)"
+      [(value)]="totalChartMode"
+      style="margin-left: 10px;width:200px;background-color: white;padding: 3px;border-radius: 5px;box-shadow: 5px 5px 10px grey">
         <mat-option style="font-size: medium;" *ngFor="let bsm of burstSelectionModes" [value]="bsm.value">
           {{bsm.viewValue}}
         </mat-option>
       </mat-select>
+    </h2>
 
     </div>
     <h2>Flare Count: {{totalData.chartSeries[0].data.length}}</h2>
