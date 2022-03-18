@@ -40,35 +40,35 @@ export class LinescatterComponent implements OnInit {
   // @Input('scatterData') scatterData!:any[]
   // pscatterData!:any[]
   // @Input('lineData') lineData!:any[]
-  @Input() bursts!:Partial<burstRow>[];
-  @Input('innerWidth') innerWidth!:number;
-  @Input('statData') statData!:statModelData;
-  @Input() totalData!:totalData;
-  @Input() mode!:number;
-  @Input() series!:ApexAxisChartSeries
-  @Input('ptscatterData') ptscatterData!:point[];
+  @Input() bursts!: Partial<burstRow>[];
+  @Input('innerWidth') innerWidth!: number;
+  @Input('statData') statData!: statModelData;
+  @Input() totalData!: totalData;
+  @Input() mode!: number;
+  @Input() series!: ApexAxisChartSeries
+  @Input('ptscatterData') ptscatterData!: point[];
   @ViewChild("chart") chart!: ChartComponent;
-  @Input() tickAmt:number|undefined = 20;
+  @Input() tickAmt: number | undefined = 20;
   public chartOptions!: Partial<ChartOptions>;
-  @Input('ptlineData') ptlineData!:point[]
-  @Input() chartHeight!:number;
-  lineData(totalData:totalData){
-    if(totalData){
+  @Input('ptlineData') ptlineData!: point[]
+  @Input() chartHeight!: number;
+  lineData(totalData: totalData) {
+    if (totalData) {
       return totalData.lc_data;
     }
     return []
   }
-  scatterData(bursts:Partial<burstRow>[]){
-    if(bursts){
-      return this.bursts.filter(burst=>[
+  scatterData(bursts: Partial<burstRow>[]) {
+    if (bursts) {
+      return this.bursts.filter(burst => [
         burst.ns?.is_detected,
         burst.lm?.is_detected,
-        burst.ns?.is_detected&&burst.lm?.is_detected,
-        burst.ns?.is_detected||burst.lm?.is_detected,
-      ][this.mode]).map(burst=>{
+        burst.ns?.is_detected && burst.lm?.is_detected,
+        burst.ns?.is_detected || burst.lm?.is_detected,
+      ][this.mode]).map(burst => {
         return {
-          x:burst.peak_time,
-          y:burst.peak_rate
+          x: burst.peak_time,
+          y: burst.peak_rate
         }
       }
       )
@@ -76,18 +76,18 @@ export class LinescatterComponent implements OnInit {
     }
     return []
   }
-  constructor() {}  
+  constructor() { }
   ngOnInit() {
 
 
-    
-  this.chartOptions = {
-    series: this.series,
-    chart: {
+
+    this.chartOptions = {
+      series: this.series,
+      chart: {
         height: 350,
         type: "line",
         stacked: false,
-        width: this.innerWidth!==null?0.9*this.innerWidth:600
+        width: this.innerWidth !== null ? 0.9 * this.innerWidth : 600
         // zoom:{
         //   enabled:true,
         // },
@@ -99,51 +99,57 @@ export class LinescatterComponent implements OnInit {
         //     reset:true
         //   }
         // }
-    },
-    dataLabels: {
+      },
+      dataLabels: {
         enabled: false
-    },
-    stroke: {
+      },
+      stroke: {
         width: [5, 5]
-    },
-    title: {
-        text: "Flare Analysis",
-        align: "left",
+      },
+      title: {
+        text: "Processed Light curve and Flares detected",
+        align: "center",
         offsetX: 110
-    },
-    yaxis: [
+      },
+      yaxis: [
         {
-            axisTicks: {
-                show: true
-            },
-            axisBorder: {
-                show: true,
-                color: "#008FFB"
-            },
-            labels: {
-                style: {
-                    colors: "#008FFB"
-                }
-            },
-            title: {
-                text: "Photon CPS",
-                style: {
-                    color: "#000000"
-                }
-            },
-            tooltip: {
-                enabled: true
+          axisTicks: {
+            show: true
+          },
+          axisBorder: {
+            show: true,
+            color: "#008FFB"
+          },
+          labels: {
+            style: {
+              colors: "#008FFB"
             }
+          },
+          title: {
+            text: "Photon count rate",
+            style: {
+              color: "#000000"
+            }
+          },
+          tooltip: {
+            enabled: true
+          }
         }
-    ],
-    markers: {
+      ],
+      markers: {
         size: [8, 0]
-    },
-    xaxis:{
-      tickAmount:30
-    }
-};
-}
+      },
+      xaxis: {
+        tickAmount: 30,
+        title: {
+          text: "Time (s)",
+          style: {
+            color: "#000000"
+          }
+        }
+      }
+    };
+  }
 
 
 }
