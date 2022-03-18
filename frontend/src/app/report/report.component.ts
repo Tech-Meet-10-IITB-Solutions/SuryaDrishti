@@ -249,7 +249,7 @@ export class ReportComponent implements OnInit {
     { viewValue: 'Peak Time', value: 'peak_time' },
     { viewValue: 'Peak Flux', value: 'peak_flux' },
     { viewValue: 'Peak Temp', value: 'peak_temp' },
-    { viewValue: 'Confidence', value: 'ml_conf' },
+    { viewValue: 'ML Confidence', value: 'ml_conf' },
   ]
 
   allowUnload: boolean = false;

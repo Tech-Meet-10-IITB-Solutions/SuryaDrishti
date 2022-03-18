@@ -98,7 +98,7 @@ class LC:
                             'C': float(C),
                             'D': float(D),
                             'ChiSq': float(ChiSq),
-                            'Duration': float(dur),
+                            'Duration': dur,
                             'Rise': flare['ns']['fit_params']['Rise'],
                             'Decay': flare['ns']['fit_params']['Decay'],
                         }
@@ -120,7 +120,7 @@ class LC:
                     plt.plot(fit_time, fit, label='EFP Fit', c='r')
                 plt.scatter(true_time, true, label='Processed data', c='b')
                 plt.xlabel('Time (s)')
-                plt.ylabel('Counts (photons/s)')
+                plt.ylabel('Photon Count rate')
                 plt.title('Flare detected at {}s by N Sigma algorithm'.format(
                     int(flare['peak_time'])))
                 plt.legend()
@@ -157,7 +157,7 @@ class LC:
                             'C': float(C),
                             'D': float(D),
                             'ChiSq': float(ChiSq),
-                            'Duration': float(dur),
+                            'Duration': dur,
                             'Rise': flare['lm']['fit_params']['Rise'],
                             'Decay': flare['lm']['fit_params']['Decay'],
                         }
@@ -178,7 +178,7 @@ class LC:
                     plt.plot(fit_time, fit, label='EFP Fit', c='r')
                 plt.scatter(true_time, true, label='Processed data', c='b')
                 plt.xlabel('Time (s)')
-                plt.ylabel('Counts (photons/s)')
+                plt.ylabel('Photon Count rate')
                 plt.title('Flare detected at {}s by Local Maxima algorithm'.format(
                     int(flare['peak_time'])))
                 plt.legend()

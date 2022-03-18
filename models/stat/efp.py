@@ -57,13 +57,13 @@ def fit_efp(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
     t_max = t_long[np.argmax(fit_long)]
 
     if len(t_arr) < 2:
-        duration = 3 * base_dur
+        duration = round(3 * base_dur)
         rise = None
         decay = None
     else:
-        duration = t_arr[-1] - t_arr[0]
-        rise = float(t_max - t_arr[0])
-        decay = float(t_arr[-1] - t_max)
+        duration = round(t_arr[-1] - t_arr[0])
+        rise = round(t_max - t_arr[0])
+        decay = round(t_arr[-1] - t_max)
 
     return {
         'is_fit': True,
