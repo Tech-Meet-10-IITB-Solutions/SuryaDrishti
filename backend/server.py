@@ -1,3 +1,4 @@
+import shutil
 import sys
 import os
 
@@ -66,7 +67,12 @@ async def upload(file: UploadFile = File(...)):
     userFileName = ''
     error = None
     lc = None
-    
+    shutil.rmtree('input/',ignore_errors=True)
+    if(os.path.isfile('input.zip')):
+        os.remove('input.zip')
+    shutil.rmtree('../frontend/src/assets/')
+    os.makedirs('../frontend/src/assets')
+
     # os.system('rm -rf input*')
     # os.system('rm -rf ../frontend/src/assets/*.jpg')
 
@@ -103,7 +109,7 @@ def bursts(bin_size: int = 100):
 
     for i in range(len(flares)):
         flares[i]['ml_conf'] = round(100.0 * conf_list[i])
-
+    print({'flares': flares, })
     return {'status': 200, 'flares': flares, 'total': {**lc.get_lc(), 'file_name': userFileName}}
 
 
