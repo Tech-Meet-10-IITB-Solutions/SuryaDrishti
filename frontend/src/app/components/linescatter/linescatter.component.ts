@@ -143,7 +143,6 @@ export class LinescatterComponent implements OnInit {
       tickAmount:30
     }
 };
-console.log(this.chartOptions)
 }
 
 

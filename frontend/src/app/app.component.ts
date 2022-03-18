@@ -15,7 +15,6 @@ export class AppComponent implements OnInit {
   }
   ngOnInit(): void {
     this.url = window.location.href;
-    console.log(this.url)
   }
   toUpload(force:boolean){
     if(force){
@@ -24,8 +23,6 @@ export class AppComponent implements OnInit {
     else{
       localStorage.setItem('allowUnload','false');
     }
-    console.log(this.route.component?.toString())
-
     window.location.href= '/upload'
   }
 

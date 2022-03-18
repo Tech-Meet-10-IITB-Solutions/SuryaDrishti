@@ -166,9 +166,8 @@ export class ReportComponent implements OnInit {
       if (this.rejectedBursts.includes(this.bursts.indexOf(v))) { return 0 }
       else { return 1 }
     })
-    console.log(boolArray)
     this.server.trainModel(boolArray).subscribe(v => {
-      console.log(v)
+      window.location.reload()
     })
   }
   formatLabel(value: number) {
@@ -190,7 +189,6 @@ export class ReportComponent implements OnInit {
     return data.filter((v, i, []) => !this.rejectedBursts.includes(i));
   }
   filterRejected(data: Partial<burstRow>[]) {
-    // console.log('rejcheck')
     return data.filter((v, i, []) => this.rejectedBursts.includes(i))
   }
 
@@ -334,12 +332,10 @@ export class ReportComponent implements OnInit {
   }
   getDate(moment: number) {
     // getDate(totalData.start+1483228800)).join(' ')
-    // console.log(moment)
     let date = new Date();
     date.setTime(moment * 1000)
     let parts = date.toISOString().split('T')
     parts[1] = parts[1].slice(0, -5)
-    // console.log(parts)
     return parts.join(' ')
   }
   totalChartReady: boolean = false;
@@ -353,7 +349,7 @@ export class ReportComponent implements OnInit {
         burst.lm?.is_detected,
         burst.ns?.is_detected && burst.lm?.is_detected,
         burst.ns?.is_detected || burst.lm?.is_detected,
-      ][value ? value : this.totalChartMode]).map(burst => { return { x: burst.peak_time, y: burst.peak_rate } as point; })
+      ][value != null ? value : this.totalChartMode]).map(burst => { return { x: burst.peak_time, y: burst.peak_rate } as point; })
     };
     this.totalData.chartSeries = [
       {
@@ -367,7 +363,6 @@ export class ReportComponent implements OnInit {
         type: 'line'
       }
     ] as ApexAxisChartSeries
-    // console.log(this.totalData)
     setTimeout(() => {
       this.totalChartReady = true;
     }, 500)
@@ -378,11 +373,8 @@ export class ReportComponent implements OnInit {
   }
   ngOnInit(): void {
     let binsize = JSON.parse(JSON.stringify(this.route.snapshot.paramMap.get('binsize') || '{}'));
-    console.log(binsize)
     this.binSzValue = binsize
     this.server.getBursts(binsize).subscribe((data: any) => {
-      console.log(data)
-      // console.log(JSON.parse(data.flares))
       this.bursts = this.cleanedData(data.flares)
       this.totalData = {
         ...data.total,
@@ -414,7 +406,6 @@ export class ReportComponent implements OnInit {
           type: 'line'
         }
       ] as ApexAxisChartSeries
-      console.log(this.totalData)
       this.burstsDecoded = true;
       this.totalChartReady = true;
     })
@@ -426,7 +417,6 @@ export class ReportComponent implements OnInit {
     this.totalChartReady = false
     this.innerWidth = window.innerWidth;
     setTimeout(() => this.totalChartReady = true, 500)
-    console.log(this.innerWidth)
   }
 }
 export interface DialogData {

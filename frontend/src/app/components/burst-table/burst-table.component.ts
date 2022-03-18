@@ -28,7 +28,6 @@ export class BurstTableComponent implements OnInit {
     return data.filter((v,i,[])=>!this.rejectedBursts.includes(i));
   }
   filterRejected(data:Partial<burstRow>[]){
-    // console.log('rejcheck')
     return data.filter((v,i,[])=>this.rejectedBursts.includes(i))
   }
   remove(i:number){

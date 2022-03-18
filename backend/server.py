@@ -28,6 +28,7 @@ file_path = ''
 userFileName = ''
 lc = None
 snn = SNN()
+snn.load_chkpt()
 
 
 def process_zip(content, ext):
@@ -63,7 +64,7 @@ async def upload(file: UploadFile = File(...)):
     userFileName = file.filename
     ext = userFileName.split('.')[-1]
     if ext not in goodExts:
-        return {'status': 422, 'message': 'File Format not supported. Must be ' + '/'.join(goodExts) + '.'}
+        return {'status': 422, 'error': 'File Format not supported. Must be ' + '/'.join(goodExts) + '.'}
     content = await file.read()
 
     thread = Thread(target=process_zip, args=(content, ext))
@@ -108,4 +109,6 @@ def train(content: str = Form(...)):
     labels = np.array(content['labels'])
 
     snn.train(lc.get_ml_data(), labels, epochs=10)
+    snn.save_chkpt()
+
     return {'status': 200}

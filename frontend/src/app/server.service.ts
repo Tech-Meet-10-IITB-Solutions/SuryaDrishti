@@ -18,7 +18,6 @@ export class ServerService {
   ) { }
   sendFiles(files:any[]){
     let uploadData = new FormData();
-    console.log(files[0].name);
     uploadData.append('file',files[0],files[0].name)
     // for(let i=0;i<files.length;i++){
     //   uploadData.append(`file${i}`,files[i],files[i].name)

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, Output, ViewChild,EventEmitter, HostListener } from '@angular/core';
+import { Component, ElementRef, OnInit, Output, ViewChild, EventEmitter, HostListener } from '@angular/core';
 import { ServerService } from 'src/app/server.service';
 
 @Component({
@@ -7,17 +7,17 @@ import { ServerService } from 'src/app/server.service';
   styleUrls: ['./upload.component.scss']
 })
 export class UploadComponent implements OnInit {
-  @ViewChild('files') filesBox!:ElementRef
-  @Output('onBurstsReady') onBurstsReady:EventEmitter<string> = new EventEmitter();
-  files:any[] = []
-  finalData!:any;
-  dragAreaClass!:string;
-  error!:string;
-  fileNames:string[] = []
-  progress:number = 0;
-  submitted:boolean = false;
-  onFileChange(event:any){
-    let files:FileList = event.target.files;
+  @ViewChild('files') filesBox!: ElementRef
+  @Output('onBurstsReady') onBurstsReady: EventEmitter<string> = new EventEmitter();
+  files: any[] = []
+  finalData!: any;
+  dragAreaClass!: string;
+  error!: string;
+  fileNames: string[] = []
+  progress: number = 0;
+  submitted: boolean = false;
+  onFileChange(event: any) {
+    let files: FileList = event.target.files;
     this.saveFiles(files);
   }
   @HostListener("dragover", ["$event"]) onDragOver(event: any) {
@@ -46,56 +46,60 @@ export class UploadComponent implements OnInit {
     }
   }
 
-  saveFiles(files:FileList){
-    if(files.length>1) {this.error = "Only one file at a time allowed."}
-    else{
+  saveFiles(files: FileList) {
+    if (files.length > 1) { this.error = "Only one file at a time allowed." }
+    else {
       this.error = ""
       this.files = [files[0]];
       this.fileNames = [files[0].name]
     }
   }
-  
-  
-  
-  
-  
-  propagateClick(){
+
+  propagateClick() {
     this.filesBox.nativeElement.click()
   }
-  updateProgress(){
-    if(this.progress>=100){
+  updateProgress() {
+    if (this.progress >= 100) {
       this.onBurstsReady.emit('OK');
       return;
     }
-    this.server.getProgress().subscribe((data:any)=>{
-      if(data['error']){
+    this.server.getProgress().subscribe((data: any) => {
+      if (data['error']) {
         window.alert(data['error'])
         //TODO:option to remove file
-      }
-      else{
+      } else {
         this.progress = 100
         window.location.href = '/report/200'
       }
     })
   }
-  updateFile(ev:any){
-    for(let file of ev.target.files){
-      if(!this.files.includes(file)){
+  updateFile(ev: any) {
+    for (let file of ev.target.files) {
+      if (!this.files.includes(file)) {
         this.files.push(file)
         this.fileNames.push(file.name);
       }
     }
   }
-  submit(){
-    this.server.sendFiles(this.files).subscribe((v:any)=>{
-      console.log(v)
-      this.submitted = true;
-      setTimeout(()=>{
-        this.updateProgress()
-      },1000);
+  submit() {
+    this.server.sendFiles(this.files).subscribe((v: any) => {
+      if (v['error']) {
+        window.alert(v['error']);
+      } else {
+        this.submitted = true;
+        setTimeout(() => {
+          this.updateProgress()
+        }, 1000);
+      }
     })
   }
-  constructor(private server:ServerService) { }
+  clear() {
+    this.files = [];
+    this.fileNames = [];
+    this.filesBox.nativeElement.value = null;
+  }
+
+  constructor(private server: ServerService) { }
 
   ngOnInit(): void {
     this.dragAreaClass = 'dragarea';
