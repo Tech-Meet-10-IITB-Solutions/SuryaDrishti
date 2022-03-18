@@ -45,7 +45,9 @@ export interface totalData {
   lc_data: point[],
   ptlineData: point[],
   file_name: string,
-  chartSeries: ApexAxisChartSeries
+  chartSeries: ApexAxisChartSeries,
+  Decay:number,
+  Rise:number
 }
 export interface statModelData {
   // fit_data:point[],
@@ -65,7 +67,8 @@ export interface burstRow {
   ml_conf: number,
   lm: statModelData,
   ns: statModelData,
-  class: string
+  class: string,
+  total_lrad:number
 }
 export interface point {
   x: number,
@@ -95,6 +98,13 @@ export class ReportComponent implements OnInit {
   varSzMax: number = 50;
   varSzValue: number = 10;
   printing: boolean = false;
+
+  burstSelectionModes = [
+    {viewValue:'N-Sigma',value:0},
+    {viewValue:'Local Maxima',value:1},
+    {viewValue:'Intersection',value:2},
+    {viewValue:'Union',value:3},
+  ]
   @HostListener('window:resize', ['$event'])
   OnResize(event: any) {
     this.innerWidth = window.innerWidth;
@@ -115,6 +125,7 @@ export class ReportComponent implements OnInit {
     return ''
   }
   totalData!: totalData;
+  
   saveData() {
     let btns = document.querySelectorAll('button')
     // let tempmode = this.totalChartMode;
@@ -218,7 +229,7 @@ export class ReportComponent implements OnInit {
     let cleaned = data.map((burst: Partial<burstRow>, j, []) => {
       let obj = { ...burst }
       let ns = obj.ns; let lm = obj.lm;
-      if (ns?.is_detected) {
+      if (ns?.is_detected && ns.fit_params.is_fit) {
         obj.ns = {
           ...ns,
           fit_params: {
@@ -232,7 +243,7 @@ export class ReportComponent implements OnInit {
           }
         }
       }
-      if (lm?.is_detected) {
+      if (lm?.is_detected&&lm.fit_params.is_fit) {
         obj.lm = {
           ...lm,
           fit_params: {
@@ -272,222 +283,8 @@ export class ReportComponent implements OnInit {
     { viewValue: 'Peak Temp', value: 'peak_temp' },
     { viewValue: 'Peak EM', value: 'peak_em' },
     { viewValue: 'Confidence', value: 'ml_conf' },
-    // {viewValue:'Chi Sq (ns)',value:'chisq-ns'},
-    // {viewValue:'Chi Sq (lm)',value:'chisq-lm'}
   ]
-  // templateBursts:burstRow[] = [
-  //   {
-  //       "peak_time": 30,
-  //       "peak_rate": 150,
-  //       "bg_rate": 140,
-  //       "ml_conf": 60,
-  //       "class": "A",
-  //       "ns": {
-  //           "time": [
-  //               0,
-  //               1,
-  //               2,
-  //               3,
-  //               5
-  //           ],
-  //           "rates": [
-  //               2,
-  //               3,
-  //               4,
-  //               1,
-  //               5
-  //           ],
-  //           "fit": [
-  //               1,
-  //               2,
-  //               3,
-  //               4,
-  //               5,
-  //               6
-  //           ],
-  //           "is_detected": true,
-  //           "fit_params": {
-  //               "ChiSq": 90,
-  //               "A": 8,
-  //               "B": 89,
-  //               "C": 23,
-  //               "D": 43
-  //           }
-  //       },
-  //       "lm": {
-  //           "time": [
-  //               0,
-  //               1,
-  //               2,
-  //               3,
-  //               5
-  //           ],
-  //           "rates": [
-  //               0,
-  //               1,
-  //               2,
-  //               3,
-  //               5
-  //           ],
-  //           "fit": [
-  //               1,
-  //               2,
-  //               3,
-  //               4,
-  //               5,
-  //               6
-  //           ],
-  //           "is_detected": true,
-  //           "fit_params": {
-  //               "ChiSq": 90,
-  //               "A": 8,
-  //               "B": 89,
-  //               "C": 23,
-  //               "D": 43
-  //           }
-  //       }
-  //   },
-  //   {
-  //       "peak_time": 34,
-  //       "peak_rate": 150,
-  //       "bg_rate": 140,
-  //       "ml_conf": 60,
-  //       "class": "A",
-  //       "ns": {
-  //           "time": [
-  //               0,
-  //               1,
-  //               2,
-  //               3,
-  //               5
-  //           ],
-  //           "rates": [
-  //               2,
-  //               3,
-  //               4,
-  //               1,
-  //               5
-  //           ],
-  //           "fit": [
-  //               1,
-  //               2,
-  //               3,
-  //               4,
-  //               5,
-  //               6
-  //           ],
-  //           "is_detected": true,
-  //           "fit_params": {
-  //               "ChiSq": 90,
-  //               "A": 8,
-  //               "B": 89,
-  //               "C": 23,
-  //               "D": 43
-  //           }
-  //       },
-  //       "lm": {
-  //           "time": [
-  //               0,
-  //               1,
-  //               2,
-  //               3,
-  //               5
-  //           ],
-  //           "rates": [
-  //               0,
-  //               1,
-  //               2,
-  //               3,
-  //               5
-  //           ],
-  //           "fit": [
-  //               1,
-  //               2,
-  //               3,
-  //               4,
-  //               5,
-  //               6
-  //           ],
-  //           "is_detected": true,
-  //           "fit_params": {
-  //               "ChiSq": 90,
-  //               "A": 8,
-  //               "B": 89,
-  //               "C": 23,
-  //               "D": 43
-  //           }
-  //       }
-  //   },
-  //   {
-  //       "peak_time": 56,
-  //       "peak_rate": 150,
-  //       "bg_rate": 140,
-  //       "ml_conf": 60,
-  //       "class": "A",
-  //       "ns": {
-  //           "time": [
-  //               0,
-  //               2,
-  //               3,
-  //               5
-  //           ],
-  //           "rates": [
-  //               2,
-  //               4,
-  //               1,
-  //               5
-  //           ],
-  //           "fit": [
-  //               1,
-  //               2,
-  //               3,
-  //               4,
-  //               5,
-  //               6
-  //           ],
-  //           "is_detected": true,
-  //           "fit_params": {
-  //               "ChiSq": 90,
-  //               "A": 8,
-  //               "B": 89,
-  //               "C": 23,
-  //               "D": 43
-  //           }
-  //       },
-  //       "lm": {
-  //           "time": [
-  //               0,
-  //               1,
-  //               2,
-  //               3,
-  //               5
-  //           ],
-  //           "rates": [
-  //               0,
-  //               1,
-  //               2,
-  //               3,
-  //               5
-  //           ],
-  //           "fit": [
-  //               1,
-  //               2,
-  //               3,
-  //               4,
-  //               5,
-  //               6
-  //           ],
-  //           "is_detected": true,
-  //           "fit_params": {
-  //               "ChiSq": 90,
-  //               "A": 8,
-  //               "B": 89,
-  //               "C": 23,
-  //               "D": 43
-  //           }
-  //       }
-  //   }
-  // ]
+  
   allowUnload: boolean = false;
   public accentColor: string = '#ffd640';
   public primaryColor: string = '#683ab7';
@@ -543,7 +340,7 @@ export class ReportComponent implements OnInit {
     return parts.join(' ')
   }
   totalChartReady: boolean = false;
-  updateTotalData() {
+  updateTotalData(value?:number) {
     this.totalChartReady = false;
     this.totalData = {
       ...this.totalData,
@@ -553,7 +350,7 @@ export class ReportComponent implements OnInit {
         burst.lm?.is_detected,
         burst.ns?.is_detected && burst.lm?.is_detected,
         burst.ns?.is_detected || burst.lm?.is_detected,
-      ][this.totalChartMode]).map(burst => { return { x: burst.peak_time, y: burst.peak_rate } as point; })
+      ][value?value:this.totalChartMode]).map(burst => { return { x: burst.peak_time, y: burst.peak_rate } as point; })
     };
     this.totalData.chartSeries = [
       {
