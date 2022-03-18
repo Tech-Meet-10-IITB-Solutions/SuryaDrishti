@@ -2,7 +2,7 @@
 tags: [Inter IIT]
 title: Contributing
 created: '2022-03-18T10:00:00.267Z'
-modified: '2022-03-18T14:56:19.711Z'
+modified: '2022-03-18T15:36:40.886Z'
 ---
 
 # Contributing
@@ -18,10 +18,9 @@ Please note we have a code of conduct, please follow it in all your interactions
    build.
 2. Update the README.md with details of changes to the interface, this includes new environment 
    variables, exposed ports, useful file locations and container parameters.
-3. Increase the version numbers in any examples files and the README.md to the new version that this
+3. Increase the version numbers in any example file and the README.md to the new version that this
    Pull Request would represent.
-4. You may merge the Pull Request in once you have the sign-off of two other maintainers, or if you 
-   do not have permission to do that, you may request the second reviewer to merge it for you.
+4. Request the second reviewer, one of the project maintainer, to merge it for you.
 
 ## Code of Conduct
 
@@ -33,7 +32,6 @@ We love your input! We want to make contributing to this project as easy and tra
 - Discussing the current state of the code
 - Submitting a fix
 - Proposing new features
-- Becoming a maintainer
 
 When you submit code changes, your submissions are understood to be under the same GPL License that covers the project. Feel free to contact the maintainers if that's a concern.
 

@@ -2,13 +2,13 @@
 tags: [Inter IIT]
 title: Data Sources
 created: '2022-03-17T10:54:56.648Z'
-modified: '2022-03-18T09:39:24.698Z'
+modified: '2022-03-18T15:32:41.299Z'
 ---
 
 # Data Sources
 
-ISRO's PRADAN website for Solar X-ray data: https://pradan.issdc.gov.in/pradan/
-Register to get into the data archive of Chandrayaan-2 payload data. After registering and logging in, go to XSM (X-ray Solar Monitor) where required data and manuals to read and use the data are present. The lightcurve data of XSM is the only input for this analysis.
+The data that was used for development and testing is hosted on ISRO's PRADAN website for Solar X-ray data: https://pradan.issdc.gov.in/pradan/
+Register to get into the data archive of Chandrayaan-2 payload data. After registering and logging in, go to XSM (X-ray Solar Monitor) where required data and manuals to read and use the data are present. The lightcurve data of XSM is the only input that is being used for this analysis.
 
 ### Acknowledgement
 
