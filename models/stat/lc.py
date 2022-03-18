@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 sys.path.append("../../")
 from models.stat.efp import EFP, fit_efp
-from models.stat.prop import calc_flux, find_flare_class, calc_temperature, calc_EM
+from models.stat.prop import calc_flux, find_flare_class, calc_temperature, calc_EM, calc_lrad
 from models.stat.lm import local_maxima
 from models.stat.ns import n_sigma
 
@@ -92,7 +92,9 @@ class LC:
                         'C': float(C),
                         'D': float(D),
                         'ChiSq': float(ChiSq),
-                        'Duration': float(dur)
+                        'Duration': float(dur),
+                        'Rise': flare['ns']['fit_params']['Rise'],
+                        'Decay': flare['ns']['fit_params']['Decay'],
                     }
                 else:
                     ns['fit_params'] = {
@@ -182,6 +184,7 @@ class LC:
                 'peak_flux': float(flare['peak_flux']),
                 'peak_temp': float(flare['peak_temp']),
                 'peak_em': float(flare['peak_em']),
+                'total_lrad': float(flare['total_lrad']),
                 'ns': ns,
                 'lm': lm,
             })
@@ -378,6 +381,7 @@ class LC:
             flare['class'] = find_flare_class(flux)
             flare['peak_temp'] = calc_temperature(flux)
             flare['peak_em'] = calc_EM(flux)
+            flare['total_lrad'] = calc_lrad(flux)
 
         return flares
 
