@@ -24,12 +24,12 @@
     <th mat-header-cell *matHeaderCellDef>N-Sigma Algorithm</th>
     <td [style]="(areDeleted?'opacity: 0.4;':'')+'width:35%'" mat-cell *matCellDef="let element" #chartcell>
       <div>
-        <!-- <img *ngIf="element.ns.is_detected" src="data:image/jpg;base64{{element.ns.plot_base64}}"/> -->
-        <!-- <app-linescatter *ngIf="element.ns.is_detected===true" [statData]="element.ns"></app-linescatter> -->
         <img *ngIf="element.ns.is_detected" src="./../../../assets/ns_{{element.peak_time}}.jpg" />
         <h1 *ngIf="!element.ns.is_detected">Not detected by N-Sigma</h1>
-        <h2 style="text-align: center;" *ngIf="element.ns.is_detected&&element.ns.fit_params.is_fit">EFP Fit Properties</h2>
-        <div *ngIf="element.ns.is_detected&&element.ns.fit_params.is_fit" style="border: 3px solid black;width: 70%;padding-left: 5%;">
+        <h2 style="text-align: center;" *ngIf="element.ns.is_detected&&element.ns.fit_params.is_fit">EFP Fit Properties
+        </h2>
+        <div *ngIf="element.ns.is_detected&&element.ns.fit_params.is_fit"
+          style="border: 3px solid black;width: 70%;padding-left: 5%;">
           <p>(A,B,C,D) =
             ({{element.ns.fit_params.A}},{{element.ns.fit_params.B}},{{element.ns.fit_params.C}},{{element.ns.fit_params.D}})
           </p>
@@ -39,7 +39,8 @@
           <p *ngIf="element.ns.fit_params.Rise">Rise Time: {{element.ns.fit_params.Rise}}s</p>
           <p *ngIf="element.ns.fit_params.Decay">Decay Time: {{element.ns.fit_params.Decay}}s</p>
         </div>
-        <h2 *ngIf="element.ns.is_detected&&!element.ns.fit_params.is_fit">EFP fit parameters could not be determined</h2>
+        <h2 *ngIf="element.ns.is_detected&&!element.ns.fit_params.is_fit">EFP fit could not be determined
+        </h2>
       </div>
     </td>
   </ng-container>
@@ -49,16 +50,21 @@
       <div>
         <img *ngIf="element.lm.is_detected" src="./../../../assets/lm_{{element.peak_time}}.jpg" />
         <h1 *ngIf="!element.lm.is_detected">Not detected by Local Maxima</h1>
-        <h2 style="text-align: center;" *ngIf="element.lm.is_detected&&element.lm.fit_params.is_fit">EFP Fit Properties</h2>
-        <div *ngIf="element.lm.is_detected&&element.lm.fit_params.is_fit" style="border: 3px solid black;width: 70%;padding-left: 5%;">
+        <h2 style="text-align: center;" *ngIf="element.lm.is_detected&&element.lm.fit_params.is_fit">EFP Fit Properties
+        </h2>
+        <div *ngIf="element.lm.is_detected&&element.lm.fit_params.is_fit"
+          style="border: 3px solid black;width: 70%;padding-left: 5%;">
           <p>(A,B,C,D) =
             ({{element.lm.fit_params.A}},{{element.lm.fit_params.B}},{{element.lm.fit_params.C}},{{element.lm.fit_params.D}})
           </p>
           <p>&chi;<sup>2</sup> Value: {{element.lm.fit_params.ChiSq}}</p>
           <p>Decay constant: {{element.lm.fit_params.D}}s<sup>-1</sup></p>
           <p>Duration: {{element.lm.fit_params.Duration}}s</p>
+          <p *ngIf="element.lm.fit_params.Rise">Rise Time: {{element.lm.fit_params.Rise}}s</p>
+          <p *ngIf="element.lm.fit_params.Decay">Decay Time: {{element.lm.fit_params.Decay}}s</p>
         </div>
-        <h2 *ngIf="element.lm.is_detected&&!element.lm.fit_params.is_fit">EFP fit parameters could not be determined</h2>
+        <h2 *ngIf="element.lm.is_detected&&!element.lm.fit_params.is_fit">EFP fit could not be determined
+        </h2>
       </div>
     </td>
   </ng-container>

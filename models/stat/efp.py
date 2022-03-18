@@ -58,7 +58,7 @@ def fit_efp(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
 
     if len(t_arr) < 2:
         duration = 3 * base_dur
-        rise = None,
+        rise = None
         decay = None
     else:
         duration = t_arr[-1] - t_arr[0]
@@ -71,7 +71,7 @@ def fit_efp(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
         'B': popt[1],
         'C': popt[2],
         'D': popt[3],
-        'ChiSq': chisq_arr[i_opt, j_opt],
+        'ChiSq': chisq_arr[i_opt, j_opt] / len(time_burst),
         'Duration': duration,
         'Rise': rise,
         'Decay': decay
