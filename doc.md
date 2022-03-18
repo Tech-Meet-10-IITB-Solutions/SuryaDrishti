@@ -6,7 +6,7 @@ It identifies flares from an appropriately smoothed and binned lightcurve by loc
 
 ## Boxcar smoothening
 
-The raw lightcurve needs to be smoothed so that noise spikes are not classified as flares. The smoothening is carried out using a 1D box kernel over patches of length 70. We chose this value to minimize noise while maintaining enough structure to identify all flares. The smoothening is done using astropy Bix1DKernel, which is a f=smoothing filter. Box car averaging reduces statistical noise which improves the data that will be processed by the local maxima algorithm to flag bursts.
+The raw lightcurve needs to be smoothed so that noise spikes are not classified as flares. The smoothening is carried out using a 1D box kernel over patches of length 70. We chose this value to minimize noise while maintaining enough structure to identify all flares. The smoothening is done using astropy Box1DKernel, which is a smoothing filter. Box car averaging reduces statistical noise which improves the data that will be processed by the local maxima algorithm to flag bursts.
 
 ## Start of burst
 
