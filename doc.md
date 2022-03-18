@@ -29,3 +29,13 @@ helps in tuning the fit
     D0 *= (time_burst[-1] - B0)/(time_burst[-1] - time_burst[0])
 
 Additionally, `C0` and `D0` are not exactly the above, so we try to fit the curve to the burst with different values of each, and select the parameters returned by `scipy.optimize.curve_fit` with the lowest $\chi^2$ score.
+
+The aim of fitting an EFP to the burst data is to capture characteristics like peak time, start time, end time from the fit itself. This is particularly useful when the burst occurs across bad time intervals.
+
+The start time of the burst is defined as the time when the EFP fit to the data rises $1\sigma$ above 0, where $\sigma$ is the standard deviation of the `.lc` file  calculated using `sigma_clipped_stats`. 
+
+The end time is defined similarly as the time when the EFP fit to the data falls below $1\sigma$. 
+
+The peak time is the time when the EFP fit to the data attains its maximum. 
+
+The decay constant $D$ gives the rate of decay (rate of the heat dissipating exponential).
