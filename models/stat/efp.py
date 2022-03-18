@@ -52,12 +52,18 @@ def fit_efp(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
                          time_burst[-1] + 5 * base_dur,
                          len(time_burst) * 100)
 
-    t_arr = t_long[np.argwhere(np.diff(np.sign(EFP(t_long, *popt) - sigma))).flatten()]
+    fit_long = EFP(t_long, *popt)
+    t_arr = t_long[np.argwhere(np.diff(np.sign(fit_long - sigma))).flatten()]
+    t_max = t_long[np.argmax(fit_long)]
 
     if len(t_arr) < 2:
         duration = 3 * base_dur
+        rise = None,
+        decay = None
     else:
         duration = t_arr[-1] - t_arr[0]
+        rise = float(t_max - t_arr[0])
+        decay = float(t_arr[-1] - t_max)
 
     return {
         'is_fit': True,
@@ -66,5 +72,7 @@ def fit_efp(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
         'C': popt[2],
         'D': popt[3],
         'ChiSq': chisq_arr[i_opt, j_opt],
-        'Duration': duration
+        'Duration': duration,
+        'Rise': rise,
+        'Decay': decay
     }

@@ -15,16 +15,17 @@ apx-chart.disabled{
     flex-direction: column;
     justify-content: space-between;
 }
-.editButtonsTable{
-    display: flex;
-    height: 100px;
-    flex-direction: column;
-    justify-content: space-between;
-    justify-items: center;
-    align-items: center;
-    align-content: space-between;
+// .editButtonsTable{
+    // display: flex;
+    // height: 100px;
+    // width: 20%;
+    // flex-direction: row;
+    // justify-content: center;
+    // justify-items: center;
+    // align-items: center;
+    // align-content: center;
 
-}
+// }
 .editButtons>*{
     margin-top: 20px;
 }
@@ -50,7 +51,8 @@ apx-chart.disabled{
     text-align: center;
 }
 .mat-cell{
-    border-right: #e0e0e0 1px solid;
+    border: #838383 2px solid;
+    // border-bottom: #838383 5px solid;
 }
 .mat-cell>div{
 
@@ -63,7 +65,7 @@ apx-chart.disabled{
 
 }
 .mat-cell>div>img{
-    width: 300px;
+    width: 70%;
     
 }
 .mat-panel-title{

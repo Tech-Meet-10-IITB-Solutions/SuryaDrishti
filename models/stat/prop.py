@@ -47,3 +47,8 @@ def calc_temperature(flux):
 # In cm^3
 def calc_EM(flux):
     return 10**53 * flux**0.86
+
+
+# In ergs
+def calc_lrad(flux):
+    return 10**34 + flux**0.9

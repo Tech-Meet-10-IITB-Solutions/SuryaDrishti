@@ -86,7 +86,19 @@ export class LinescatterComponent implements OnInit {
     chart: {
         height: 350,
         type: "line",
-        stacked: false
+        stacked: false,
+        width: this.innerWidth!==null?0.9*this.innerWidth:600
+        // zoom:{
+        //   enabled:true,
+        // },
+        // toolbar:{
+        //   autoSelected:,
+        //   tools:{
+        //     // pan:true,
+        //     download:true,
+        //     reset:true
+        //   }
+        // }
     },
     dataLabels: {
         enabled: false
@@ -126,6 +138,9 @@ export class LinescatterComponent implements OnInit {
     ],
     markers: {
         size: [10, 1]
+    },
+    xaxis:{
+      tickAmount:30
     }
 };
 console.log(this.chartOptions)
