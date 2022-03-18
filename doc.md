@@ -14,6 +14,8 @@ $$g(x) = A \exp({-(x-B)^2}/{C^2})$$
 $$h(x) = \exp(-Dx)$$
 is the energy dissipation function. The closed form of the flare's time profile is 
 $$f(t) = \frac{\sqrt{\pi}}{2}AC \left(\exp{D(B-t) + \frac{C^2D^2}{4}}\right) \left(erf(Z) -  erf\left(Z-\frac{t}{C}\right)\right)$$
+where 
+$$ Z = \frac{2B+C^2D}{2C}$$
 
 The above curve with 4 parameters is fit to the burst using `scipy.optimize.curve_fit`. The fit is sensitive to the initial parameters `A0, B0, C0, D0`. `A0` and `C0` contribute to the amplitude of the burst, `B0` changes the peak location (in time), while `D0` decides the time needed for the burst to decay. Accordingly, rough initial estimates are used to initialize the above.
 
