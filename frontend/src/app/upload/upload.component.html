@@ -1,5 +1,5 @@
 <div class="main">
-  <div id="dragbox" *ngIf="fileNames.length==0" draggable="true" ngClass="{{dragAreaClass}}">
+  <div id="dragbox" *ngIf="fileNames.length==0" draggable="false" ngClass="{{dragAreaClass}}">
     <p *ngIf="dragAreaClass=='dragarea'" style="font-size: 30px;color: grey;">Drag your file 📂 here</p>
     <p *ngIf="dragAreaClass=='droparea'" style="font-size: 30px;color: grey;">Drop your file 📂 here</p>
   </div>

@@ -137,7 +137,7 @@ export class LinescatterComponent implements OnInit {
         }
     ],
     markers: {
-        size: [10, 1]
+        size: [8, 0]
     },
     xaxis:{
       tickAmount:30

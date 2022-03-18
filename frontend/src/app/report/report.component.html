@@ -2,7 +2,7 @@
   <div class="totalCard">
     <h2>File Name: {{totalData.file_name}}</h2>
     <br />
-    <h2>Start Time: {{getDate(totalData.start+1483228800)+ ' ('+totalData.start.toString() +'s)'}}</h2>
+    <h2>Start Time of the File: {{getDate(totalData.start+1483228800)+ ' ('+totalData.start.toString() +'s)'}}</h2>
     <h2 style="width:100%">
       Bin Size: ({{binSzValue}})
       <mat-slider [(ngModel)]="binSzValue" [max]="binSzMax" [min]="binSzMin" [step]="50" thumbLabel>

@@ -4,7 +4,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {MatChipsModule} from '@angular/material/chips';
+import { MatChipsModule } from '@angular/material/chips';
+
 // Components
 import { AppComponent } from './app.component';
 import { UploadComponent } from './upload/upload.component';
@@ -20,10 +21,10 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatSliderModule} from '@angular/material/slider';
-import {MatButtonToggleModule} from '@angular/material/button-toggle'
-import {MatGridListModule} from '@angular/material/grid-list';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatButtonToggleModule } from '@angular/material/button-toggle'
+import { MatGridListModule } from '@angular/material/grid-list';
 // Addons
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -31,7 +32,6 @@ import { LinescatterComponent } from './components/linescatter/linescatter.compo
 import { BurstTableComponent } from './components/burst-table/burst-table.component';
 import { MatSelectModule } from '@angular/material/select';
 import { LinechartComponent } from './components/linechart/linechart.component';
-import { TestComponent } from './components/test/test.component';
 
 
 @NgModule({
@@ -42,8 +42,7 @@ import { TestComponent } from './components/test/test.component';
     DialogOptionsDialog,
     LinescatterComponent,
     BurstTableComponent,
-    LinechartComponent,
-    TestComponent
+    LinechartComponent
   ],
   imports: [
     BrowserModule,

@@ -393,7 +393,7 @@ export class ReportComponent implements OnInit {
           }
         })
       };
-      this.totalData.lc_data = this.totalData.lc_data.filter((pt, j, []) => (j % 5 === 0))
+      // this.totalData.lc_data = this.totalData.lc_data.filter((pt, j, []) => (j % 5 === 0))
       this.totalData.chartSeries = [
         {
           name: 'Peaks',

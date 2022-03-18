@@ -66,7 +66,6 @@ export class UploadComponent implements OnInit {
     this.server.getProgress().subscribe((data: any) => {
       if (data['error']) {
         window.alert(data['error'])
-        //TODO:option to remove file
       } else {
         this.progress = 100
         window.location.href = '/report/200'
