@@ -2,19 +2,25 @@
 tags: [Inter IIT]
 title: Getting Started
 created: '2022-03-18T16:56:51.173Z'
-modified: '2022-03-18T17:38:51.412Z'
+modified: '2022-03-18T17:46:06.917Z'
 ---
 
 # Getting Started
 
 #### 1. Uploading the data:
-The upload section accepts files with extensions `.lc`, `.ascii`, `.csv` and `.hdf5`. It includes both a **drag-and-drop** as well as an **upload from GUI** feature. **Click submit** to proceed onto the statistical model that determines all the burst properties in the given data.
+The upload section accepts files with extensions `.lc`, `.ascii`, `.csv` and `.hdf5`. It includes both a **drag-and-drop** as well as an **upload from GUI** feature. 
+![upload](./screenshots/upload.png)
+**Click submit** to proceed onto the statistical model that determines all the burst properties in the given data.
+![submit](./screenshots/submit.png)
 
 #### 2. User-defined bin value (optional):
 The calibrated light curve data is first smoothened and then resampled before being fed into the statistical model. The latter requires a bin sized to be specified. Large bin sizes reduces the number of available data points while small bin sizes do not effectively remove the noise. A default bin size of 200 has been set. Nevertheless, the user may **adjust the bin sizes** by using the **slider** and recalculate the properties of the bursts.
+![plot](./screenshots/plot.png)
 
 #### 3. Interpreting the tables:
 Astrophysical data is generally obtained with respect to an internal, standardised clock. This presents itself as an offset in the data, which may be in the $\mathcal O(years)$. In the depicted plots, the time on the x-axis is with respect to the start of that particular day, hence, from $0s$ to $86400s$. 
+
+![table](./screenshots/table.png)
 
 The first column reports the peak time of the burst (with respect to the start of the day). The second column presents some important flare characteristics which include the peak count rate and the class of the solar flare. The machine learning confidence level reports the predicted probability of the identified burst being a true positive. 
 
@@ -42,3 +48,7 @@ The identified bursts can be segregated into true and false positives through vi
 #### 5. Downloading the final report
 
 The final report can be easily exported to `.pdf` by clicking the download button at the bottom of the page. 
+
+#### 6. Exit Session
+
+To exit the session, click the button on the top right. This will return to the upload page and the tables will be discarded.
