@@ -36,8 +36,10 @@
           <p>&chi;<sup>2</sup> Value: {{element.ns.fit_params.ChiSq}}</p>
           <p>Decay constant: {{element.ns.fit_params.D}}s<sup>-1</sup></p>
           <p>Duration: {{element.ns.fit_params.Duration}}s</p>
+          <p *ngIf="element.ns.fit_params.Rise">Rise Time: {{element.ns.fit_params.Rise}}s</p>
+          <p *ngIf="element.ns.fit_params.Decay">Decay Time: {{element.ns.fit_params.Decay}}s</p>
         </div>
-        <h3 *ngIf="element.ns.is_detected&&!element.ns.fit_params.is_fit">EFP fit parameters could not be determined</h3>
+        <h2 *ngIf="element.ns.is_detected&&!element.ns.fit_params.is_fit">EFP fit parameters could not be determined</h2>
       </div>
     </td>
   </ng-container>

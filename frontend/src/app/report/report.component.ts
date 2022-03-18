@@ -45,7 +45,9 @@ export interface totalData {
   lc_data: point[],
   ptlineData: point[],
   file_name: string,
-  chartSeries: ApexAxisChartSeries
+  chartSeries: ApexAxisChartSeries,
+  Decay:number,
+  Rise:number
 }
 export interface statModelData {
   // fit_data:point[],
@@ -65,7 +67,8 @@ export interface burstRow {
   ml_conf: number,
   lm: statModelData,
   ns: statModelData,
-  class: string
+  class: string,
+  total_lrad:number
 }
 export interface point {
   x: number,
@@ -226,7 +229,7 @@ export class ReportComponent implements OnInit {
     let cleaned = data.map((burst: Partial<burstRow>, j, []) => {
       let obj = { ...burst }
       let ns = obj.ns; let lm = obj.lm;
-      if (ns?.is_detected) {
+      if (ns?.is_detected && ns.fit_params.is_fit) {
         obj.ns = {
           ...ns,
           fit_params: {
@@ -240,7 +243,7 @@ export class ReportComponent implements OnInit {
           }
         }
       }
-      if (lm?.is_detected) {
+      if (lm?.is_detected&&lm.fit_params.is_fit) {
         obj.lm = {
           ...lm,
           fit_params: {
