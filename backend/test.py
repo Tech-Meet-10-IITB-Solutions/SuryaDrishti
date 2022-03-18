@@ -8,7 +8,6 @@ from models.ml.snn import SNN
 
 if __name__ == '__main__':
     snn = SNN()
-    snn.load_chkpt()
 
     file_path = '../../ch2_xsm_20211013_v1_level2.lc'
     bin_size = 50

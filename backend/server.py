@@ -28,7 +28,6 @@ file_path = ''
 userFileName = ''
 lc = None
 snn = SNN()
-snn.load_chkpt()
 
 
 def process_zip(content, ext):
