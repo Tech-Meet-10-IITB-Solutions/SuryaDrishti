@@ -84,7 +84,7 @@ class LC:
                     B = flare['ns']['fit_params']['B']
                     C = flare['ns']['fit_params']['C']
                     D = flare['ns']['fit_params']['D']
-                    ChiSq = flare['ns']['fit_params']['ChiSq'] if (flare['ns']['fit_params']['ChiSq']!= np.inf) else -1
+                    ChiSq = flare['ns']['fit_params']['ChiSq']
                     dur = flare['ns']['fit_params']['Duration']
                     if ChiSq == np.inf:
                         ns['fit_params'] = {
@@ -143,7 +143,7 @@ class LC:
                     B = flare['lm']['fit_params']['B']
                     C = flare['lm']['fit_params']['C']
                     D = flare['lm']['fit_params']['D']
-                    ChiSq = flare['lm']['fit_params']['ChiSq'] if (flare['lm']['fit_params']['ChiSq']!= np.inf) else -1
+                    ChiSq = flare['lm']['fit_params']['ChiSq']
                     dur = flare['lm']['fit_params']['Duration']
                     if ChiSq == np.inf:
                         lm['fit_params'] = {
