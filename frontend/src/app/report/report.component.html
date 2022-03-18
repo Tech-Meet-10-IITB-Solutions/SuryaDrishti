@@ -1,4 +1,4 @@
-<mat-card *ngIf="(totalData!==null)&&burstsDecoded">
+<mat-card *ngIf="(totalData!==null)&&burstsDecoded" style="width: 96%; margin:auto; margin-top: 1%;">
     <div class="totalCard">
         <p>File Name: {{totalData.file_name}}</p> 
         <p>Start Time: {{getDate(totalData.start+1483228800)+ ' ('+totalData.start.toString() +'s)'}}</p>
@@ -9,7 +9,7 @@
             <button mat-raised-button style="float: inline-end;" color="primary" (click)="resubmit()">Re-Submit</button>
         </p>
         <div style="display: flex;flex-direction: row;align-items: center;">
-        <p *ngIf="!printing">Flare Selection: </p>
+        <p *ngIf="!printing" style="margin-left: 10px;">Flare Selection: </p>
         <mat-button-toggle-group style="margin-left: 10px;"  [(ngModel)]="totalChartMode" (change)="updateTotalData()">
             <mat-button-toggle [value]="0">NS</mat-button-toggle>
             <mat-button-toggle [value]="1">LM</mat-button-toggle>
@@ -21,7 +21,7 @@
         
         <!-- <app-linechart *ngIf="totalChartReady"[series]="totalData.chartSeries" [innerWidth]="innerWidth">
         </app-linechart> -->
-        <app-linescatter *ngIf="totalChartReady"  [series]="totalData.chartSeries" [innerWidth]="innerWidth"></app-linescatter>        
+        <app-linescatter *ngIf="totalChartReady" [series]="totalData.chartSeries" [innerWidth]="innerWidth"></app-linescatter>        
         <div class="reloadWithParams">
         <mat-spinner *ngIf="!totalChartReady"></mat-spinner>
         </div>

@@ -1,8 +1,8 @@
 import { Component, ElementRef, HostListener, Inject, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { MatOptionSelectionChange } from '@angular/material/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import beautify from 'json-beautify';
-import jsPDF from 'jspdf'
+// import beautify from 'json-beautify';
+// import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
 import { ActivatedRoute, Router } from '@angular/router';
@@ -31,11 +31,13 @@ export type ChartOptions = {
   title: ApexTitleSubtitle;
 }
 export interface statModelParams{
+  is_fit:boolean,
   ChiSq:number,
   A:number,
   B:number,
   C:number,
-  D:number
+  D:number,
+  Duration:number,
 }
 export interface totalData{
   start:number,
@@ -115,30 +117,34 @@ export class ReportComponent implements OnInit {
   totalData!: totalData;
   saveData(){
     let btns = document.querySelectorAll('button')
-    let tempmode = this.totalChartMode;
+    // let tempmode = this.totalChartMode;
     this.printing = true;
     for(let i=0;i<btns.length;i++){
       btns.item(i).style.display = 'none';
     }
-    this.totalChartMode = 3
+    let tempwidth = this.innerWidth;
+    this.innerWidth = 0.6*tempwidth;
     this.updateTotalData()
+    // this.totalChartMode = 3
+    // this.updateTotalData()
     
     setTimeout(()=>{
       window.print()
       for(let i=0;i<btns.length;i++){
         btns.item(i).style.display = '';
       }
-      this.totalChartMode = tempmode;
-      this.updateTotalData()
+      // this.totalChartMode = tempmode;
+      // this.updateTotalData()
       this.printing = false
+      // this.innerWidth = tempwidth
   
-    },2000)
-    const doc = new jsPDF()
-    autoTable(doc, { html: '#mainTable' })
-    // doc.save(this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+'.pdf')
-    let data = this.bursts
-    let textdata = beautify(this.bursts, null, 2, 5);
-    textdata = textdata.split('},{').join('},\n{')
+    },3000)
+    // const doc = new jsPDF()
+    // autoTable(doc, { html: '#mainTable' })
+    // // doc.save(this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+'.pdf')
+    // let data = this.bursts
+    // let textdata = beautify(this.bursts, null, 2, 5);
+    // textdata = textdata.split('},{').join('},\n{')
     // let blob = new Blob([textdata]);
     // FileSaver.saveAs(blob, this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+".txt")
 
@@ -216,11 +222,13 @@ export class ReportComponent implements OnInit {
         obj.ns = {
           ...ns,
           fit_params:{
+            ...ns.fit_params,
             A:Number.parseFloat(ns.fit_params.A.toPrecision(2)),
             B:Number.parseFloat(ns.fit_params.B.toPrecision(2)),
             C:Number.parseFloat(ns.fit_params.C.toPrecision(2)),
             D:Number.parseFloat(ns.fit_params.D.toPrecision(2)),
             ChiSq:Number.parseFloat(ns.fit_params.ChiSq.toPrecision(2)),
+            Duration:Math.round(ns.fit_params.Duration*100)/100
           }
         }
       }
@@ -228,11 +236,13 @@ export class ReportComponent implements OnInit {
         obj.lm = {
           ...lm,
           fit_params:{
+            ...lm.fit_params,
             A:Number.parseFloat(lm.fit_params.A.toPrecision(2)),
             B:Number.parseFloat(lm.fit_params.B.toPrecision(2)),
             C:Number.parseFloat(lm.fit_params.C.toPrecision(2)),
             D:Number.parseFloat(lm.fit_params.D.toPrecision(2)),
             ChiSq:Number.parseFloat(lm.fit_params.ChiSq.toPrecision(2)),
+            Duration:Math.round(lm.fit_params.Duration*100)/100
           }
         }
       }

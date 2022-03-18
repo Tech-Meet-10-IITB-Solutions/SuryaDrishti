@@ -14,8 +14,16 @@ export class BurstTableComponent implements OnInit {
   @Output('rejectedBurstsChange') rejectedBurstsChange = new EventEmitter<number[]>()
   @Input('burstListEditable') burstListEditable!:boolean;
   @Input('rejectedBursts') rejectedBursts!:number[]
-  displayedColumnsMain:string[]= ['peak_time','meta','chartNS', 'dataNS','chartLM','dataLM'];
+  displayedColumnsMain:string[]= ['peak_time','meta','chartNS','chartLM'];
   // rejectedBursts:number[] = []
+  formatSeconds(totalSeconds:number){
+    let pad:Function = (x:number)=>(x.toString().length==2?x.toString():'0'+x.toString())
+    let hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    let minutes = Math.floor(totalSeconds / 60);
+    let seconds = totalSeconds % 60;
+    return `${pad(hours)}hr ${pad(minutes)}min ${pad(seconds)}s`
+  }
   filterAccepted(data:Partial<burstRow>[]){
     return data.filter((v,i,[])=>!this.rejectedBursts.includes(i));
   }
