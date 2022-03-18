@@ -4,7 +4,6 @@ import os
 import numpy as np
 import json
 from threading import Thread
-import zipfile
 
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,28 +30,19 @@ lc = None
 snn = SNN()
 
 
-def process_zip(content):
+def process_zip(content, ext):
     global complete, error, file_path
 
     try:
-        with open('input.zip', 'wb') as outfile:
+        with open('input.' + ext, 'wb') as outfile:
             outfile.write(content)
-
-        with zipfile.ZipFile('input.zip', 'r') as zip_ref:
-            zip_ref.extractall('input/')
     except Exception:
-        error = 'Unable to extract ZIP file'
+        error = 'Unable to Save file'
         return
 
     complete = 0.8
 
-    files = os.listdir('input/')
-    print(files)
-    if len(files) == 1:
-        file_path = 'input/' + files[0]
-    else:
-        error = 'ZIP file contains more than one file'
-
+    file_path = 'input.' + ext
     print(file_path)
     complete = 1.0
 
@@ -61,6 +51,7 @@ def process_zip(content):
 async def upload(file: UploadFile = File(...)):
     global complete, file_path, error, lc, userFileName
 
+    goodExts = ['lc', 'csv', 'ascii', 'hdf5']
     complete = 0.0
     file_path = ''
     userFileName = ''
@@ -70,9 +61,12 @@ async def upload(file: UploadFile = File(...)):
     os.system('rm -rf ../frontend/src/assets/*.jpg')
 
     userFileName = file.filename
+    ext = userFileName.split('.')[-1]
+    if ext not in goodExts:
+        return {'status': 422, 'message': 'File Format not supported. Must be ' + '/'.join(goodExts) + '.'}
     content = await file.read()
 
-    thread = Thread(target=process_zip, args=(content,))
+    thread = Thread(target=process_zip, args=(content, ext))
     thread.start()
 
     complete = 0.3
