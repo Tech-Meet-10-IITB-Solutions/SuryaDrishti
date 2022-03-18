@@ -1,8 +1,8 @@
-## Installation Procedure for AstroNetra
+## Installation Procedure for SuryaDrishti
 
 ### Dependencies
 
-AstroNetra depends on npm, node.js and Python3.8
+SuryaDrishti depends on npm, node.js and Python3.8
 
 npm and node.js can be installed with -
 
