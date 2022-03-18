@@ -66,8 +66,9 @@ async def upload(file: UploadFile = File(...)):
     userFileName = ''
     error = None
     lc = None
-    os.system('rm -rf input*')
-    os.system('rm -rf ../frontend/src/assets/*.jpg')
+    
+    # os.system('rm -rf input*')
+    # os.system('rm -rf ../frontend/src/assets/*.jpg')
 
     userFileName = file.filename
     content = await file.read()

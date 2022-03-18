@@ -2,8 +2,8 @@ import { Component, ElementRef, HostListener, Inject, Input, OnInit, QueryList, 
 import { MatOptionSelectionChange } from '@angular/material/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import beautify from 'json-beautify';
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
+// import jsPDF from 'jspdf'
+// import autoTable from 'jspdf-autotable'
 
 import { ActivatedRoute, Router } from '@angular/router';
 import * as FileSaver from 'file-saver';
@@ -133,12 +133,12 @@ export class ReportComponent implements OnInit {
       this.printing = false
   
     },2000)
-    const doc = new jsPDF()
-    autoTable(doc, { html: '#mainTable' })
+    // const doc = new jsPDF()
+    // autoTable(doc, { html: '#mainTable' })
     // doc.save(this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+'.pdf')
-    let data = this.bursts
-    let textdata = beautify(this.bursts, null, 2, 5);
-    textdata = textdata.split('},{').join('},\n{')
+    // let data = this.bursts
+    // let textdata = beautify(this.bursts, null, 2, 5);
+    // textdata = textdata.split('},{').join('},\n{')
     // let blob = new Blob([textdata]);
     // FileSaver.saveAs(blob, this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+".txt")
 
