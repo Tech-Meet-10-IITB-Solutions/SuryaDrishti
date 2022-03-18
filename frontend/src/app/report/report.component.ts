@@ -1,14 +1,8 @@
-import { Component, ElementRef, HostListener, Inject, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { MatOptionSelectionChange } from '@angular/material/core';
+import { Component, HostListener, Inject, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-// import beautify from 'json-beautify';
-// import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 
 import { ActivatedRoute, Router } from '@angular/router';
-import * as FileSaver from 'file-saver';
 import {
-  ChartComponent,
   ApexAxisChartSeries,
   ApexChart,
   ApexXAxis,
@@ -20,7 +14,7 @@ import {
 import { ServerService } from 'src/app/server.service';
 import { __values } from 'tslib';
 import { BurstTableComponent } from '../components/burst-table/burst-table.component';
-// import { LinescatterComponent } from '../components/linescatter/linescatter.component';
+
 export type ChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
@@ -50,8 +44,6 @@ export interface totalData {
   Rise: number
 }
 export interface statModelData {
-  // fit_data:point[],
-  // true_data:point[],
   plot_base64: string,
   is_detected: boolean,
   fit_params: statModelParams,
@@ -128,7 +120,6 @@ export class ReportComponent implements OnInit {
 
   saveData() {
     let btns = document.querySelectorAll('button')
-    // let tempmode = this.totalChartMode;
     this.printing = true;
     for (let i = 0; i < btns.length; i++) {
       btns.item(i).style.display = 'none';
@@ -136,28 +127,15 @@ export class ReportComponent implements OnInit {
     let tempwidth = this.innerWidth;
     this.innerWidth = 0.6 * tempwidth;
     this.updateTotalData()
-    // this.totalChartMode = 3
-    // this.updateTotalData()
 
     setTimeout(() => {
       window.print()
       for (let i = 0; i < btns.length; i++) {
         btns.item(i).style.display = '';
       }
-      // this.totalChartMode = tempmode;
-      // this.updateTotalData()
       this.printing = false
-      // this.innerWidth = tempwidth
 
     }, 3000)
-    // const doc = new jsPDF()
-    // autoTable(doc, { html: '#mainTable' })
-    // // doc.save(this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+'.pdf')
-    // let data = this.bursts
-    // let textdata = beautify(this.bursts, null, 2, 5);
-    // textdata = textdata.split('},{').join('},\n{')
-    // let blob = new Blob([textdata]);
-    // FileSaver.saveAs(blob, this.totalData.file_name.split('.').slice(0,-1).join('.')+'_BinSz_'+this.binSzValue.toString()+".txt")
 
   }
   trainModel() {
@@ -167,6 +145,7 @@ export class ReportComponent implements OnInit {
       else { return 1 }
     })
     this.server.trainModel(boolArray).subscribe(v => {
+      this.allowUnload = true;
       window.location.reload()
     })
   }
@@ -213,15 +192,6 @@ export class ReportComponent implements OnInit {
       }
     });
     dialogRef
-    // let tempPanels = this.expanels.toArray()
-    // const state:string = tempPanels[burstIndex]._getExpandedState()
-    // if(state==='expanded'){
-    //   tempPanels[burstIndex].close();
-    // }
-    // else{
-    //   //collapsed
-    //   tempPanels[burstIndex].open();
-    // }
   }
   cleanedData(data: Partial<burstRow>[]) {
     let cleaned = data.map((burst: Partial<burstRow>, j, []) => {
@@ -287,8 +257,7 @@ export class ReportComponent implements OnInit {
   public primaryColor: string = '#683ab7';
   @HostListener('window:beforeunload', ['$event'])
   unloadHandler(event: Event) {
-    // event.preventDefault()
-    if (!this.allowUnload && (!(localStorage.getItem('allowUnload')! === 'true'))) {
+    if (!this.allowUnload) {
       window.opener.location.reload();
     }
 
@@ -302,8 +271,6 @@ export class ReportComponent implements OnInit {
     map.set('peak_em', burst1.peak_em!)
     map.set('ml_conf', burst1.ml_conf!)
     map.set('class', -burst1.class?.charCodeAt(0)!)
-    // map.set('chisq-ns',burst1.ns?.fit_params?burst1.ns?.fit_params.ChiSq:Infinity)
-    // map.set('chisq-lm',burst1.lm?burst1.lm.fit_params.ChiSq:Infinity)
     return map;
   }
   sortBurstArray(key: string, tbk: string) {
@@ -331,7 +298,6 @@ export class ReportComponent implements OnInit {
     this.rejectedBursts = RBursts.map(v => this.bursts.indexOf(v));
   }
   getDate(moment: number) {
-    // getDate(totalData.start+1483228800)).join(' ')
     let date = new Date();
     date.setTime(moment * 1000)
     let parts = date.toISOString().split('T')
@@ -393,7 +359,6 @@ export class ReportComponent implements OnInit {
           }
         })
       };
-      // this.totalData.lc_data = this.totalData.lc_data.filter((pt, j, []) => (j % 5 === 0))
       this.totalData.chartSeries = [
         {
           name: 'Peaks',
@@ -410,7 +375,6 @@ export class ReportComponent implements OnInit {
       this.totalChartReady = true;
     })
     this.innerWidth = window.innerWidth;
-    // this.displayedColumns = ['max','maxAt','avg']
   }
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
