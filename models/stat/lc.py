@@ -119,6 +119,7 @@ class LC:
                 plt.title('Flare detected at {}s by N Sigma algorithm'.format(
                     int(flare['peak_time'])))
                 plt.legend()
+                plt.grid()
                 plt.savefig('{}/../../frontend/src/assets/ns_{}.jpg'.format(
                     stat_dir, int(flare['peak_time'])))
                 ns['plot_loc'] = 'ns_{}.jpg'.format(int(flare['peak_time']))
@@ -146,7 +147,9 @@ class LC:
                         'C': float(C),
                         'D': float(D),
                         'ChiSq': float(ChiSq),
-                        'Duration': float(dur)
+                        'Duration': float(dur),
+                        'Rise': flare['ns']['fit_params']['Rise'],
+                        'Decay': flare['ns']['fit_params']['Decay'],
                     }
                 else:
                     lm['fit_params'] = {
@@ -169,6 +172,7 @@ class LC:
                 plt.title('Flare detected at {}s by Local Maxima algorithm'.format(
                     int(flare['peak_time'])))
                 plt.legend()
+                plt.grid()
                 plt.savefig('{}/../../frontend/src/assets/lm_{}.jpg'.format(
                     stat_dir, int(flare['peak_time'])))
                 lm['plot_loc'] = 'lm_{}.jpg'.format(int(flare['peak_time']))
