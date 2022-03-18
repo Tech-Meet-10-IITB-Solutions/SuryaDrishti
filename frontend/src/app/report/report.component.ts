@@ -46,8 +46,8 @@ export interface totalData {
   ptlineData: point[],
   file_name: string,
   chartSeries: ApexAxisChartSeries,
-  Decay:number,
-  Rise:number
+  Decay: number,
+  Rise: number
 }
 export interface statModelData {
   // fit_data:point[],
@@ -68,7 +68,7 @@ export interface burstRow {
   lm: statModelData,
   ns: statModelData,
   class: string,
-  total_lrad:number
+  total_lrad: number
 }
 export interface point {
   x: number,
@@ -100,10 +100,10 @@ export class ReportComponent implements OnInit {
   printing: boolean = false;
 
   burstSelectionModes = [
-    {viewValue:'N-Sigma',value:0},
-    {viewValue:'Local Maxima',value:1},
-    {viewValue:'Intersection',value:2},
-    {viewValue:'Union',value:3},
+    { viewValue: 'N-Sigma', value: 0 },
+    { viewValue: 'Local Maxima', value: 1 },
+    { viewValue: 'N-Sigma ∩ Local Maxima', value: 2 },
+    { viewValue: 'N-Sigma ∪ Local Maxima', value: 3 },
   ]
   @HostListener('window:resize', ['$event'])
   OnResize(event: any) {
@@ -125,7 +125,7 @@ export class ReportComponent implements OnInit {
     return ''
   }
   totalData!: totalData;
-  
+
   saveData() {
     let btns = document.querySelectorAll('button')
     // let tempmode = this.totalChartMode;
@@ -243,7 +243,7 @@ export class ReportComponent implements OnInit {
           }
         }
       }
-      if (lm?.is_detected&&lm.fit_params.is_fit) {
+      if (lm?.is_detected && lm.fit_params.is_fit) {
         obj.lm = {
           ...lm,
           fit_params: {
@@ -277,14 +277,13 @@ export class ReportComponent implements OnInit {
   bursts: Partial<burstRow>[] = []
   mapChartOptions!: Function
   sortables = [
-    { viewValue: 'Peak Value', value: 'peak_rate' },
+    { viewValue: 'Peak Count Rate', value: 'peak_rate' },
     { viewValue: 'Peak Time', value: 'peak_time' },
     { viewValue: 'Peak Flux', value: 'peak_flux' },
     { viewValue: 'Peak Temp', value: 'peak_temp' },
-    { viewValue: 'Peak EM', value: 'peak_em' },
     { viewValue: 'Confidence', value: 'ml_conf' },
   ]
-  
+
   allowUnload: boolean = false;
   public accentColor: string = '#ffd640';
   public primaryColor: string = '#683ab7';
@@ -315,9 +314,13 @@ export class ReportComponent implements OnInit {
       let map2 = this.stringMap(burst2)
       let compval = (map1.get(key)! - map2.get(key)!)
       if (compval === 0) {
-        compval = (map1.get(tbk)! - map2.get(tbk)!)
+        compval = (map2.get(tbk)! - map1.get(tbk)!)
       }
-      return compval;
+      if (key === 'peak_time') {
+        return compval;
+      } else {
+        return -compval;
+      }
     })
   }
   sortBursts(value: string) {
@@ -340,7 +343,7 @@ export class ReportComponent implements OnInit {
     return parts.join(' ')
   }
   totalChartReady: boolean = false;
-  updateTotalData(value?:number) {
+  updateTotalData(value?: number) {
     this.totalChartReady = false;
     this.totalData = {
       ...this.totalData,
@@ -350,7 +353,7 @@ export class ReportComponent implements OnInit {
         burst.lm?.is_detected,
         burst.ns?.is_detected && burst.lm?.is_detected,
         burst.ns?.is_detected || burst.lm?.is_detected,
-      ][value?value:this.totalChartMode]).map(burst => { return { x: burst.peak_time, y: burst.peak_rate } as point; })
+      ][value ? value : this.totalChartMode]).map(burst => { return { x: burst.peak_time, y: burst.peak_rate } as point; })
     };
     this.totalData.chartSeries = [
       {

@@ -72,12 +72,13 @@
     <th mat-header-cell *matHeaderCellDef>Flare Characteristics</th>
     <td [style]="(areDeleted?'opacity: 0.4;':'')+'width:20%;'" mat-cell *matCellDef="let element">
       <div>
-        <p>Peak Value: {{element.peak_rate}} counts/s </p>
-        <p>Background Value: {{element.bg_rate}} counts/s </p>
+        <p>Peak Count Rate: {{element.peak_rate}} counts/s </p>
+        <p>Background Count Rate: {{element.bg_rate}} counts/s </p>
         <p>Soft X-Ray Classification: {{element.class}} </p>
         <p>Peak Temperature: {{(element.peak_temp*(1e6)).toPrecision(3)}} K </p>
         <p>Peak Flux: {{element.peak_flux.toPrecision(3)}} W/m<sup>2</sup> </p>
         <p>Peak EM: {{element.peak_em.toPrecision(3)}} cm<sup>3</sup> </p>
+        <p>Total Radiative Loss: {{element.total_lrad.toPrecision(3)}} ergs </p>
         <p>Confidence: {{element.ml_conf}} %</p>
       </div>
     </td>

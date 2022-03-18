@@ -13,7 +13,7 @@
       <h2 *ngIf="!printing">Flare Selection: 
       <mat-select *ngIf="!printing" (valueChange)="updateTotalData($event)"
       [(value)]="totalChartMode"
-      style="margin-left: 10px;width:200px;background-color: white;padding: 3px;border-radius: 5px;box-shadow: 5px 5px 10px grey">
+      style="margin-left: 10px;width:300px;background-color: white;padding: 3px;border-radius: 5px;box-shadow: 5px 5px 10px grey">
         <mat-option style="font-size: medium;" *ngFor="let bsm of burstSelectionModes" [value]="bsm.value">
           {{bsm.viewValue}}
         </mat-option>

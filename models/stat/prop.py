@@ -51,4 +51,4 @@ def calc_EM(flux):
 
 # In ergs
 def calc_lrad(flux):
-    return 10**34 + flux**0.9
+    return 10**34 * flux**0.9
