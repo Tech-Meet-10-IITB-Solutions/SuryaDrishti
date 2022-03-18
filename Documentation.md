@@ -20,7 +20,9 @@ In the case of solar flare data, we have a small dataset available. And even the
 
 The model utilizes a 3-layered neural network architecture. The architecture can be understood using the following graph: 
 
-![Image of Neural Network](/home/mehul/Desktop/InterIIT_ISRO/nn.png "Representation of neural network").
+![Image of Neural Network](/home/mehul/Desktop/InterIIT_ISRO/B76-ISRO-PS/nn.png "Representation of neural network").
+
+The input is a vector of length $3n + 3$. The input contains $n$ data points from binned data, n-sigma data and the local maxima data. It also contains $\ln(1 + \chi_{n\sigma}^{2})$ and $\ln(1 + \chi_{lm}^{2})$, where $\chi_{n\sigma}^{2}$ and $\chi_{lm}^{2}$ are the $\chi^{2}$ errors for the EFP fit using the n-sigma and local maxima algorithms. The last part of the input is the peak signal to noise ratio (SNR).
 
 The last layer of the neural network is initialized with all weights $= 0$ and the bias $= \lambda$, which we set manually to a high value (of the order of 100). This is done so that when no training has been performed, our model returns that every light curve being input into it is detected as a true light curve and not a false positive.
 
