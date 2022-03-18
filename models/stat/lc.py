@@ -4,6 +4,7 @@ import sys
 from astropy.io import fits
 from astropy.convolution import convolve, Box1DKernel
 from astropy.stats import sigma_clipped_stats as scs
+from astropy.table import Table
 
 import numpy as np
 
@@ -85,17 +86,22 @@ class LC:
                     D = flare['ns']['fit_params']['D']
                     ChiSq = flare['ns']['fit_params']['ChiSq'] if (flare['ns']['fit_params']['ChiSq']!= np.inf) else -1
                     dur = flare['ns']['fit_params']['Duration']
-                    ns['fit_params'] = {
-                        'is_fit': True,
-                        'A': float(A),
-                        'B': float(B),
-                        'C': float(C),
-                        'D': float(D),
-                        'ChiSq': float(ChiSq),
-                        'Duration': float(dur),
-                        'Rise': flare['ns']['fit_params']['Rise'],
-                        'Decay': flare['ns']['fit_params']['Decay'],
-                    }
+                    if ChiSq == np.inf:
+                        ns['fit_params'] = {
+                            'is_fit': False
+                        }
+                    else:
+                        ns['fit_params'] = {
+                            'is_fit': True,
+                            'A': float(A),
+                            'B': float(B),
+                            'C': float(C),
+                            'D': float(D),
+                            'ChiSq': float(ChiSq),
+                            'Duration': float(dur),
+                            'Rise': flare['ns']['fit_params']['Rise'],
+                            'Decay': flare['ns']['fit_params']['Decay'],
+                        }
                 else:
                     ns['fit_params'] = {
                         'is_fit': False
@@ -118,6 +124,7 @@ class LC:
                 plt.title('Flare detected at {}s by N Sigma algorithm'.format(
                     int(flare['peak_time'])))
                 plt.legend()
+                plt.grid()
                 plt.savefig('{}/../../frontend/src/assets/ns_{}.jpg'.format(
                     stat_dir, int(flare['peak_time'])))
                 ns['plot_loc'] = 'ns_{}.jpg'.format(int(flare['peak_time']))
@@ -138,15 +145,22 @@ class LC:
                     D = flare['lm']['fit_params']['D']
                     ChiSq = flare['lm']['fit_params']['ChiSq'] if (flare['lm']['fit_params']['ChiSq']!= np.inf) else -1
                     dur = flare['lm']['fit_params']['Duration']
-                    lm['fit_params'] = {
-                        'is_fit': True,
-                        'A': float(A),
-                        'B': float(B),
-                        'C': float(C),
-                        'D': float(D),
-                        'ChiSq': float(ChiSq),
-                        'Duration': float(dur)
-                    }
+                    if ChiSq == np.inf:
+                        lm['fit_params'] = {
+                            'is_fit': False
+                        }
+                    else:
+                        lm['fit_params'] = {
+                            'is_fit': True,
+                            'A': float(A),
+                            'B': float(B),
+                            'C': float(C),
+                            'D': float(D),
+                            'ChiSq': float(ChiSq),
+                            'Duration': float(dur),
+                            'Rise': flare['lm']['fit_params']['Rise'],
+                            'Decay': flare['lm']['fit_params']['Decay'],
+                        }
                 else:
                     lm['fit_params'] = {
                         'is_fit': False
@@ -168,6 +182,7 @@ class LC:
                 plt.title('Flare detected at {}s by Local Maxima algorithm'.format(
                     int(flare['peak_time'])))
                 plt.legend()
+                plt.grid()
                 plt.savefig('{}/../../frontend/src/assets/lm_{}.jpg'.format(
                     stat_dir, int(flare['peak_time'])))
                 lm['plot_loc'] = 'lm_{}.jpg'.format(int(flare['peak_time']))
@@ -194,10 +209,30 @@ class LC:
         return self.ml_data_list
 
     def load_lc(self, lc_path):
-        lc = fits.open(lc_path)
-        rates = lc[1].data['RATE']
-        time = lc[1].data['TIME']
-        return time, rates
+        filename, file_ext = os.path.splitext(lc_path)
+        if file_ext == '.lc':
+            lc = fits.open(lc_path)
+            rates = lc[1].data['RATE']
+            time = lc[1].data['TIME']
+            return time, rates
+
+        elif file_ext == '.ascii':
+            t = Table.read(lc_path, format='ascii')
+            rates = t['RATE']
+            time = t['TIME']
+            return time, rates
+
+        elif file_ext == '.csv':
+            t = Table.read(lc_path, format='ascii.csv')
+            rates = t['RATE']
+            time = t['TIME']
+            return time, rates
+
+        elif file_ext == '.hdf5':
+            t = Table.read(lc_path)
+            rates = t['RATE']
+            time = t['TIME']
+            return time, rates
 
     def smoothen(self, time, rates, box_bin, kernel_size):
         box_time, box_count = np.array([]), np.array([])
