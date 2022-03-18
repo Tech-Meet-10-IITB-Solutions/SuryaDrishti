@@ -86,17 +86,22 @@ class LC:
                     D = flare['ns']['fit_params']['D']
                     ChiSq = flare['ns']['fit_params']['ChiSq']
                     dur = flare['ns']['fit_params']['Duration']
-                    ns['fit_params'] = {
-                        'is_fit': True,
-                        'A': float(A),
-                        'B': float(B),
-                        'C': float(C),
-                        'D': float(D),
-                        'ChiSq': float(ChiSq),
-                        'Duration': float(dur),
-                        'Rise': flare['ns']['fit_params']['Rise'],
-                        'Decay': flare['ns']['fit_params']['Decay'],
-                    }
+                    if ChiSq == np.inf:
+                        ns['fit_params'] = {
+                            'is_fit': False
+                        }
+                    else:
+                        ns['fit_params'] = {
+                            'is_fit': True,
+                            'A': float(A),
+                            'B': float(B),
+                            'C': float(C),
+                            'D': float(D),
+                            'ChiSq': float(ChiSq),
+                            'Duration': float(dur),
+                            'Rise': flare['ns']['fit_params']['Rise'],
+                            'Decay': flare['ns']['fit_params']['Decay'],
+                        }
                 else:
                     ns['fit_params'] = {
                         'is_fit': False
@@ -140,17 +145,22 @@ class LC:
                     D = flare['lm']['fit_params']['D']
                     ChiSq = flare['lm']['fit_params']['ChiSq']
                     dur = flare['lm']['fit_params']['Duration']
-                    lm['fit_params'] = {
-                        'is_fit': True,
-                        'A': float(A),
-                        'B': float(B),
-                        'C': float(C),
-                        'D': float(D),
-                        'ChiSq': float(ChiSq),
-                        'Duration': float(dur),
-                        'Rise': flare['ns']['fit_params']['Rise'],
-                        'Decay': flare['ns']['fit_params']['Decay'],
-                    }
+                    if ChiSq == np.inf:
+                        lm['fit_params'] = {
+                            'is_fit': False
+                        }
+                    else:
+                        lm['fit_params'] = {
+                            'is_fit': True,
+                            'A': float(A),
+                            'B': float(B),
+                            'C': float(C),
+                            'D': float(D),
+                            'ChiSq': float(ChiSq),
+                            'Duration': float(dur),
+                            'Rise': flare['lm']['fit_params']['Rise'],
+                            'Decay': flare['lm']['fit_params']['Decay'],
+                        }
                 else:
                     lm['fit_params'] = {
                         'is_fit': False
