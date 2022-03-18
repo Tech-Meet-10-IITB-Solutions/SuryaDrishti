@@ -64,7 +64,8 @@ async def upload(file: UploadFile = File(...)):
     userFileName = file.filename
     ext = userFileName.split('.')[-1]
     if ext not in goodExts:
-        return {'status': 422, 'error': 'File Format not supported. Must be ' + '/'.join(goodExts) + '.'}
+        return {'status': 422,
+                'error': 'File Format not supported. Must be {}.'.format('/'.join(goodExts))}
     content = await file.read()
 
     thread = Thread(target=process_zip, args=(content, ext))
