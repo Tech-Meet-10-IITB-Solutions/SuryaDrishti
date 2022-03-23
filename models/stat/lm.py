@@ -68,21 +68,30 @@ def local_maxima(time, rates, raw_len):
     cut, fit, sig = bk_avg(time, cts)
 
     def find_end(rates, mean):
+        if (~np.isnan(rates)).sum() == 0:
+            return 0
         if len(np.where(rates < mean + 0.25 * sig)[0]) != 0:
             end_time = np.where(rates < mean + 0.25 * sig)[0][0]
         else:
-            end_time = np.argmin(rates)
+            end_time = np.nanargmin(rates)
         return end_time
 
     end_flags = []
 
+    remove_flags = []
     for i in range(len(peak_flags)):
         if i != len(peak_flags) - 1:
-            end_flags.append(peak_flags[i] + find_end(rates[peak_flags[i]:new_st_flags[i + 1]],
-                                                      fit[peak_flags[i]:new_st_flags[i + 1]]))
+            temp = find_end(rates[peak_flags[i]:new_st_flags[i + 1]],
+                            fit[peak_flags[i]:new_st_flags[i + 1]])
+            if temp == 0:
+                remove_flags.append(i)
+                continue
+            end_flags.append(peak_flags[i] + temp)
         else:
             end_flags.append(peak_flags[i] + find_end(rates[peak_flags[i]:],
                                                       fit[peak_flags[i]:]))
+
+    peak_flags = np.delete(peak_flags, remove_flags)
 
     t_arr = []
     for i in range(len(end_flags)):
