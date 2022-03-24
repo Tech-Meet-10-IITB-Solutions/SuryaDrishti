@@ -201,12 +201,12 @@ def n_sigma_main(filename, n, t_bin, t_bin_new):
     #print(flare_arr)
     plt.figure(0)
     plt.plot(time,rates, alpha = 0.7)
-    plt.scatter(time_new[flags], rates_new[flags], color = 'r')
+    plt.scatter(time_new[flags], rates_new[flags], color = 'r', s=4.5**2, label = "Burst")
     plt.axhline(mean+n*sigma,linestyle='--', color='r', label = '$\mu+{}\sigma$'.format(n))
     plt.axhline(mean, linestyle = '--', color='g', label = '$\mu$')
     plt.xlabel("Time (s)")
     plt.ylabel("Count rate (counts/s)")
-    
+    t_peak_arr = []
     t_start_arr = []
     t_end_arr = []
     for i in range(len(t_arr)):
@@ -217,6 +217,7 @@ def n_sigma_main(filename, n, t_bin, t_bin_new):
         t2, fit2, time_burst_norm, rates_burst_norm, t_start, t_end, t_max = fit_efp_norm(time_burst, rates_burst, sigma)
         t_start_arr.append(t_arr[i][0])
         t_end_arr.append(t_arr[i][1])
+        t_peak_arr.append(t_max)
         plt.plot(t2, fit2, alpha=0.75)
         #plt.scatter(time_burst_norm, rates_burst_norm)
         plt.xlabel("Time (s)")
@@ -231,6 +232,7 @@ def n_sigma_main(filename, n, t_bin, t_bin_new):
     plt.figure(0)
     plt.vlines(t_start_arr, min(rates), max(rates), color = 'b', linestyle = '--', label = "Start time")
     plt.vlines(t_end_arr, min(rates), max(rates), color = 'k', linestyle = '--', label = 'End time')
+    plt.vlines(t_peak_arr, min(rates), max(rates), color = 'r', linestyle = '-.', label = 'Peak time')
     plt.legend()
     plt.savefig("n_sigma_start_stop.png")
     plt.show() 
@@ -274,4 +276,4 @@ def fit_efp_norm(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
     t_end = t_arr[-1]
     t_max = t_long[np.argmax(EFP(t_long, *popt))]
     return t_long, fit_long, time_burst, rates_burst, t_start, t_end, t_max
-n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20210923_v1_level2.lc', 3, 1.0, 100.0)
+n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20210923_v1_level2.lc', 3, 1.0, 200.0)
