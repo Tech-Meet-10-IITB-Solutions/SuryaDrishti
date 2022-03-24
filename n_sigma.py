@@ -202,23 +202,36 @@ def n_sigma_main(filename, n, t_bin, t_bin_new):
     plt.figure(0)
     plt.plot(time,rates, alpha = 0.7)
     plt.scatter(time_new[flags], rates_new[flags], color = 'r')
-    plt.axhline(mean+n*sigma,linestyle='--', color='r')
-    plt.axhline(mean, linestyle = '--', color='g')
+    plt.axhline(mean+n*sigma,linestyle='--', color='r', label = '$\mu+{}\sigma$'.format(n))
+    plt.axhline(mean, linestyle = '--', color='g', label = '$\mu$')
+    plt.xlabel("Time (s)")
+    plt.ylabel("Count rate (counts/s)")
+    
+    t_start_arr = []
+    t_end_arr = []
     for i in range(len(t_arr)):
         plt.figure(0)
-        plt.axvline(t_arr[i][0], color = 'b', linestyle = '--')
-        plt.axvline(t_arr[i][1], color = 'k', linestyle = '--')
         plt.figure(i+1)
         time_burst = time_new[(time_new >= t_arr[i][0]) & (time_new <= t_arr[i][1])]
         rates_burst = rates_new[(time_new >= t_arr[i][0]) & (time_new <= t_arr[i][1])]
         t2, fit2, time_burst_norm, rates_burst_norm, t_start, t_end, t_max = fit_efp_norm(time_burst, rates_burst, sigma)
-        plt.plot(t2, fit2)
+        t_start_arr.append(t_arr[i][0])
+        t_end_arr.append(t_arr[i][1])
+        plt.plot(t2, fit2, alpha=0.75)
         #plt.scatter(time_burst_norm, rates_burst_norm)
-        plt.scatter(time_burst_norm, rates_burst_norm)
-        plt.axvline(t_start, linestyle='--', color='b')
-        plt.axvline(t_end, linestyle='--', color='k')
-        plt.axvline(t_max, linestyle='--', color='r')
+        plt.xlabel("Time (s)")
+        plt.ylabel("Count rate (counts/s)")
+        plt.axhline(mean+n*sigma,linestyle='--', label = '$\mu+{}\sigma$'.format(n))
+        plt.axhline(mean, linestyle = '--', color='g', label='Mean')
+        plt.scatter(time_burst_norm, rates_burst_norm, color = 'r', label = 'Burst')
+        plt.axvline(t_start, linestyle='--', color='b', label = 'Start time')
+        plt.axvline(t_end, linestyle='--', color='k', label = 'End time')
+        plt.axvline(t_max, linestyle='--', color='r', label = 'Peak time')
+        plt.legend()
     plt.figure(0)
+    plt.vlines(t_start_arr, min(rates), max(rates), color = 'b', linestyle = '--', label = "Start time")
+    plt.vlines(t_end_arr, min(rates), max(rates), color = 'k', linestyle = '--', label = 'End time')
+    plt.legend()
     plt.savefig("n_sigma_start_stop.png")
     plt.show() 
     # need to return start time, end time for flares
@@ -231,7 +244,7 @@ def fit_efp_norm(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
     rates_burst = rates[valid]
     t2 = np.linspace(time_burst[0], time_burst[-1], len(time_burst)*100)
     dur = time_burst[-1] - time_burst[0]
-    t_long = np.linspace(time_burst[0]-5*dur, time_burst[-1]+5*dur, len(time_burst)*1100)
+    t_long = np.linspace(time_burst[0]-1*dur, time_burst[-1]+1*dur, len(time_burst)*300)
     A0 *= (max(rates_burst))**(1/2)
     B0 *= time_burst[np.argmax(rates_burst)]
     C0 *= (max(rates_burst))**(1/2)
@@ -261,4 +274,4 @@ def fit_efp_norm(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
     t_end = t_arr[-1]
     t_max = t_long[np.argmax(EFP(t_long, *popt))]
     return t_long, fit_long, time_burst, rates_burst, t_start, t_end, t_max
-n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20211111_v1_level2.lc', 3, 1.0, 100.0)
+n_sigma_main('/media/pranav/page/Laptop data/Coursework/Semester 8/InterIIT/Extracted lightcurve/ch2_xsm_20210923_v1_level2.lc', 3, 1.0, 100.0)
