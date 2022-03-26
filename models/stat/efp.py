@@ -4,6 +4,8 @@ from scipy.optimize import curve_fit
 from scipy.special import erf
 from scipy.stats import chisquare
 
+from matplotlib import pyplot as plt
+
 
 def EFP(x, A, B, C, D):
     Z = (2 * B + C**2 * D) / (2 * C)
@@ -64,6 +66,24 @@ def fit_efp(time, rates, sigma, A0=1, B0=1, C0=1, D0=0.1):
         duration = round(t_arr[-1] - t_arr[0])
         rise = round(t_max - t_arr[0])
         decay = round(t_arr[-1] - t_max)
+
+    # fit_time = np.linspace(t_arr[0], t_arr[-1], len(time_burst) * 100)
+    # plt.figure(figsize=(12, 8))
+    # plt.plot(time_burst, rates_burst, 'o', label='Processed data', c='b')
+    # plt.plot(fit_time, EFP(fit_time, *popt), '-', label='EFP Fit', c='orange')
+    # plt.plot(fit_time, np.ones_like(fit_time) * sigma, '--', label='Sigma={}'.format(round(sigma, 2)), c='g')
+    # plt.scatter(t_arr, np.ones_like(t_arr) * sigma, c='r')
+    # plt.scatter(t_max, EFP(t_max, *popt), c='r')
+    # plt.text(t_arr[0] - 100, sigma + 350, 'Start', c='k', size=14)
+    # plt.text(t_arr[-1] - 100, sigma + 350, 'End', c='k', size=14)
+    # plt.text(t_max - 100, EFP(t_max, *popt) - 1000, 'Peak', c='k', size=14)
+    # plt.xlabel('Time (s)', size=14)
+    # plt.ylabel('Photon Count rate', size=14)
+    # plt.title('EFP Fit', size=16)
+    # plt.legend()
+    # plt.grid()
+    # plt.show()
+    # sys.exit(0)
 
     return {
         'is_fit': True,

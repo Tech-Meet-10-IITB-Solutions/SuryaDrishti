@@ -473,9 +473,37 @@ class LC:
 
 
 if __name__ == '__main__':
-    lc = LC('../../../ch2_xsm_20211013_v1_level2.lc', 200)
+    lc = LC('../../data/ch2_xsm_20211111_v1_level2.lc', 50)
 
-    print(lc.raw_time.shape, lc.processed_lc.shape)
+    plt.figure(figsize=(10, 10))
+    plt.scatter(lc.raw_time - lc.raw_time[0], lc.raw_rates, s=0.05)
+    plt.xlim((10000, 20000))
+    plt.ylim((200, 900))
+    plt.xlabel('Time (s)', fontsize=14)
+    plt.ylabel('Photon Count rate', fontsize=14)
+    plt.title('Raw Light Curve for 11-11-2021', fontsize=16)
+    plt.legend()
+    plt.grid()
+    plt.savefig('20211111_raw_lc.png')
+    plt.show()
+
+    # flares = lc.get_flares()
+    # peak_time = flares[0]['peak_time']
+    # peak_rate = flares[0]['peak_rate']
+    # plt.figure(figsize=(10, 10))
+    # plt.plot(lc.processed_lc[0], lc.processed_lc[1])
+    # plt.scatter(peak_time, peak_rate, c='r', s=50)
+    # plt.xlim((10000, 20000))
+    # plt.ylim((200, 900))
+    # plt.xlabel('Time (s)', fontsize=14)
+    # plt.ylabel('Photon Count rate', fontsize=14)
+    # plt.title('Processed Light Curve for 11-11-2021', fontsize=16)
+    # # plt.legend()
+    # plt.grid()
+    # plt.savefig('20211111_pro_lc.png')
+    # plt.show()
+
+    # print(lc.raw_time.shape, lc.processed_lc.shape)
     # plt.plot(lc.sm_time, lc.sm_rates)
     # plt.scatter(lc.sm_time, lc.sm_rates, s=0.01)
     # plt.plot(lc.bin_time, lc.bin_rates)
@@ -487,8 +515,11 @@ if __name__ == '__main__':
     # plt.show()
 
     # print(lc.flares[-1])
-    print(lc.get_flares()[-1].keys())
-    print(lc.get_lc().keys())
-    print(len(lc.flares))
-    for flare in lc.flares:
-        print(flare['ns'])
+    # print(lc.get_flares()[-1].keys())
+    # print(lc.get_lc().keys())
+    # print(len(lc.flares))
+    # for flare in lc.flares:
+    #     print(flare['ns'])
+
+    # flare = lc.flares[0]
+    # print(flare['ns'])
