@@ -55,4 +55,4 @@ localhost:4200
 
 ## Documentation
 
-Documentation is present in the [```Docs/```](./Docs) folder and the home page is ```Docs/Documentation.html```.
+Documentation is present in the [```Docs/```](./Docs) folder and the home page is [```Docs/Documentation.html```](./Docs/Documentation.html).
