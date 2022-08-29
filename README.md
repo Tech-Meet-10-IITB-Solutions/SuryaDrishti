@@ -56,3 +56,5 @@ localhost:4200
 ## Documentation
 
 Documentation is present in the [```Docs/```](./Docs) folder and the home page is [```Docs/Documentation.html```](./Docs/Documentation.html).
+
+*Contributors:* Devansh Jain (team leader), Aravind Bharathi (team leader), Pranav Page, Mehul Vijay, Aswin Suresh, A
